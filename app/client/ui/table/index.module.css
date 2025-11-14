@@ -1,0 +1,642 @@
+/* Bố cục chính */
+.container {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-primary);
+    border: thin solid var(--border-color);
+    border-radius: 5px;
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+}
+
+.tableWrapper {
+    flex: 1;
+    height: calc(100% - 60px);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    z-index: 2;
+    display: flex;
+    padding-right: 5px;
+}
+
+.header>div {
+    flex: 1
+}
+
+.header>div:nth-child(1),
+.header>div:nth-child(2) {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.header.manageRow>div:nth-child(2) {
+    justify-content: flex-start !important;
+    flex: 1 !important;
+}
+
+.th {
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+}
+
+.row {
+    display: flex;
+    cursor: pointer;
+}
+
+.row>div {
+    flex: 1
+}
+
+.row>div:nth-child(1),
+.row>div:nth-child(2) {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.row.manageRow>div:nth-child(2) {
+    flex: 1 !important;
+    justify-content: flex-start !important;
+}
+
+.row:hover {
+    background-color: var(--hover);
+}
+
+.td {
+    padding: 12px 15px;
+    text-align: left;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.fixedColumn {
+    width: 60px;
+    /* Cố định độ rộng cho cột STT và checkbox */
+    min-width: 60px;
+    text-align: center;
+}
+
+/* Checkbox tùy chỉnh */
+.checkboxContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+    height: 16px;
+}
+
+.checkboxContainer input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    height: 16px;
+    width: 16px;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.checkboxContainer:hover input~.checkmark {
+    background-color: var(--hover);
+}
+
+.checkboxContainer input:checked~.checkmark {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.checkboxContainer input:checked~.checkmark:after {
+    display: block;
+}
+
+.checkboxContainer .checkmark:after {
+    left: 6px;
+    top: 2px;
+    width: 3px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+}
+
+/* Lớp phủ loading */
+.loadingOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+    z-index: 10;
+}
+
+/* Phần chân điều khiển */
+.controlsFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-top: 1px solid var(--border-color);
+    background-color: var(--bg-primary);
+    flex-shrink: 0;
+}
+
+.footerLeft,
+.footerRight {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.paginationControls {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.navButton,
+.pageButton {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    min-width: 40px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    color: var(--text-primary);
+}
+
+.navButton:disabled,
+.pageButton:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    background-color: var(--hover);
+}
+
+.settingsWrapper {
+    position: relative;
+}
+
+.settingsButton {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+.settingsPopover {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    z-index: 20;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+.popoverLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.popoverLabel input:disabled {
+    cursor: not-allowed;
+}
+
+
+/* Row */
+
+.tabContainer {
+    display: flex;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 16px;
+}
+
+.tabButton {
+    padding: 10px 16px;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    color: #888;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease-in-out;
+}
+
+.tabButton:hover {
+    color: #333;
+}
+
+.tabButton.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+}
+
+.tabContent {
+    padding: 8px;
+}
+
+
+/* --- Trial List (Danh sách học thử) --- */
+.trialList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.trialItem {
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.trialItem h6 {
+    font-weight: 600;
+}
+
+.trialItem p {
+    margin: 4px 0 0;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+/* --- Conversion Actions (Khu vực chuyển đổi) --- */
+.conversionActions {
+    padding: 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.conversionActions p {
+    margin: 0;
+    max-width: 80%;
+}
+
+.actionButtons {
+    display: flex;
+    gap: 12px;
+}
+
+.confirmButton,
+.cancelButton {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.confirmButton {
+    background-color: #28a745;
+    color: white;
+}
+
+.confirmButton:hover {
+    background-color: #218838;
+}
+
+.cancelButton {
+    background-color: #dc3545;
+    color: white;
+}
+
+.cancelButton:hover {
+    background-color: #c82333;
+}
+
+.noteItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 0;
+}
+
+.notesList {
+    height: max-content;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 16px 0;
+}
+
+.historywrap {
+    height: 100%;
+}
+
+.noteContent {
+    flex: 1;
+    padding: 8px;
+    border-radius: 5px;
+    background-color: var(--bg-btn);
+}
+
+.noteForm {
+    display: flex;
+    gap: 8px;
+    border-top: thin solid var(--border-color);
+    padding: 8px 0;
+    align-items: flex-start;
+}
+
+.wrapDetail {
+    border-bottom: thin solid var(--border-color);
+    padding: 16px;
+}
+
+.formGroup {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: thin solid var(--border-color);
+}
+
+.wrapDetail>div>.formGroup:nth-last-child(1) {
+    border-bottom: none;
+}
+
+.actionsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding-top: 16px;
+}
+
+.actionItem {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+    border: thin solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    background-color: var(--background-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    border-radius: 5px;
+}
+
+.actionItem:hover {
+    border-color: var(--hover);
+    background-color: var(--hover);
+}
+
+.actionItemButton {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    cursor: pointer;
+
+}
+
+
+
+.mainform {
+    padding: 16px;
+    flex: 1;
+    overflow: hidden;
+    overflow-y: auto;
+}
+
+.updateForm {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.inputGroup label {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+}
+
+.formActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+    .actionsGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.appointmentForm {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    /* Khoảng cách giữa các nhóm input */
+    width: 100%;
+}
+
+/* Nhóm cho từng input để dễ quản lý */
+.formInputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    /* Khoảng cách nhỏ nếu bạn muốn thêm <label> sau này */
+    width: 100%;
+}
+
+/* Container cho nút bấm, đẩy nút sang bên phải */
+.formActionContainer {
+    display: flex;
+    justify-content: flex-end;
+    /* Đẩy nút về phía cuối (bên phải) */
+    margin-top: 8px;
+    /* Thêm một chút khoảng cách phía trên nút */
+}
+
+/* =========================================== */
+/* CSS CHO COMPONENT QUẢN LÝ LỊCH HẸN (MỚI)    */
+/* =========================================== */
+
+/* Container chính bao bọc toàn bộ khu vực quản lý */
+.appointmentManager {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    /* Khoảng cách giữa khu vực "Tạo mới" và "Danh sách" */
+}
+
+/* Kiểu chung cho mỗi khu vực (section) */
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ------------------------------------------- */
+/* 1. CSS CHO FORM TẠO LỊCH HẸN                */
+/* ------------------------------------------- */
+
+/* Container chính của form, sắp xếp các phần tử theo chiều dọc */
+.appointmentForm {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    /* Khoảng cách giữa các nhóm input */
+    width: 100%;
+}
+
+/* Nhóm cho từng input để dễ quản lý */
+.formInputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    /* Khoảng cách nhỏ nếu bạn muốn thêm <label> sau này */
+    width: 100%;
+}
+
+/* Container cho nút bấm, đẩy nút sang bên phải */
+.formActionContainer {
+    display: flex;
+    justify-content: flex-end;
+    /* Đẩy nút về phía cuối (bên phải) */
+    margin-top: 8px;
+    /* Thêm một chút khoảng cách phía trên nút */
+}
+
+
+/* ------------------------------------------- */
+/* 2. CSS CHO DANH SÁCH LỊCH HẸN               */
+/* ------------------------------------------- */
+
+/* Container cho danh sách lịch hẹn, có thanh cuộn nếu quá dài */
+.appointmentList {
+    max-height: 400px;
+    /* Giới hạn chiều cao */
+    overflow-y: auto;
+    /* Thêm thanh cuộn dọc khi cần */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-right: 8px;
+    /* Thêm khoảng trống để thanh cuộn không che nội dung */
+}
+
+/* Kiểu cho từng mục (item) trong danh sách */
+.appointmentItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-radius: 6px;
+    background-color: var(--bg-primary);
+    /* Màu nền nhẹ */
+    border: 1px solid var(--border-color);
+}
+
+/* Phần chứa thông tin chính của lịch hẹn */
+.appointmentInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Phần chứa các nút hành động (Hoàn thành, Vắng mặt, Hủy) */
+.appointmentActions {
+    display: flex;
+    gap: 8px;
+}
+
+/* CSS cho các nút nhỏ trong danh sách lịch hẹn */
+/* Giả định bạn đã có các class này hoặc có thể tạo mới */
+.appointmentActions .btn-small-success,
+.appointmentActions .btn-small-warning,
+.appointmentActions .btn-small-danger {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: var(--font-size-xxs);
+    color: white;
+}
+
+.appointmentActions .btn-small-success {
+    background-color: var(--green);
+}
+
+.appointmentActions .btn-small-warning {
+    background-color: var(--yellow);
+}
+
+.appointmentActions .btn-small-danger {
+    background-color: var(--red);
+}

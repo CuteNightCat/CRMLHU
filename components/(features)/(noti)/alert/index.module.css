@@ -1,0 +1,102 @@
+.backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0s 0.3s;
+}
+
+.popup {
+    position: relative;
+    background-color: var(--bg-primary);
+    width: 100%;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.backdrop.open {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+}
+
+.popup.open {
+    transform: translateY(0);
+}
+
+.indicator {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 32px;
+}
+
+.icon {
+    font-size: 20px;
+    line-height: 1;
+}
+
+
+.content {
+    padding: 0 32px;
+}
+
+.actions {
+    margin-top: 16px;
+    padding: 12px 32px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.popup.info .indicator,
+.popup.info .icon {
+    color: var(--main_b, #007bff);
+}
+
+.popup.success .indicator,
+.popup.success .icon {
+    color: var(--green, #28a745);
+}
+
+.popup.error .indicator,
+.popup.error .icon {
+    color: var(--red, #dc3545);
+}
+
+.popup.warning .indicator,
+.popup.warning .icon {
+    color: var(--yellow, #ffc107);
+}
+
+.popup.info .indicator {
+    background-color: var(--main_b, #007bff);
+}
+
+.popup.success .indicator {
+    background-color: var(--green, #28a745);
+}
+
+.popup.error .indicator {
+    background-color: var(--red, #dc3545);
+}
+
+.popup.warning .indicator {
+    background-color: var(--yellow, #ffc107);
+}

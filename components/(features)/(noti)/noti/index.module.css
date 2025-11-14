@@ -1,0 +1,148 @@
+.icon-success {
+    position: relative;
+    width: 58px;
+    height: 58px;
+    margin: 20px;
+}
+
+.circle-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 58px;
+    height: 58px;
+    transform: rotate(90deg);
+}
+
+.circle-path {
+    stroke-dasharray: 157;
+    stroke-dashoffset: 157;
+    animation: draw-circle 0.8s ease forwards;
+}
+
+@keyframes draw-circle {
+    0% {
+        stroke-dashoffset: 157;
+    }
+
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+.check-mark {
+    position: absolute;
+    height: 6px;
+    background-color: var(--green);
+    border-radius: 3px;
+    transform-origin: left center;
+}
+
+.check-mark.first {
+    width: 15px;
+    top: 25px;
+    left: 18px;
+    transform: rotate(45deg) scaleX(0);
+    animation: draw-line1 0.3s .4s forwards ease-in-out;
+}
+
+.check-mark.second {
+    width: 25px;
+    top: 35px;
+    left: 25px;
+    transform: rotate(-45deg) scaleX(0);
+    animation: draw-line2 0.3s .6s forwards ease-in-out;
+}
+
+@keyframes draw-line1 {
+    from {
+        transform: rotate(45deg) scaleX(0);
+    }
+
+    to {
+        transform: rotate(45deg) scaleX(1);
+    }
+}
+
+@keyframes draw-line2 {
+    from {
+        transform: rotate(-45deg) scaleX(0);
+    }
+
+    to {
+        transform: rotate(-45deg) scaleX(1);
+    }
+}
+
+.icon-failure {
+    position: relative;
+    width: 58px;
+    height: 58px;
+    margin: 20px;
+}
+
+.circle-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 58px;
+    height: 58px;
+    transform: rotate(90deg);
+}
+
+.circle-path {
+    stroke-dasharray: 157;
+    stroke-dashoffset: 157;
+    animation: draw-circle 0.8s ease forwards;
+}
+
+@keyframes draw-circle {
+    0% {
+        stroke-dashoffset: 157;
+    }
+
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+.cross-line {
+    position: absolute;
+    width: 30px;
+    height: 6px;
+    background-color: var(--red);
+    border-radius: 3px;
+    top: 26px;
+    left: 14px;
+    transform-origin: center;
+}
+
+.cross-line.first {
+    transform: rotate(45deg) scaleX(0);
+    animation: draw-line1-cross 0.4s forwards ease-in-out;
+}
+
+@keyframes draw-line1-cross {
+    from {
+        transform: rotate(45deg) scaleX(0);
+    }
+
+    to {
+        transform: rotate(45deg) scaleX(1);
+    }
+}
+
+.cross-line.second {
+    transform: rotate(-45deg) scaleX(0);
+    animation: draw-line2-cross 0.4s 0.2s forwards ease-in-out;
+}
+
+@keyframes draw-line2-cross {
+    from {
+        transform: rotate(-45deg) scaleX(0);
+    }
+
+    to {
+        transform: rotate(-45deg) scaleX(1);
+    }
+}

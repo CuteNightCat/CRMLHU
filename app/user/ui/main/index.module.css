@@ -1,0 +1,162 @@
+.filterSection {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    background: #ffffff;
+    border-radius: 5px;
+    border: thin solid var(--border-color);
+}
+
+.list_menu {
+    width: 100%;
+    border-radius: 6px;
+    background: var(--bg-primary);
+    margin-top: 8px;
+    box-shadow: var(--boxshaw2);
+    max-height: 350px;
+    overflow: auto;
+    padding: 8px;
+
+}
+
+.roleItem {
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.addTeacherForm {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.addTeacherForm>div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px
+}
+
+.formActions {
+    display: flex;
+    flex-direction: row !important;
+}
+
+.roleItem:hover {
+    background: var(--hover);
+}
+
+.filterSelect {
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #fff;
+    cursor: pointer;
+    min-width: 150px;
+}
+
+.teacherGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.teacherBox {
+    cursor: pointer;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.teacherBox:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.teacherInfo {
+    padding: 1rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.name {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    color: #333;
+}
+
+.infoLine {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.infoLine strong {
+    color: #444;
+}
+
+.roles {
+    margin-top: auto;
+    /* Đẩy tag vai trò xuống cuối box */
+    padding-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.roleTag {
+    background-color: #e7f3ff;
+    color: #0063e6;
+    padding: 0.25rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+
+.noResults {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #888;
+    margin-top: 3rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .teacherGrid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .teacherGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .filterSection {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+@media (max-width: 480px) {
+    .teacherGrid {
+        grid-template-columns: 1fr;
+    }
+}

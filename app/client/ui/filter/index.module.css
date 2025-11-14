@@ -1,0 +1,62 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 5px;
+    border: thin solid var(--border-color);
+    background-color: var(--bg-primary);
+}
+
+.filterRow {
+    display: flex;
+    gap: 8px;
+}
+
+.typeToggle {
+    display: flex;
+    background-color: var(--bg-primary);
+    border-radius: 5px;
+    padding: 5.2px;
+    border: 1px solid var(--border-color);
+}
+
+.typeToggle button {
+    border: none;
+    background-color: transparent;
+    padding: 6px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    color: var(--text-primary);
+}
+
+
+.typeToggle button.active {
+    background-color: var(--border-color);
+    color: var(--text-primary) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+
+.menulist {
+    padding: 8px;
+    margin-top: 3px;
+    border-radius: 5px;
+    background: var(--bg-primary);
+    border: thin solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    max-height: 300px;
+}
+
+.menulist p {
+    padding: 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: var(--bg-primary);
+}
+
+.menulist p:hover {
+    background-color: var(--hover);
+}

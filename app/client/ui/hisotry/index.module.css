@@ -1,0 +1,220 @@
+/* =================================
+    Main Button & General Styles
+==================================== */
+.separator {
+    width: 1px;
+    height: 12px;
+    background-color: #e0e0e0;
+}
+
+.popupList {
+    display: flex;
+    flex-direction: column;
+}
+
+.loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+/* =================================
+    Filter & Control Panel
+==================================== */
+.popupControls {
+    padding: 12px;
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.toggleContainer {
+    display: flex;
+    background-color: var(--background-input);
+    border-radius: 5px;
+    padding: 4px;
+    border: 1px solid var(--border-color);
+    white-space: nowrap;
+    width: 200px;
+}
+
+.toggleOption {
+    flex: 1;
+    padding: 6px 10px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    border-radius: 3px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-align: center;
+    transition: all 0.2s ease-in-out;
+}
+
+.toggleActive {
+    background-color: var(--border-color);
+    color: var(--text-primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* =================================
+    Job & Task Item Styles
+==================================== */
+.detailItem {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.detailHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.progressInfo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.timer {
+    font-style: italic;
+    color: var(--text-secondary);
+}
+
+.progressBar {
+    width: 100%;
+    height: 6px;
+    background-color: var(--hover);
+    border-radius: 3px;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+}
+
+.jobMetaGrid {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.messageContent {
+    margin-top: 12px;
+}
+
+
+.detailActions {
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+}
+
+.noJobsText {
+    text-align: center;
+    padding: 32px;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* =================================
+    Secondary Popup (Task List)
+==================================== */
+.filterControls {
+    display: flex;
+    gap: 4px;
+    padding: 8px 16px;
+    background-color: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.filterControls button {
+    background: none;
+    border: 1px solid var(--border-color);
+    padding: 4px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.filterControls button:hover {
+    background-color: var(--background-input);
+}
+
+.filterControls .activeFilter {
+    background-color: var(--hover);
+    color: var(--text-primary);
+    border-color: var(--hover);
+}
+
+.filterControls .activeFilter:hover {
+    background-color: var(--hover);
+}
+
+.taskItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.taskInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.errorMessage {
+    color: var(--red);
+    font-style: italic;
+}
+
+.taskStatusContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.statusIndicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.pending {
+    background-color: #adb5bd;
+}
+
+.success {
+    background-color: var(--green);
+}
+
+.failed {
+    background-color: var(--red);
+}
+
+/* Các class cho progress bar không được sử dụng trong component lịch sử
+   nhưng vẫn giữ lại trong file CSS theo yêu cầu. */
+.progressBar .success {
+    height: 100%;
+}
+
+.progressBar .failed {
+    height: 100%;
+    position: absolute;
+}

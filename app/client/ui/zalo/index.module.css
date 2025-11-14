@@ -1,0 +1,83 @@
+.popupContentWrapper {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: calc(100% - 32px);
+}
+
+.actionsHeader {
+    display: flex;
+    justify-content: space-between;
+}
+
+.wraplistForms {
+    padding: 16px;
+    border: thin solid var(--border-color);
+    border-radius: 5px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.wraplistForms>.title {
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    border-bottom: thin solid var(--border-color);
+    align-items: center;
+    gap: 8px;
+}
+
+.itemsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    overflow: hidden;
+    overflow-y: auto;
+}
+
+.itemsContainer::-webkit-scrollbar {
+    width: 8px;
+}
+
+.itemsContainer::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+    width: 8px;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all .2s linear;
+    cursor: pointer;
+    border-radius: 5px;
+    padding: 3px 6px;
+    background-color: transparent;
+    width: calc(100% - 12px);
+    border: none;
+    justify-content: space-between;
+}
+
+.item:hover {
+    background: var(--hover);
+}
+
+.item .avt {
+    display: flex;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--hover);
+}
+
+.mainform {
+    padding: 16px;
+}
+

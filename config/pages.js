@@ -1,0 +1,1 @@
+export const PANCAKE_API_BASE_URL = 'https://pages.fm/api';

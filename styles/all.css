@@ -1,0 +1,468 @@
+body {
+  margin: 0;
+  width: 100%;
+  height: 100vh;
+  font-family: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  color: var(--text-primary);
+  font-size: var(--font-size-base);
+}
+
+
+p {
+  margin: 0;
+  font-family: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+.loadingOverlay {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+  pointer-events: auto;
+}
+
+:root {
+  --popup-width: 320px;
+  --bg-primary: #ffffff;
+  --text-primary: #656565;
+  --border-color: #e0e0e0;
+  --main_b: #055bab;
+  --main_d: #0285ff;
+  --bg-secondary: #f2f4f7;
+  --bg-btn: #e2e5e9;
+  --text-secondary: #666666;
+  --red: #dc3545;
+  --green: #28a745;
+  --yellow: #ffc107;
+  --hover: #efefef;
+  --boxshaw: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  --boxshaw2: rgba(67, 71, 85, 0.27) 0px 0px 0.25em, rgba(90, 125, 188, 0.05) 0px 0.25em 1em;
+}
+
+.dark {
+  --bg-primary: #252728;
+  --text-primary: #e4e6ea;
+  --border-color: #404244;
+  --bg-secondary: #1c1c1d;
+  --bg-btn: #3b3d3e;
+  --text-secondary: #b3b3b3;
+  --red: #dc3545;
+  --green: #28a745;
+  --yellow: #ffc107;
+  --hover: #4d4d4d;
+  --boxshaw: rgba(0, 0, 0, 0.2) 0px 2px 8px 0px;
+  --boxshaw2: rgba(67, 71, 85, 0.27) 0px 0px 0.25em, rgba(90, 125, 188, 0.05) 0px 0.25em 1em;
+}
+
+
+
+a {
+  text-decoration: unset;
+  color: var(--text-primary);
+}
+
+.flex_center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex_col {
+  display: flex;
+  flex-direction: column;
+}
+
+/* chữ */
+
+.text_3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary)
+}
+
+.text_1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary)
+}
+
+.text_1_m {
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--text-primary)
+}
+
+.text_1_s {
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--text-primary)
+}
+
+.text_3_m {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--text-primary)
+}
+
+
+.text_4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary)
+}
+
+.text_6 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary)
+}
+
+.text_6_400 {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-primary)
+}
+
+.text_4_400 {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--text-primary)
+}
+
+.text_2 {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-primary)
+}
+
+.text_2_m {
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--text-primary)
+}
+
+.text_5_500 {
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.text_5_400 {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-primary)
+}
+
+.text_7 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.text_7_400 {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-primary);
+}
+
+.scroll {
+  overflow: hidden;
+  overflow-y: auto;
+}
+
+.scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.scroll::-webkit-scrollbar-thumb {
+  width: 5px;
+  background-color: var(--border-color);
+  border-radius: 5px;
+}
+
+.button {
+  position: relative;
+  display: inline-block;
+  width: calc(100% - 40px);
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: thin solid white;
+  background-color: transparent;
+  color: white;
+  font-size: 14px;
+  text-align: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+}
+
+.button span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  transform: translateX(-100%);
+  transition: transform 0.5s ease-in-out;
+  z-index: -1;
+}
+
+.button span:nth-child(1) {
+  background-color: rgba(239, 124, 195, 0.3);
+}
+
+.button span:nth-child(2) {
+  background-color: rgba(255, 54, 178, 0.6);
+}
+
+.button span:nth-child(3) {
+  background-image: linear-gradient(90deg,
+      rgba(249, 79, 172, 1) 0%,
+      rgba(75, 114, 245, 1) 100%);
+}
+
+.button span:nth-child(4) {
+  transform: translateX(0);
+  background-color: var(--main_d);
+  z-index: -2;
+  transition: none;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Dành cho Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.button:hover span:nth-child(1) {
+  transform: translateX(0);
+  transition-delay: 0s;
+}
+
+.button:hover span:nth-child(2) {
+  transform: translateX(0);
+  transition-delay: 0.06s;
+}
+
+.button:hover span:nth-child(3) {
+  transform: translateX(0);
+  transition-delay: 0.12s;
+}
+
+.button:not(:hover) span:nth-child(3) {
+  transform: translateX(-100%);
+  transition-delay: 0s;
+}
+
+.button:not(:hover) span:nth-child(2) {
+  transform: translateX(-100%);
+  transition-delay: 0.06s;
+}
+
+.button:not(:hover) span:nth-child(1) {
+  transform: translateX(-100%);
+  transition-delay: 0.12s;
+}
+
+.input {
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background: var(--bg-primary);
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+  font-family: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  color: var(--text-primary);
+  resize: none;
+}
+
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus,
+.input:-webkit-autofill:active,
+.input:-internal-autofill-selected {
+  -webkit-box-shadow: 0 0 0 30px var(--bg-primary) inset !important;
+  box-shadow: 0 0 0 30px var(--bg-primary) inset !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+}
+
+
+.input:focus {
+  border-color: var(--main_b);
+  background: var(--bg-primary);
+}
+
+.chip {
+  height: max-content;
+  padding: 4px 12px;
+  border-radius: 100px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-medium);
+  font-size: 13px;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+  display: flex;
+  gap: 4px;
+}
+
+.wrapicon {
+  padding: 6px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .1s linear;
+  aspect-ratio: 1;
+}
+
+.wrapicon:hover {
+  transform: translateY(-2px);
+}
+
+.btn-ac {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  border: none;
+}
+
+.btn-re {
+  background-color: #f8fafc;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+}
+
+.btn-re:hover:not(:disabled) {
+  background-color: #f1f5f9;
+}
+
+.btn {
+  padding: 8px 12px;
+  background: var(--main_b);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.1s linear;
+  margin-top: 8px;
+  justify-content: center;
+  white-space: nowrap
+}
+
+.btn:hover {
+  background: var(--main_d);
+  transform: translateY(-2px);
+}
+
+.btn_s {
+  padding: 8px 12px;
+  border-radius: 5px;
+  background: var(--bg-btn);
+  outline: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s linear;
+  font-family: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn_s:hover {
+  background: var(--hover);
+}
+
+.btn_s_b {
+  padding: 8px 12px;
+  border-radius: 5px;
+  background: var(--main_d);
+  outline: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s linear;
+  font-family: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.btn_s_b:hover {
+  background: var(--main_b);
+}
+
+
+.trigger {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  background: #f5ffe5;
+  transition: all .1s linear;
+}
+
+.trigger:hover {
+  transform: translateY(-2px);
+  background: #f6ffde;
+}
+
+.btn-1 {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all .2s;
+  background-color: var(--bg-secondary);
+  color: #0f172a;
+  border: 1px solid var(--border-color);
+}
+
+.btn-1:hover {
+  background-color: var(--hover);
+}
+
+.deleteIcon {
+  background-color: var(--red);
+}
+
+.mainIcon {
+  background-color: var(--bg-btn);
+}

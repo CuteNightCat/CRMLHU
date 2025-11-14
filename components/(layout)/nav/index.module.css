@@ -1,0 +1,289 @@
+/* =================================== */
+/* === STYLE CƠ BẢN & GIAO DIỆN DESKTOP === */
+/* =================================== */
+
+/* Style cho thẻ div gốc của component */
+.nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100px;
+    border-right: thin solid var(--border-color);
+    background-color: var(--bg-primary);
+    z-index: 4;
+    /* Đảm bảo nav luôn ở trên các phần tử khác */
+    transition: transform 0.3s ease-in-out;
+    /* Thêm hiệu ứng trượt cho mobile */
+}
+
+/* Container chứa danh sách các mục nav */
+.container {
+    margin: 8px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    width: 100px;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
+    flex-grow: 1;
+    /* Giúp container chiếm hết không gian còn lại */
+}
+
+/* Ẩn thanh cuộn của container */
+.container::-webkit-scrollbar {
+    width: 0;
+}
+
+/* Thanh highlight cho mục đang active */
+.highlight {
+    position: absolute;
+    top: 0;
+    left: 12px;
+    width: 74px;
+    height: 74px;
+    background: var(--border-color);
+    border-radius: 12px;
+    transition: transform 0.3s ease-in-out;
+    z-index: 0;
+}
+
+/* Style cho từng mục nav */
+.navItem {
+    width: 74px;
+    height: 74px;
+    min-height: 74px;
+    border-radius: 12px;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    align-items: center;
+    justify-content: center;
+    transition: all .2s linear;
+}
+
+.navItem:hover {
+    background: var(--hover);
+}
+
+/* Style cho text bên trong mục nav */
+.navText {
+    color: var(--text-primary);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Style cho các mục trong menu "Thêm" */
+.menu_li {
+    border-radius: 8px;
+    transition: all .3s linear;
+    cursor: pointer;
+    padding: 12px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.menu_li:hover {
+    background: var(--hover);
+}
+
+.menu_li.logout {
+    background-color: rgb(230, 130, 130);
+    color: white;
+}
+
+.menu_li.logout:hover {
+    background-color: rgb(233, 146, 146);
+}
+
+/* Màn hình loading */
+.loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.9);
+}
+
+/* ============================ */
+/* === STYLE POPUP TÌM KIẾM === */
+/* ============================ */
+.searchContainer {
+    padding: 8px;
+    height: calc(100vh - 52.8px - 16px);
+    display: flex;
+    flex-direction: column;
+}
+
+.resultsContainer {
+    margin-top: 8px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.ItemWrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.ItemWrap:hover {
+    background: var(--hover);
+}
+
+.searchLoading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.searchResultItem {
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 4px;
+}
+
+.resultName {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.resultSubtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+
+/* =========================== */
+/* === STYLE CHO RESPONSIVE === */
+/* =========================== */
+
+/* Mặc định, ẩn các thành phần chỉ dành cho mobile */
+.mobileHeader,
+.overlay {
+    display: none;
+}
+
+/* Áp dụng các style này khi chiều rộng màn hình <= 768px */
+@media (max-width: 768px) {
+
+    /* Style cho thẻ .nav trên mobile: ẩn đi và thay đổi chiều rộng */
+    .nav {
+        transform: translateX(-100%);
+        width: 280px;
+        box-shadow: 4px 0px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Class này sẽ được thêm bằng JS để trượt nav vào màn hình */
+    .mobileNavOpen {
+        transform: translateX(0);
+    }
+
+    /* Ẩn thanh highlight trên mobile để giao diện đơn giản hơn */
+    .highlight {
+        display: none;
+    }
+
+    /* Ẩn logo trên desktop khi ở giao diện mobile */
+    .desktopLogo {
+        display: none;
+    }
+
+    /* Hiển thị header cho mobile */
+    .mobileHeader {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 60px;
+        padding: 0 16px;
+        background-color: var(--bg-primary);
+        border-bottom: 1px solid var(--border-color);
+        z-index: 3;
+    }
+
+    /* Nút bấm mở menu mobile (hamburger icon) */
+    .mobileMenuButton {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px;
+        margin-left: -8px;
+        /* Căn chỉnh cho đẹp */
+        border-radius: 50%;
+    }
+
+    .mobileMenuButton:hover {
+        background: var(--hover);
+    }
+
+    /* Lớp phủ mờ phía sau menu */
+    .overlay {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 3;
+        /* Nằm dưới nav, trên nội dung trang */
+        animation: fadeIn 0.3s ease;
+    }
+
+    /* Hiệu ứng mờ dần cho lớp phủ */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    /* Điều chỉnh lại container trên mobile để hiển thị dạng danh sách */
+    .container {
+        padding-top: 20px;
+        width: 100%;
+        align-items: flex-start;
+        padding-left: 20px;
+    }
+
+    /* Điều chỉnh lại từng mục nav trên mobile */
+    .navItem {
+        width: calc(100% - 20px);
+        height: 68px;
+        justify-content: flex-start;
+        /* Căn lề trái */
+        padding: 0 20px;
+        gap: 15px;
+        /* Tăng khoảng cách giữa icon và text */
+        flex-direction: row;
+        /* Chuyển sang layout hàng ngang */
+    }
+
+    /* Tăng kích thước chữ cho dễ đọc trên mobile */
+    .navText {
+        font-size: 15px;
+    }
+}

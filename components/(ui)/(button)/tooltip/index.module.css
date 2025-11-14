@@ -1,0 +1,15 @@
+.tooltipContent {
+    position: absolute;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    padding: 8px 12px;
+    border-radius: 4px;
+    box-shadow: var(--boxshaw);
+    border: thin solid var(--border-color);
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+    white-space: nowrap;
+}

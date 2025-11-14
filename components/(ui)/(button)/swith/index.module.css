@@ -1,0 +1,14 @@
+.container {
+    position: relative;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.circle {
+    position: absolute;
+    border-radius: 50%;
+    background-color: var(--bg-secondary);
+    transition: left 0.2s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}

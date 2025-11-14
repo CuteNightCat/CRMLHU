@@ -1,0 +1,159 @@
+/* General Item Styles */
+.popupContentWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 5px;
+    background-color: var(--bg-primary);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 16px;
+}
+
+.mainform {
+    padding: 16px;
+}
+
+.item:hover {
+    background-color: var(--hover);
+}
+
+.zaloAvatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.zaloInfo h5 {
+    margin: 0;
+    font-size: var(--font-size-sm);
+}
+
+.zaloInfo p {
+    margin: 0;
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+}
+
+
+/* Role Manager Styles */
+.roleManagerForm {
+    display: flex;
+    flex-direction: column;
+}
+
+.assignedUsersList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 8px;
+    padding: 16px;
+}
+
+.assignedUserItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    background-color: var(--background-secondary);
+    border-radius: var(--border-radius-sm);
+}
+
+.userInfo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.userAvatar {
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.menulist {
+    padding: 8px;
+    margin-top: 3px;
+    border-radius: 5px;
+    background: var(--bg-primary);
+    border: thin solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    max-height: 200px;
+}
+
+.menulist h5 {
+    padding: 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: var(--bg-primary);
+}
+
+.menulist h5:hover {
+    background-color: var(--hover);
+}
+
+.removeButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.removeButton:hover {
+    background-color: var(--background-tertiary);
+}
+
+
+.noUserText {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 16px;
+}
+
+.userMenuList {
+    display: flex;
+    flex-direction: column;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.userMenuList p {
+    padding: 8px 12px;
+    cursor: pointer;
+    margin: 0;
+    border-radius: var(--border-radius-sm);
+}
+
+.userMenuList p:hover {
+    background-color: var(--background-tertiary);
+}
+
+.formActions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    border-top: thin solid var(--border-color);
+}

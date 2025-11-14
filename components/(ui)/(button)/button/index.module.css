@@ -1,0 +1,40 @@
+.animatedButton {
+  position: relative;
+  border: none;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer;
+  overflow: hidden;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s ease-in-out;
+}
+
+/* Pseudo-element tạo hiệu ứng chuyển màu từ góc dưới bên phải */
+.animatedButton::after {
+  content: "";
+  position: absolute;
+  bottom: -50%;
+  right: -50%;
+  width: 0;
+  height: 0;
+  background-color: var(--hover-color, #4096ff);
+  border-radius: 50%;
+  z-index: -1;
+  transition: width .8s ease, height .8s ease;
+}
+
+/* Khi hover: mở rộng pseudo-element để tạo hiệu ứng chuyển màu */
+.animatedButton:hover::after {
+  width: 250%;
+  height: 250px;
+}
+
+/* Khi rời chuột, hiệu ứng sẽ quay ngược lại nhờ transition đã định nghĩa */
+.animatedButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

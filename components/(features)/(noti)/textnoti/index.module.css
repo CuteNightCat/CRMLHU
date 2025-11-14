@@ -1,0 +1,18 @@
+.scheduleBox {
+    padding: 12px;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 6px;
+}
+
+.scheduleTitle {
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text);
+}
+
+.scheduleHint {
+    font-size: 13px;
+    color: var(--text_400);
+    margin: 0;
+}

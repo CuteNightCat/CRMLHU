@@ -1,0 +1,65 @@
+.menuButtonContainer {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.menuButton {
+  background-color: #007BFF;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.menuButton:hover {
+  background-color: #0056b3;
+}
+
+.menu {
+  position: absolute;
+  padding: 10px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, transform 0.3s ease, padding 0.3s ease, width 0.3s ease;
+  z-index: 10;
+}
+
+/* Vị trí của menu */
+.menuBottom {
+  top: 100%;
+  left: 0;
+  transform: translateY(-10px);
+}
+
+.menuTop {
+  bottom: 100%;
+  left: 0;
+  transform: translateY(10px);
+}
+
+.menuLeft {
+  right: 100%;
+  top: 0;
+  transform: translateX(10px);
+}
+
+.menuRight {
+  left: 100%;
+  top: 0;
+  transform: translateX(-10px);
+}
+
+/* Khi menu active, hiển thị menu với hiệu ứng slide mượt */
+.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(0);
+  padding: 0;
+  min-width: 100%;
+  width: max-content;
+}

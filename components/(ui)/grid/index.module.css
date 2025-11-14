@@ -1,0 +1,100 @@
+.gridContainer {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(var(--mobile-cols, 1), 1fr);
+}
+
+.gridItem {
+    width: 100%;
+}
+
+/* Responsive Breakpoints */
+@media (min-width: 768px) {
+    .gridContainer {
+        grid-template-columns: repeat(var(--tablet-cols, 2), 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .gridContainer {
+        grid-template-columns: repeat(var(--desktop-cols, 3), 1fr);
+    }
+}
+
+/* Style cho nút "Xem thêm" */
+.showMore {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: #f8f9fa;
+    transition: background-color 0.2s, border-color 0.2s;
+
+}
+
+.showMore:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.showMoreContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #495057;
+}
+
+.showMoreContent span {
+    font-size: 0.9rem;
+    font-weight: normal;
+    margin-top: 0.25rem;
+}
+
+
+/* Styles cho Popup */
+.popupOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popupContent {
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    max-width: 90vw;
+    height: 80vh;
+    position: relative;
+    overflow: hidden;
+    width: 1200px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.popupTitle {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.75rem;
+    color: #333;
+}
+
+.closeButton {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #888;
+    cursor: pointer;
+}

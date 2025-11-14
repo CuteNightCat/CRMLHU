@@ -1,0 +1,52 @@
+.submit {
+  background: var(--main_d);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .2s linear;
+  cursor: pointer;
+}
+
+.unsubmit {
+  cursor: not-allowed;
+  background: gray
+}
+
+.submit:hover {
+  background: var(--main_b);
+}
+
+.custom-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid #666666;
+  cursor: pointer;
+  background-color: white;
+  appearance: none;
+  /* Ẩn checkbox mặc định */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+}
+
+/* Khi checkbox được chọn */
+.custom-checkbox:checked {
+  background-color: var(--main_d);
+  border-color: var(--main_d);
+  position: relative;
+}
+
+/* Dấu tích */
+.custom-checkbox:checked::after {
+  content: "✔";
+  color: white;
+  /* Màu dấu tích */
+  font-size: 10px;
+  font-weight: bold;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
