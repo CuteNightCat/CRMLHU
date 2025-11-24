@@ -281,8 +281,8 @@ export default function TelesalesReportClient({ initialData = [], user = [] }) {
             if (groupFilter !== 'all') {
                 const usr = userMap.get(uid);
                 const g = usr?.group;
-                const normalizedGroup = (g === 'noi_khoa' || g === 'telesale') ? 'telesale'
-                    : (g === 'ngoai_khoa' || g === 'care') ? 'care' : g;
+                const normalizedGroup = (g === 'telesale_TuVan' || g === 'telesale') ? 'telesale'
+                    : (g === 'CareService' || g === 'care') ? 'care' : g;
                 if (normalizedGroup !== groupFilter) return false;
             }
             return true;

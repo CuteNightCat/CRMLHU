@@ -10,9 +10,9 @@ import User from '@/models/users';
 
 // const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw1Opsmg0IrV4OQBCMJXHzUjapEv2PGcuVgNezAOcDqbvcFeerngklkpmuN_vfyXuFbWA/exec';
 // appscript để thêm tài khoản zalo vào google sheet giúp chuẩn hóa token
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyku5-nKLq6XUv27TAdiLSDZlampO87ioU44C-wxMwqaDALJNG0nGLUmVw1ci0xvopF/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby3DzdhN7xRQrcAvwfOilqW3-pTFngf1vDjhhPmYmDGYxQlq5RBupg_cNctJEwKqRBo1w/exec';
 
-const SPREADSHEET_ID = '1G9BSl5JxTr-R8ODOotAxFSQsHI-jYaXOVGRyMUSuu4U';
+const SPREADSHEET_ID = '1aZ6w7ZwuqQdg8j2JsIFMmGjimmJN0HQJ8sshNy0O2vY';
 const TARGET_SHEET = 'Account';
 
 async function getGoogleSheetsClient() {

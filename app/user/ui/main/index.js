@@ -296,8 +296,8 @@ const Main = ({ initialTeachers }) => {
                                         <p className='text_6_400'><strong>Địa chỉ:</strong> {teacher.address}</p>
                                         {/* MỚI: Hiển thị thông tin nhóm */}
                                         <p className='text_6_400'><strong>Nhóm:</strong> {
-                                            (teacher.group === 'telesale' || teacher.group === 'noi_khoa') ? 'Telesale' :
-                                                (teacher.group === 'care' || teacher.group === 'ngoai_khoa') ? 'Care' : 'Tất cả'
+                                            (teacher.group === 'telesale' || teacher.group === 'telesale_TuVan') ? 'Telesale' :
+                                                (teacher.group === 'care' || teacher.group === 'CareService') ? 'Care' : 'Tất cả'
                                         }</p>
                                     </div>
                                 </div>

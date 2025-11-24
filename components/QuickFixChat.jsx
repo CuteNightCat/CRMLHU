@@ -147,7 +147,10 @@ export default function QuickFixChat({ pageConfig, token }) {
         }, (res) => {
             console.log('📋 Conversations loaded:', res);
             if (res?.ok && Array.isArray(res.items)) {
-                setConversations(res.items.filter(c => c?.type === 'INBOX'));
+                setConversations(res.items.filter(c => {
+                    const type = c?.type;
+                    return type === 'INBOX' || type === 'COMMENT' || type === 'MESSAGE';
+                }));
             }
         });
 

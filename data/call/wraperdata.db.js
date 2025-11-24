@@ -81,8 +81,8 @@ export async function saveCallAction(prevState, formData) {
   try {
     await connectDB();
 
-    // 1) Upload audio lên Drive
-    const folderId = '1-pN5irPRLbiBhwER4O1tNhYzMllpga-v';
+    // 1) Upload audio lên Drive - upload ghi âm cuộc gọi lên drive 
+    const folderId = '1-hEbowYfqj-rY9gjVDo5vzHusmyA732c';
     const uploadedFile = await uploadFileToDrive(recordingFile, folderId);
     if (!uploadedFile?.id) {
       throw new Error('Tải file ghi âm lên Drive thất bại.');
@@ -103,7 +103,7 @@ export async function saveCallAction(prevState, formData) {
       status: callStatus
     });
 
-    // 4) Ghi care Step 4 vào Customer
+    // 4) Ghi care Step 4 vào Customer và cập nhật pipelineStatus
     const callTimeStr = startTime.toLocaleString('vi-VN');
     const audioLink = uploadedFile.webViewLink || '';
     const lines = [
@@ -119,7 +119,37 @@ export async function saveCallAction(prevState, formData) {
       createAt: new Date(),
       step: 4
     };
-    await Customer.findByIdAndUpdate(customerId, { $push: { care: careNote } });
+
+    // Xác định pipelineStatus cho step 4 dựa trên callStatus và crmStatus
+    let pipelineStatus4 = 'consulted_pending_4'; // Mặc định: Đã tư vấn, chờ quyết định
+    
+    if (crmStatus) {
+      // Nếu có crmStatus, map sang pipelineStatus tương ứng
+      const crmStatusMap = {
+        'callback': 'callback_4',
+        'not_interested': 'not_interested_4',
+        'no_contact': 'no_contact_4',
+        'scheduled': 'scheduled_unconfirmed_4',
+        'consulted': 'consulted_pending_4',
+      };
+      pipelineStatus4 = crmStatusMap[crmStatus.toLowerCase()] || 'consulted_pending_4';
+    } else if (callStatus === 'completed' && duration > 0) {
+      // Nếu cuộc gọi thành công và có thời lượng, coi như đã tư vấn
+      pipelineStatus4 = 'consulted_pending_4';
+    } else if (callStatus === 'no_answer' || callStatus === 'missed') {
+      pipelineStatus4 = 'no_contact_4';
+    } else if (callStatus === 'rejected' || callStatus === 'busy') {
+      pipelineStatus4 = 'callback_4';
+    }
+
+    // Cập nhật Customer: thêm care log và cập nhật pipelineStatus
+    await Customer.findByIdAndUpdate(customerId, { 
+      $push: { care: careNote },
+      $set: {
+        'pipelineStatus.0': pipelineStatus4,
+        'pipelineStatus.4': pipelineStatus4,
+      }
+    });
 
     // 5) Revalidate
     revalidateTag('calls');

@@ -134,8 +134,8 @@ const getStep2Status = (customer) => {
 const getStep3Status = (customer) => {
     if (Array.isArray(customer.assignees) && customer.assignees.length > 0) {
         const last = customer.assignees[customer.assignees.length - 1];
-        if (last.group === 'care' || last.group === 'ngoai_khoa') return { text: 'Phân bổ: Care', Icon: User, className: 'bg-purple-100 text-purple-800' };
-        if (last.group === 'telesale' || last.group === 'noi_khoa') return { text: 'Phân bổ: Telesale', Icon: User, className: 'bg-indigo-100 text-indigo-800' };
+        if (last.group === 'care' || last.group === 'CareService') return { text: 'Phân bổ: Care', Icon: User, className: 'bg-purple-100 text-purple-800' };
+        if (last.group === 'telesale' || last.group === 'telesale_TuVan') return { text: 'Phân bổ: Telesale', Icon: User, className: 'bg-indigo-100 text-indigo-800' };
     }
     return { text: 'Chưa phân bổ', Icon: User, className: 'bg-gray-100 text-gray-800' };
 };

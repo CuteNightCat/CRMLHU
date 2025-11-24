@@ -2,7 +2,7 @@
 // const SCRIPT_URL_GET_UID = 'https://script.google.com/macros/s/AKfycbxMMwrvLEuqhsyK__QRCU0Xi6-qu-HkUBx6fDHDRAYfpqM9d4SUq4YKVxpPnZtpJ_b6wg/exec';
 // lấy từ dưới đây
 // const SCRIPT_URL_ACTION = 'https://script.google.com/macros/s/AKfycbzD_BSTMoywu5KaUSmOAgiYTVjgaP5I1yBirYs1Cb5wBFgNq9wTTojydB4S8vjzafX5sA/exec';
-const SCRIPT_URL_ACTION = 'https://script.google.com/macros/s/AKfycbxPdn1LgISz9UsZJlYLwONmC7n2j43ioq_VAY56BNDxYZKIkGpBmVaAMimf-w9UmBpOBg/exec';
+const SCRIPT_URL_ACTION = 'https://script.google.com/macros/s/AKfycbxjDzfWN3raZsIXfyfu6AfwgemEEgHAgo5qBIluRPDQYzi0C5-U4B_r-sIHsdtrRdbl/exec';
 
 const SCRIPT_URL_GP = 'https://script.google.com/macros/s/AKfycbxzGI_oehcqBAzWiVgauUaQaU8G6VBv0V6LTXVWj6n_4ko-GUMNeHekJauYuHGidQxOQQ/exec';
 

@@ -127,8 +127,8 @@ export default function CalendarView({ initialAppointments, currentUser, isAdmin
 
 
     const TypePill = ({ type }) => {
-        const normalizedType = (type === 'telesale' || type === 'noi_khoa') ? 'telesale'
-            : (type === 'care' || type === 'ngoai_khoa') ? 'care'
+        const normalizedType = (type === 'telesale' || type === 'telesale_TuVan') ? 'telesale'
+            : (type === 'care' || type === 'CareService') ? 'care'
                 : type;
         const IconComponent = normalizedType === 'care' ? Scissors : Pill;
         return (
@@ -229,11 +229,11 @@ export default function CalendarView({ initialAppointments, currentUser, isAdmin
                         </div>
                         <div className="hidden md:flex items-center gap-2">
                             <Pill className='w-3.5 h-3.5' />
-                            <h6 className="text-sm">Nội khoa</h6>
+                            <h6 className="text-sm">Telesale</h6>
                         </div>
                         <div className="hidden md:flex items-center gap-2">
                             <Scissors className='w-3.5 h-3.5' />
-                            <h6 className="text-sm">Ngoại khoa</h6>
+                            <h6 className="text-sm">Care</h6>
                         </div>
                         <div className="md:hidden">
                             <Button variant="ghost" size="sm">

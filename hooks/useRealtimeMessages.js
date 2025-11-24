@@ -195,9 +195,15 @@ export const useRealtimeMessages = (pageConfig, token, selectedConversationId) =
                 let next = [...prev];
                 
                 if (patch.type === 'replace' && Array.isArray(patch.items)) {
-                    next = patch.items.filter(c => c?.type === 'INBOX');
+                    next = patch.items.filter(c => {
+                        const type = c?.type;
+                        return type === 'INBOX' || type === 'COMMENT' || type === 'MESSAGE';
+                    });
                 } else if (patch.type === 'upsert' && Array.isArray(patch.items)) {
-                    const incoming = patch.items.filter(c => c?.type === 'INBOX');
+                    const incoming = patch.items.filter(c => {
+                        const type = c?.type;
+                        return type === 'INBOX' || type === 'COMMENT' || type === 'MESSAGE';
+                    });
                     next = [...prev.filter(c => !incoming.some(i => i.id === c.id)), ...incoming];
                 } else if (patch.type === 'remove' && Array.isArray(patch.ids)) {
                     const set = new Set(patch.ids);
@@ -215,7 +221,10 @@ export const useRealtimeMessages = (pageConfig, token, selectedConversationId) =
             current_count: 0 
         }, (res) => {
             if (res?.ok && Array.isArray(res.items)) {
-                const incoming = res.items.filter(c => c?.type === 'INBOX');
+                const incoming = res.items.filter(c => {
+                    const type = c?.type;
+                    return type === 'INBOX' || type === 'COMMENT' || type === 'MESSAGE';
+                });
                 setConversations(prev => {
                     const merged = [...prev.filter(c => !incoming.some(i => i.id === c.id)), ...incoming];
                     return merged.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));

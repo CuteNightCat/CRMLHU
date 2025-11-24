@@ -219,20 +219,41 @@ export async function processMessageConversation(conversation, pageInfo = null) 
             };
         }
 
+        // Lấy danh sách page được quản lý để kiểm tra
+        const managedPages = await getPagesFromAPI();
+        if (!managedPages || !Array.isArray(managedPages) || managedPages.length === 0) {
+            console.warn('[processMessageConversation] Không có page nào được quản lý. Bỏ qua conversation.');
+            return {
+                success: false,
+                reason: 'no_managed_pages',
+                conversation_id: conversation.id,
+                customer_name: customerName
+            };
+        }
+
         // Lấy thông tin page nếu chưa có
         if (!pageInfo) {
-            const pages = await getPagesFromAPI();
-            if (pages && Array.isArray(pages)) {
-                const pageId = conversation.page_id || conversation.page?.id;
-                if (pageId) {
-                    pageInfo = pages.find(p => p.id === pageId);
-                }
+            const pageId = conversation.page_id || conversation.page?.id;
+            if (pageId) {
+                pageInfo = managedPages.find(p => p.id === pageId);
             }
         }
 
+        // Kiểm tra xem page có nằm trong danh sách được quản lý không
+        if (!pageInfo || !managedPages.find(p => p.id === pageInfo.id)) {
+            console.log(`[processMessageConversation] Page "${pageInfo?.name || 'unknown'}" không nằm trong danh sách được quản lý. Bỏ qua conversation ${conversation.id}`);
+            return {
+                success: false,
+                reason: 'page_not_managed',
+                conversation_id: conversation.id,
+                customer_name: customerName,
+                page_name: pageInfo?.name || 'unknown'
+            };
+        }
+
         // Tạo sourceDetails chi tiết
-        const platform = pageInfo?.platform || 'facebook';
-        const pageName = pageInfo?.name || 'Page';
+        const platform = pageInfo.platform || 'facebook';
+        const pageName = pageInfo.name || 'Page';
         const sourceDetails = formatSourceDetails(platform, pageName);
 
         // Tạo khách hàng mới

@@ -158,8 +158,8 @@ const toYMD = (d) => {
 const badgeClass = (type) => {
     if (type === 'assigned') return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
     if (type === 'pending') return 'bg-amber-100 text-amber-700 border border-amber-200';
-    if (type === 'telesale' || type === 'noi_khoa') return 'bg-indigo-100 text-indigo-700 border border-indigo-200';
-    if (type === 'care' || type === 'ngoai_khoa') return 'bg-violet-100 text-violet-700 border border-violet-200';
+    if (type === 'telesale' || type === 'telesale_TuVan') return 'bg-indigo-100 text-indigo-700 border border-indigo-200';
+    if (type === 'care' || type === 'CareService') return 'bg-violet-100 text-violet-700 border border-violet-200';
     return 'bg-slate-100 text-slate-700 border border-slate-200';
 };
 
@@ -209,8 +209,8 @@ function LeadPopup({ open, onClose, lead, userMap }) {
                 </span>
                 {lastAssign && (
                     <span className={`px-2 py-0.5 rounded text-[10px] ${badgeClass(lastAssigneeGroup)}`}>
-                        {(lastAssigneeGroup === 'telesale' || lastAssigneeGroup === 'noi_khoa') ? 'Telesale'
-                            : (lastAssigneeGroup === 'care' || lastAssigneeGroup === 'ngoai_khoa') ? 'Care'
+                        {(lastAssigneeGroup === 'telesale' || lastAssigneeGroup === 'telesale_TuVan') ? 'Telesale'
+                            : (lastAssigneeGroup === 'care' || lastAssigneeGroup === 'CareService') ? 'Care'
                                 : lastAssigneeGroup}
                     </span>
                 )}
@@ -237,8 +237,8 @@ function LeadPopup({ open, onClose, lead, userMap }) {
                     <div className="text-[12px]">
                         <div>Nhân viên: <span className="font-medium">{lastAssigneeName}</span></div>
                         <div>Nhóm: <span className="font-medium">
-                            {(lastAssigneeGroup === 'telesale' || lastAssigneeGroup === 'noi_khoa') ? 'Telesale'
-                                : (lastAssigneeGroup === 'care' || lastAssigneeGroup === 'ngoai_khoa') ? 'Care'
+                            {(lastAssigneeGroup === 'telesale' || lastAssigneeGroup === 'telesale_TuVan') ? 'Telesale'
+                                : (lastAssigneeGroup === 'care' || lastAssigneeGroup === 'CareService') ? 'Care'
                                     : lastAssigneeGroup}
                         </span></div>
                         <div>Thời gian: <span className="text-muted-foreground">{new Date(lastAssign.assignedAt).toLocaleString('vi-VN')}</span></div>
@@ -406,8 +406,8 @@ export default function DashboardClient({ initialData, user = [] }) {
                 const last = c.assignees[c.assignees.length - 1];
                 const u = userMap.get(String(last.user));
                 const g = u?.group || last.group || 'unknown';
-                const normalizedGroup = (g === 'noi_khoa' || g === 'telesale') ? 'telesale'
-                    : (g === 'ngoai_khoa' || g === 'care') ? 'care' : g;
+                const normalizedGroup = (g === 'telesale_TuVan' || g === 'telesale') ? 'telesale'
+                    : (g === 'CareService' || g === 'care') ? 'care' : g;
                 if (normalizedGroup !== groupFilter) return false;
             }
 

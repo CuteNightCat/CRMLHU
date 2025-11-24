@@ -10,6 +10,7 @@ import ScheduledJob from "@/models/schedule";
 import { reloadCustomers } from '@/data/customers/wraperdata.db';
 import Service from '@/models/services.model';
 import autoAssignForCustomer from '@/utils/autoAssign';
+import { uploadFileToDrive } from '@/function/drive/image';
 // Các import không liên quan đến Student đã được bỏ đi
 // import { ProfileDefault, statusStudent } from '@/data/default'; // Không dùng cho Customer
 // import { getZaloUid } from '@/function/drive/appscript'; // Không dùng cho Customer (nếu không chuyển đổi)
@@ -42,8 +43,20 @@ export async function getCombinedData(params) {
             }
 
             // Lọc theo nguồn
-            if (currentParams.source && mongoose.Types.ObjectId.isValid(currentParams.source)) {
-                filterConditions.push({ source: new mongoose.Types.ObjectId(currentParams.source) });
+            // Phân biệt nguồn Form (ObjectId) và nguồn Tin nhắn/Đặc biệt (String)
+            if (currentParams.source) {
+                // Kiểm tra xem có phải là ObjectId hợp lệ không (nguồn Form)
+                if (mongoose.Types.ObjectId.isValid(currentParams.source)) {
+                    // Nguồn Form: Filter theo field 'source'
+                    filterConditions.push({ 
+                        source: new mongoose.Types.ObjectId(currentParams.source) 
+                    });
+                } else {
+                    // Nguồn Tin nhắn hoặc đặc biệt: Filter theo field 'sourceDetails'
+                    filterConditions.push({ 
+                        sourceDetails: currentParams.source 
+                    });
+                }
             }
 
             // Lọc theo TRẠNG THÁI dựa trên phần tử đầu tiên pipelineStatus[0]
@@ -324,7 +337,40 @@ export async function updateCustomerInfo(previousState, formData) {
             tags: formData.getAll('tags'),
         };
 
-        // Lọc ra các giá trị null hoặc undefined
+        // Xử lý ảnh khách hàng
+        const coverCustomerFile = formData.get('cover_customer');
+        const coverCustomerIdToRemove = formData.get('cover_customer_id');
+
+        console.log('[updateCustomerInfo] coverCustomerFile:', coverCustomerFile);
+        console.log('[updateCustomerInfo] coverCustomerIdToRemove:', coverCustomerIdToRemove);
+
+        // Nếu có ảnh mới: upload lên Google Drive
+        if (coverCustomerFile && typeof coverCustomerFile === 'object' && 'size' in coverCustomerFile && coverCustomerFile.size > 0) {
+            console.log('[updateCustomerInfo] Uploading image to Drive...');
+            const folderId = '1u-2ExUF5LOXB_3bOBbI1beNOWb47aEfQ';
+            const uploadedFile = await uploadFileToDrive(coverCustomerFile, folderId);
+            
+            console.log('[updateCustomerInfo] Upload result:', uploadedFile);
+            
+            if (uploadedFile?.id) {
+                payload.cover_customer = uploadedFile.id;
+                console.log('[updateCustomerInfo] Set cover_customer to:', uploadedFile.id);
+            } else {
+                console.error('[updateCustomerInfo] Upload failed, no ID returned');
+                return { success: false, error: 'Tải ảnh lên Google Drive thất bại. Vui lòng thử lại.' };
+            }
+        } 
+        // Nếu xóa ảnh: set cover_customer = null
+        else if (coverCustomerIdToRemove === '') {
+            console.log('[updateCustomerInfo] Removing cover_customer');
+            payload.cover_customer = null;
+        }
+
+        // Lọc ra các giá trị null hoặc undefined (trừ cover_customer)
+        // cover_customer phải được xử lý riêng để đảm bảo lưu đúng
+        const coverCustomerValue = payload.cover_customer;
+        delete payload.cover_customer; // Tạm thời xóa để xử lý riêng
+
         Object.keys(payload).forEach(key => {
             const value = payload[key];
             if (value === null || value === undefined || value === '') {
@@ -332,7 +378,15 @@ export async function updateCustomerInfo(previousState, formData) {
             }
         });
 
-        await Customer.findByIdAndUpdate(id, payload);
+        // Thêm lại cover_customer nếu có giá trị (kể cả null khi xóa)
+        if (coverCustomerValue !== undefined) {
+            payload.cover_customer = coverCustomerValue;
+        }
+
+        console.log('[updateCustomerInfo] Final payload:', payload);
+
+        // Sử dụng $set để đảm bảo update đúng field
+        await Customer.findByIdAndUpdate(id, { $set: payload });
 
         // Nếu vừa chọn ngành học (tags) và chưa có người phụ trách thì auto-assign ngay
         try {
@@ -469,12 +523,12 @@ export async function assignRoleToCustomersAction(prevState, formData) {
         }
 
         // 4. Xác định trạng thái pipeline mới dựa trên group của nhân viên
-        const userGroup = assignedUser.group; // 'telesale'/'care' (hoặc legacy 'noi_khoa'/'ngoai_khoa')
+        const userGroup = assignedUser.group; // 'telesale'/'care' (hoặc 'telesale_TuVan'/'CareService')
         let newPipelineStatus;
-        if (userGroup === 'telesale' || userGroup === 'noi_khoa') {
-            newPipelineStatus = 'noikhoa_3';
-        } else if (userGroup === 'care' || userGroup === 'ngoai_khoa') {
-            newPipelineStatus = 'ngoaikhoa_3';
+        if (userGroup === 'telesale' || userGroup === 'telesale_TuVan') {
+            newPipelineStatus = 'telesale_TuVan3';
+        } else if (userGroup === 'care' || userGroup === 'CareService') {
+            newPipelineStatus = 'CareService3';
         } else {
             newPipelineStatus = 'undetermined_3'; // Mặc định nếu không có group
         }

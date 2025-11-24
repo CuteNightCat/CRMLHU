@@ -34,6 +34,7 @@ ENV JWT_SECRET="A1412I8400R"
 ENV GOOGLE_PRIVATE_KEY='-----BEGIN PRIVATE KEY----- ... -----END PRIVATE KEY-----'
 ENV GOOGLE_PROJECT_ID="systemair-441909"
 ENV token='sys1'
+# google drive chia sẻ drive để lưu
 ENV GOOGLE_CLIENT_EMAIL='air-900@systemair-441909.iam.gserviceaccount.com'
 ENV URL="http://localhost:4200/"
 

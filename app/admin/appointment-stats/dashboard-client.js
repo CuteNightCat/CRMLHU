@@ -263,8 +263,8 @@ export default function AppointmentStatsClient({ initialData = [], user = [] }) 
             if (groupFilter !== 'all') {
                 const u = userMap.get(String(a.createdBy));
                 const g = u?.group || 'unknown';
-                const normalizedGroup = (g === 'telesale' || g === 'noi_khoa') ? 'telesale'
-                    : (g === 'care' || g === 'ngoai_khoa') ? 'care' : g;
+                const normalizedGroup = (g === 'telesale' || g === 'telesale_TuVan') ? 'telesale'
+                    : (g === 'care' || g === 'CareService') ? 'care' : g;
                 if (normalizedGroup !== groupFilter) return false;
             }
 

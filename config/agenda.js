@@ -255,10 +255,10 @@ async function allocationJobProcessor(job) {
 
                 // ==========================================================
                 // == THÊM LOGIC CẬP NHẬT newStatus TẠI ĐÂY ==
-                if (group === 'telesale' || group === 'noi_khoa') {
-                    newStatus = 'noikhoa_3';
-                } else if (group === 'care' || group === 'ngoai_khoa') {
-                    newStatus = 'ngoaikhoa_3';
+                if (group === 'telesale' || group === 'telesale_TuVan') {
+                    newStatus = 'telesale_TuVan3';
+                } else if (group === 'care' || group === 'CareService') {
+                    newStatus = 'CareService3';
                 }
                 // ==========================================================
 

@@ -53,7 +53,7 @@ async function ensureDriveIdFromCover(cover, nameHint, reqId) {
   }
   try {
     // Sử dụng folder ID từ Shared Drive (không tạo folder mới)
-    const folderId = '1vNTcGy_oYM9phqutlvt-Fc5td8bFTkSm';
+    const folderId = '1M-lSX-URoyvX-IU7e-TK-nhgkl7ptda3';
     
     const info = await uploadBufferToDrive({
       name: fileNameFor(nameHint),

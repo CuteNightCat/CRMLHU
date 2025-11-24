@@ -4,6 +4,7 @@ import Customer from '@/models/customer.model';
 import { revalidateData } from '@/app/actions/customer.actions';
 import autoAssignForCustomer from '@/utils/autoAssign';
 import mongoose from 'mongoose';
+import { getPagesFromAPI } from '@/lib/pancake-api';
 
 // Chuẩn hóa số điện thoại Việt Nam
 function normalizeVNPhone(digits) {
@@ -102,6 +103,29 @@ export async function POST(req) {
                     phone: phoneToRegister
                 },
                 { status: 409 }
+            );
+        }
+
+        // Kiểm tra xem page có nằm trong danh sách được quản lý không
+        const managedPages = await getPagesFromAPI();
+        if (!managedPages || !Array.isArray(managedPages) || managedPages.length === 0) {
+            return NextResponse.json(
+                { success: false, message: 'Không có page nào được quản lý trong hệ thống' },
+                { status: 400 }
+            );
+        }
+
+        // Tìm page trong danh sách được quản lý theo platform và pageName
+        const managedPage = managedPages.find(p => 
+            p.platform === platform && 
+            p.name === pageName
+        );
+
+        if (!managedPage) {
+            console.warn(`[Auto Customer] Page "${pageName}" (${platform}) không nằm trong danh sách được quản lý. Từ chối tạo customer.`);
+            return NextResponse.json(
+                { success: false, message: `Page "${pageName}" không được quản lý trong hệ thống` },
+                { status: 400 }
             );
         }
 

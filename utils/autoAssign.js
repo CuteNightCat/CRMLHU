@@ -6,26 +6,71 @@ import Setting from '@/models/setting.model';
 import { revalidateData } from '@/app/actions/customer.actions';
 
 const PRIORITY_ENROLLMENT_ROLES = ['Telesale', 'Care'];
+const SALE_ROLE = 'Sale'; // Chỉ gán nhân viên có role chính xác là 'Sale'
 const ENROLLMENT_ROLES = ['Telesale', 'Care', 'Sale', 'Admin Sale'];
 const matchesRoleList = (roles, list) =>
     Array.isArray(roles) && roles.some((role) => list.includes(role));
 
 async function pickNextUserByGroup(group) {
     console.log(`[AutoAssign] Looking for users in group: ${group}`);
-    // Ưu tiên những nhân sự thuộc nhóm tuyển sinh chính (Telesale/Care)
-    let candidates = await User.find({
-        group,
-        role: { $in: PRIORITY_ENROLLMENT_ROLES }
-    }).sort({ _id: 1 }).lean();
-    // Nếu không có, fallback sang bất kỳ nhân sự nào có role liên quan tới tuyển sinh
-    if (!candidates?.length) {
-        candidates = await User.find({
-            group,
-            role: { $elemMatch: { $regex: /(sale|care)/i } }
-        }).sort({ _id: 1 }).lean();
+    
+    // Mapping group: 'telesale'/'care' (giá trị trong service) → 'telesale_TuVan'/'CareService' (giá trị trong database)
+    // Hỗ trợ cả giá trị cũ và mới
+    let targetGroups = [group];
+    if (group === 'telesale') {
+        targetGroups = ['telesale', 'telesale_TuVan'];
+    } else if (group === 'care') {
+        targetGroups = ['care', 'CareService'];
+    } else if (group === 'telesale_TuVan') {
+        targetGroups = ['telesale_TuVan', 'telesale']; // Fallback nếu có cả hai
+    } else if (group === 'CareService') {
+        targetGroups = ['CareService', 'care']; // Fallback nếu có cả hai
     }
     
-    console.log(`[AutoAssign] Found ${candidates.length} candidates (prioritizing enrollment roles):`, candidates.map(c => ({
+    console.log(`[AutoAssign] Target groups to search:`, targetGroups);
+    
+    // Ưu tiên 1: Chỉ tìm nhân sự có role chính xác là 'Sale' (không phải 'Admin Sale')
+    // Query tất cả users có role chứa 'Sale', sau đó filter để chỉ lấy role chính xác là 'Sale'
+    let allCandidates = await User.find({
+        group: { $in: targetGroups },
+        role: { $in: [SALE_ROLE] } // Tìm role có chứa 'Sale'
+    }).sort({ _id: 1 }).lean();
+    
+    // Filter để chỉ lấy những user có role chính xác là 'Sale' (không phải 'Admin Sale')
+    let candidates = allCandidates.filter(user => 
+        Array.isArray(user.role) && 
+        user.role.includes(SALE_ROLE) && 
+        !user.role.includes('Admin Sale')
+    );
+    
+    // Ưu tiên 2: Nếu không có Sale, tìm nhân sự thuộc nhóm tuyển sinh chính (Telesale/Care) nhưng loại bỏ Admin Sale
+    if (!candidates?.length) {
+        allCandidates = await User.find({
+            group: { $in: targetGroups },
+            role: { $in: PRIORITY_ENROLLMENT_ROLES }
+        }).sort({ _id: 1 }).lean();
+        
+        // Filter để loại bỏ Admin Sale
+        candidates = allCandidates.filter(user => 
+            Array.isArray(user.role) && !user.role.includes('Admin Sale')
+        );
+    }
+    
+    // Ưu tiên 3: Nếu vẫn không có, fallback sang các role tuyển sinh khác (nhưng không bao gồm Admin Sale)
+    if (!candidates?.length) {
+        const fallbackRoles = ['Telesale', 'Care', 'Sale']; // Không bao gồm 'Admin Sale'
+        allCandidates = await User.find({
+            group: { $in: targetGroups },
+            role: { $in: fallbackRoles }
+        }).sort({ _id: 1 }).lean();
+        
+        // Filter để loại bỏ Admin Sale
+        candidates = allCandidates.filter(user => 
+            Array.isArray(user.role) && !user.role.includes('Admin Sale')
+        );
+    }
+    
+    console.log(`[AutoAssign] Found ${candidates.length} candidates (prioritizing role 'Sale', excluding 'Admin Sale'):`, candidates.map(c => ({
         id: c._id,
         name: c.name,
         role: c.role,
@@ -101,10 +146,10 @@ export async function autoAssignForCustomer(customerId, options = {}) {
                 group: staticUser.group,
                 assignedAt: new Date()
             });
-            const newStatus = (staticUser.group === 'telesale' || staticUser.group === 'noi_khoa')
-                ? 'noikhoa_3'
-                : ((staticUser.group === 'care' || staticUser.group === 'ngoai_khoa')
-                    ? 'ngoaikhoa_3'
+            const newStatus = (staticUser.group === 'telesale' || staticUser.group === 'telesale_TuVan')
+                ? 'telesale_TuVan3'
+                : ((staticUser.group === 'care' || staticUser.group === 'CareService')
+                    ? 'CareService3'
                     : 'undetermined_3');
             customer.pipelineStatus[0] = newStatus;
             customer.pipelineStatus[3] = newStatus;
@@ -129,10 +174,10 @@ export async function autoAssignForCustomer(customerId, options = {}) {
                 group: targetGroupUser.group,
                 assignedAt: new Date()
             });
-            const newStatus = (targetGroupUser.group === 'telesale' || targetGroupUser.group === 'noi_khoa')
-                ? 'noikhoa_3'
-                : ((targetGroupUser.group === 'care' || targetGroupUser.group === 'ngoai_khoa')
-                    ? 'ngoaikhoa_3'
+            const newStatus = (targetGroupUser.group === 'telesale' || targetGroupUser.group === 'telesale_TuVan')
+                ? 'telesale_TuVan3'
+                : ((targetGroupUser.group === 'care' || targetGroupUser.group === 'CareService')
+                    ? 'CareService3'
                     : 'undetermined_3');
             customer.pipelineStatus[0] = newStatus;
             customer.pipelineStatus[3] = newStatus;
@@ -181,10 +226,10 @@ export async function autoAssignForCustomer(customerId, options = {}) {
             group: fallbackUser.group,
             assignedAt: new Date()
         });
-        const fbStatus = (fallbackUser.group === 'telesale' || fallbackUser.group === 'noi_khoa')
-            ? 'noikhoa_3'
-            : ((fallbackUser.group === 'care' || fallbackUser.group === 'ngoai_khoa')
-                ? 'ngoaikhoa_3'
+        const fbStatus = (fallbackUser.group === 'telesale' || fallbackUser.group === 'telesale_TuVan')
+            ? 'telesale_TuVan3'
+            : ((fallbackUser.group === 'care' || fallbackUser.group === 'CareService')
+                ? 'CareService3'
                 : 'undetermined_3');
         customer.pipelineStatus[0] = fbStatus;
         customer.pipelineStatus[3] = fbStatus;
@@ -216,7 +261,12 @@ export async function autoAssignForCustomer(customerId, options = {}) {
     
     if (!service) return { ok: false, reason: 'service_not_found' };
 
-    const targetGroup = service.saleGroup || service.type || null; // fallback to type
+    // Xác định targetGroup từ Service
+    // Ưu tiên 1: saleGroup (nếu có) - chỉ có giá trị 'telesale', 'care', 'telesale_TuVan' hoặc 'CareService'
+    // Lưu ý: service.type là loại ngành học (dai_hoc, lien_thong, ...), không phải group
+    // Nếu không có saleGroup, fallback sang logic khác
+    const targetGroup = service.saleGroup || null;
+
     console.log(`[AutoAssign] Target group:`, targetGroup);
     
     let assignedUser = null;
@@ -232,24 +282,42 @@ export async function autoAssignForCustomer(customerId, options = {}) {
         } : 'NOT FOUND');
         
         if (defaultSaleUser) {
+            // Ưu tiên role chính xác là 'Sale'
+            const hasSaleRole = Array.isArray(defaultSaleUser.role) && defaultSaleUser.role.includes(SALE_ROLE);
             const hasPriorityRole = matchesRoleList(defaultSaleUser.role, PRIORITY_ENROLLMENT_ROLES);
-            const hasEnrollmentRole = hasPriorityRole || matchesRoleList(defaultSaleUser.role, ENROLLMENT_ROLES);
+            const hasEnrollmentRole = hasSaleRole || hasPriorityRole || matchesRoleList(defaultSaleUser.role, ['Telesale', 'Care', 'Sale']);
 
-            // Kiểm tra group có khớp với targetGroup không
-            const hasMatchingGroup = targetGroup && defaultSaleUser.group === targetGroup;
+            // Kiểm tra group có khớp với targetGroup không (hỗ trợ mapping)
+            let hasMatchingGroup = false;
+            if (targetGroup) {
+                // Mapping: 'telesale'/'care' (service) → 'telesale_TuVan'/'CareService' (database)
+                if (targetGroup === 'telesale') {
+                    hasMatchingGroup = defaultSaleUser.group === 'telesale' || defaultSaleUser.group === 'telesale_TuVan';
+                } else if (targetGroup === 'care') {
+                    hasMatchingGroup = defaultSaleUser.group === 'care' || defaultSaleUser.group === 'CareService';
+                } else {
+                    // Nếu targetGroup là giá trị mới, check exact match hoặc giá trị cũ
+                    hasMatchingGroup = defaultSaleUser.group === targetGroup || 
+                        (targetGroup === 'telesale_TuVan' && defaultSaleUser.group === 'telesale') ||
+                        (targetGroup === 'CareService' && defaultSaleUser.group === 'care');
+                }
+            }
 
-            if (hasEnrollmentRole && hasMatchingGroup) {
+            // Chỉ chấp nhận defaultSale nếu có role là 'Sale' hoặc role tuyển sinh (không bao gồm Admin Sale)
+            if (hasEnrollmentRole && hasMatchingGroup && !defaultSaleUser.role?.includes('Admin Sale')) {
                 assignedUser = defaultSaleUser;
-                console.log(`[AutoAssign] ✅ Default staff hợp lệ: role tuyển sinh và cùng group "${targetGroup}"`);
+                console.log(`[AutoAssign] ✅ Default staff hợp lệ: role tuyển sinh và cùng group "${targetGroup}" (user group: ${defaultSaleUser.group}, role: ${defaultSaleUser.role})`);
             } else {
                 console.log(`[AutoAssign] ⚠️ Default staff không phù hợp:`, {
+                    hasSaleRole,
                     hasEnrollmentRole,
                     hasPriorityRole,
                     hasMatchingGroup,
                     userGroup: defaultSaleUser.group,
+                    userRole: defaultSaleUser.role,
                     targetGroup
                 });
-                console.log(`[AutoAssign] → Sẽ dùng round-robin theo group "${targetGroup}"`);
+                console.log(`[AutoAssign] → Sẽ dùng round-robin theo group "${targetGroup}" (ưu tiên role 'Sale')`);
             }
         }
     }
@@ -275,10 +343,10 @@ export async function autoAssignForCustomer(customerId, options = {}) {
         assignedAt: new Date()
     });
 
-    const newStatus = (assignedUser.group === 'telesale' || assignedUser.group === 'noi_khoa')
-        ? 'noikhoa_3'
-        : ((assignedUser.group === 'care' || assignedUser.group === 'ngoai_khoa')
-            ? 'ngoaikhoa_3'
+    const newStatus = (assignedUser.group === 'telesale' || assignedUser.group === 'telesale_TuVan')
+        ? 'telesale_TuVan3'
+        : ((assignedUser.group === 'care' || assignedUser.group === 'CareService')
+            ? 'CareService3'
             : 'undetermined_3');
     customer.pipelineStatus[0] = newStatus;
     customer.pipelineStatus[3] = newStatus;

@@ -167,8 +167,8 @@ function deriveGroup(customer) {
     const assignees = Array.isArray(customer?.assignees) ? customer.assignees : [];
     const assignedGroup = assignees.find((a) => a?.group)?.group;
     if (assignedGroup === 'telesale' || assignedGroup === 'care') return assignedGroup;
-    if (assignedGroup === 'noi_khoa') return 'telesale';
-    if (assignedGroup === 'ngoai_khoa') return 'care';
+    if (assignedGroup === 'telesale_TuVan') return 'telesale';
+    if (assignedGroup === 'CareService') return 'care';
     return 'unknown';
 }
 
@@ -189,8 +189,8 @@ const prettyStatus = (raw) => {
     if (key.includes('invalid')) return { text: 'Không hợp lệ', color: 'bg-rose-100 text-rose-700 border border-rose-200' };
     if (key.includes('msg_success')) return { text: 'Đã gửi Zalo', color: 'bg-sky-100 text-sky-700 border border-sky-200' };
     if (key.includes('duplicate_merged')) return { text: 'Đã gộp trùng', color: 'bg-slate-100 text-slate-700 border border-slate-200' };
-    if (key.includes('noikhoa')) return { text: 'Telesale', color: 'bg-indigo-100 text-indigo-700 border border-indigo-200' };
-    if (key.includes('ngoaikhoa')) return { text: 'Care', color: 'bg-violet-100 text-violet-700 border border-violet-200' };
+    if (key.includes('Telesale')) return { text: 'Telesale', color: 'bg-indigo-100 text-indigo-700 border border-indigo-200' };
+    if (key.includes('Care')) return { text: 'Care', color: 'bg-violet-100 text-violet-700 border border-violet-200' };
     if (key.includes('scheduled')) return { text: 'Đã đặt lịch', color: 'bg-amber-100 text-amber-700 border border-amber-200' };
     if (key.includes('canceled')) return { text: 'Hủy lịch', color: 'bg-rose-100 text-rose-700 border border-rose-200' };
     if (key.includes('serviced_completed')) return { text: 'Đăng ký hoàn tất', color: 'bg-green-100 text-green-700 border border-green-200' };
@@ -434,8 +434,8 @@ export default function DataReceptionClient({ initialData, service = [] }) {
 
         const g = deriveGroup(c);
             if (groupFilter !== 'all') {
-                const normalizedGroup = (g === 'telesale' || g === 'noi_khoa') ? 'telesale'
-                    : (g === 'care' || g === 'ngoai_khoa') ? 'care' : g;
+                const normalizedGroup = (g === 'telesale' || g === 'telesale_TuVan') ? 'telesale'
+                    : (g === 'care' || g === 'CareService') ? 'care' : g;
                 if (normalizedGroup !== groupFilter) return false;
             }
 

@@ -98,7 +98,7 @@ export async function POST(request) {
             status: finalCallStatus
         });
 
-        // 4. Cập nhật Customer care
+        // 4. Cập nhật Customer care và pipelineStatus
         const callTimeStr = startTime.toLocaleString('vi-VN');
         const audioLink = uploadedFile.webViewLink || '';
         const lines = [
@@ -118,9 +118,35 @@ export async function POST(request) {
             createAt: new Date(),
             step: 4
         };
+
+        // Xác định pipelineStatus cho step 4 dựa trên callStatus và crmStatus
+        let pipelineStatus4 = 'consulted_pending_4'; // Mặc định: Đã tư vấn, chờ quyết định
+        
+        if (crmStatus) {
+            // Nếu có crmStatus, map sang pipelineStatus tương ứng
+            const crmStatusMap = {
+                'callback': 'callback_4',
+                'not_interested': 'not_interested_4',
+                'no_contact': 'no_contact_4',
+                'scheduled': 'scheduled_unconfirmed_4',
+                'consulted': 'consulted_pending_4',
+            };
+            pipelineStatus4 = crmStatusMap[crmStatus.toLowerCase()] || 'consulted_pending_4';
+        } else if (finalCallStatus === 'completed' && duration > 0) {
+            // Nếu cuộc gọi thành công và có thời lượng, coi như đã tư vấn
+            pipelineStatus4 = 'consulted_pending_4';
+        } else if (finalCallStatus === 'no_answer' || finalCallStatus === 'missed') {
+            pipelineStatus4 = 'no_contact_4';
+        } else if (finalCallStatus === 'rejected' || finalCallStatus === 'busy') {
+            pipelineStatus4 = 'callback_4';
+        }
         
         await Customer.findByIdAndUpdate(customerId, { 
-            $push: { care: careNote } 
+            $push: { care: careNote },
+            $set: {
+                'pipelineStatus.0': pipelineStatus4,
+                'pipelineStatus.4': pipelineStatus4,
+            }
         });
 
         return NextResponse.json({

@@ -4,7 +4,12 @@ import { revalidateTag } from 'next/cache';
 import mongoose from 'mongoose';
 import Customer from '@/models/customer.model';
 import Service from '@/models/services.model';
+import Zalo from '@/models/zalo.model';
+import Logs from '@/models/log.model';
+import Form from '@/models/formclient';
+import Variant from '@/models/variant.model';
 import { uploadFileToDrive } from '@/function/drive/image';
+import { actionZalo } from '@/function/drive/appscript';
 import checkAuthToken from '@/utils/checktoken';
 import connectDB from '@/config/connectDB';
 import { getCustomersAll } from '@/data/customers/handledata.db';
@@ -30,6 +35,165 @@ async function pushCareLog(customerId, content, userId, step = 6) {
             },
         }
     );
+}
+
+/**
+ * Xử lý một chuỗi tin nhắn thô, thay thế các placeholder (ví dụ: {name}) bằng dữ liệu thực tế của khách hàng.
+ * @param {string} rawMessage - Chuỗi tin nhắn gốc chứa placeholder.
+ * @param {object} customer - Đối tượng khách hàng từ MongoDB.
+ * @returns {Promise<string>} Chuỗi tin nhắn đã được xử lý.
+ */
+async function processMessage(rawMessage, customer) {
+    if (!rawMessage || !customer) return '';
+    const placeholders = rawMessage.match(/{([^}]+)}/g);
+    if (!placeholders) return rawMessage;
+
+    const placeholderNames = [...new Set(placeholders.map(p => p.slice(1, -1)))];
+    const staticNames = ['name', 'phone', 'email', 'formname'];
+    const variantNames = placeholderNames.filter(name => !staticNames.includes(name));
+
+    const [formResult, variantsResult] = await Promise.all([
+        placeholderNames.includes('formname') && customer.source
+            ? Form.findById(customer.source).select('name').lean()
+            : Promise.resolve(null),
+        variantNames.length > 0
+            ? Variant.find({ name: { $in: variantNames } }).lean()
+            : Promise.resolve([])
+    ]);
+
+    const replacementMap = {
+        name: customer.name || '',
+        phone: customer.phone || '',
+        email: customer.email || '',
+        formname: formResult?.name || 'phòng khám',
+    };
+
+    variantsResult.forEach(variant => {
+        if (variant.phrases && variant.phrases.length > 0) {
+            replacementMap[variant.name] = variant.phrases[Math.floor(Math.random() * variant.phrases.length)];
+        }
+    });
+
+    return rawMessage.replace(/{([^}]+)}/g, (match, key) => replacementMap[key] !== undefined ? replacementMap[key] : match);
+}
+
+/**
+ * Hàm helper để gửi tin nhắn Zalo tự động sau khi chốt đăng ký thành công
+ * @param {string} customerId - ID khách hàng
+ * @param {object} serviceDoc - Service document đã populate
+ * @param {string} selectedCourseName - Tên chương trình được chọn
+ * @param {object} customerDoc - Customer document
+ * @param {string} userId - ID người dùng thực hiện chốt đăng ký
+ */
+async function sendEnrollmentZaloMessage(customerId, serviceDoc, selectedCourseName, customerDoc, userId) {
+    try {
+        console.log(`[sendEnrollmentZaloMessage] Bắt đầu gửi tin nhắn Zalo cho KH ${customerId}, chương trình: ${selectedCourseName}`);
+        
+        // 1. Reload customer để đảm bảo có thông tin uid mới nhất
+        const customer = await Customer.findById(customerId).lean();
+        if (!customer) {
+            console.log(`[sendEnrollmentZaloMessage] Không tìm thấy khách hàng ${customerId}. Bỏ qua.`);
+            return;
+        }
+        
+        // 2. Tìm tin nhắn phù hợp với chương trình được chọn
+        if (!serviceDoc.preSurgeryMessages || !Array.isArray(serviceDoc.preSurgeryMessages) || serviceDoc.preSurgeryMessages.length === 0) {
+            console.log(`[sendEnrollmentZaloMessage] Không có tin nhắn preSurgeryMessages cho ngành học "${serviceDoc.name}". Bỏ qua.`);
+            return;
+        }
+
+        const messageTemplate = serviceDoc.preSurgeryMessages.find(
+            msg => msg.appliesToCourse === selectedCourseName
+        );
+
+        if (!messageTemplate || !messageTemplate.content) {
+            console.log(`[sendEnrollmentZaloMessage] Không tìm thấy tin nhắn cho chương trình "${selectedCourseName}". Bỏ qua.`);
+            return;
+        }
+
+        // 3. Xử lý tin nhắn (thay placeholder)
+        const messageContent = await processMessage(messageTemplate.content, customer);
+
+        // 4. Chọn tài khoản Zalo
+        // Ưu tiên: tài khoản Zalo đã tìm thấy UID của khách hàng
+        let selectedZalo = null;
+        if (customer.uid?.[0]?.zalo) {
+            selectedZalo = await Zalo.findById(customer.uid[0].zalo).lean();
+        }
+        
+        // Fallback: chọn bất kỳ tài khoản Zalo nào có sẵn
+        if (!selectedZalo) {
+            selectedZalo = await Zalo.findOne().sort({ _id: -1 }).lean();
+        }
+
+        if (!selectedZalo) {
+            console.log(`[sendEnrollmentZaloMessage] Không tìm thấy tài khoản Zalo để gửi tin. Bỏ qua.`);
+            return;
+        }
+
+        console.log(`[sendEnrollmentZaloMessage] Đã chọn tài khoản Zalo: ${selectedZalo.name}, UID: ${selectedZalo.uid}`);
+
+        // 5. Gửi tin nhắn qua Zalo
+        const response = await actionZalo({
+            phone: customer.phone,
+            uidPerson: customer.uid?.[0]?.uid || '',
+            actionType: 'sendMessage',
+            message: messageContent,
+            uid: selectedZalo.uid
+        });
+
+        // 6. Ghi log
+        await Logs.create({
+            status: {
+                status: response?.status || false,
+                message: messageContent,
+                data: {
+                    error_code: response?.content?.error_code || null,
+                    error_message: response?.content?.error_message || (response?.status ? '' : 'Invalid response from AppScript')
+                }
+            },
+            type: 'sendMessage',
+            createBy: userId || customerId, // Sử dụng người chốt đơn hoặc customerId
+            customer: customerId,
+            zalo: selectedZalo._id,
+        });
+
+        if (!response?.status) {
+            console.error(`[sendEnrollmentZaloMessage] Gửi tin nhắn thất bại:`, response?.content?.error_message || response?.message);
+            await pushCareLog(
+                customerId,
+                `[Gửi tin nhắn Zalo tự động sau chốt đăng ký] Thất bại: ${response?.content?.error_message || response?.message || 'Lỗi không xác định'}`,
+                userId || customerId,
+                6
+            );
+            return;
+        }
+
+        // 6. Ghi care log thành công
+        await pushCareLog(
+            customerId,
+            `[Gửi tin nhắn Zalo tự động sau chốt đăng ký] Đã gửi tin nhắn cho chương trình "${selectedCourseName}" thành công.`,
+            userId || customerId,
+            6
+        );
+
+        console.log(`[sendEnrollmentZaloMessage] ✅ Đã gửi tin nhắn Zalo thành công cho KH ${customerId}`);
+
+    } catch (error) {
+        console.error(`[sendEnrollmentZaloMessage] ❌ Lỗi khi gửi tin nhắn Zalo:`, error);
+        // Không throw error để không ảnh hưởng đến việc chốt đăng ký
+        // Chỉ ghi log lỗi
+        try {
+            await pushCareLog(
+                customerId,
+                `[Gửi tin nhắn Zalo tự động sau chốt đăng ký] Lỗi: ${error.message}`,
+                userId || customerId,
+                6
+            );
+        } catch (logError) {
+            console.error(`[sendEnrollmentZaloMessage] Lỗi khi ghi care log:`, logError);
+        }
+    }
 }
 
 /* ============================================================
@@ -96,8 +260,9 @@ export async function closeServiceAction(prevState, formData) {
         let courseSnapshot = null;
 
         // 3. Tìm chương trình và tính toán giá (nếu cần)
+        let serviceDoc = null;
         if (status !== 'rejected') {
-            const serviceDoc = await Service.findById(selectedServiceId).lean();
+            serviceDoc = await Service.findById(selectedServiceId).lean();
             if (!serviceDoc) {
                 return { success: false, error: 'Không tìm thấy ngành học đã chọn.' };
             }
@@ -141,7 +306,7 @@ export async function closeServiceAction(prevState, formData) {
         // 4. Upload nhiều ảnh lên Drive
         const uploadedFileIds = [];
         if (invoiceImages.length > 0 && invoiceImages[0].size > 0) {
-            const folderId = '1vNTcGy_oYM9phqutlvt-Fc5td8bFTkSm'; // Thay bằng ID folder Drive của bạn
+            const folderId = '1M-lSX-URoyvX-IU7e-TK-nhgkl7ptda3'; // Thay bằng ID folder Drive của bạn
             for (const image of invoiceImages) {
                 const uploadedFile = await uploadFileToDrive(image, folderId);
                 if (uploadedFile?.id) {
@@ -157,7 +322,7 @@ export async function closeServiceAction(prevState, formData) {
         // Upload ảnh khách hàng
         const uploadedCustomerPhotoIds = [];
         if (customerPhotos.length > 0 && customerPhotos[0].size > 0) {
-            const folderId = '1vNTcGy_oYM9phqutlvt-Fc5td8bFTkSm';
+            const folderId = '1M-lSX-URoyvX-IU7e-TK-nhgkl7ptda3';
             for (const photo of customerPhotos) {
                 const uploadedFile = await uploadFileToDrive(photo, folderId);
                 if (uploadedFile?.id) {
@@ -212,6 +377,14 @@ export async function closeServiceAction(prevState, formData) {
 
         // 9. Lưu vào DB
         await customerDoc.save();
+
+        // 10. Gửi tin nhắn Zalo tự động sau khi chốt đăng ký thành công (chỉ khi status không phải rejected)
+        if (status !== 'rejected' && serviceDoc && selectedCourseName && customerDoc) {
+            // Chạy nền (không await) để không làm chậm response
+            sendEnrollmentZaloMessage(customerId, serviceDoc, selectedCourseName, customerDoc, session.id).catch(err => {
+                console.error('[closeServiceAction] Lỗi ngầm khi gửi tin nhắn Zalo tự động:', err);
+            });
+        }
 
         revalidateData(); // Hàm revalidate của bạn
         return { success: true, message: 'Chốt đăng ký thành công! Đơn đang chờ duyệt.' };
@@ -451,7 +624,7 @@ export async function updateServiceDetailAction(prevState, formData) {
 
         // Xử lý ảnh khách hàng
         if (customerPhotos.length > 0) {
-            const folderId = '1vNTcGy_oYM9phqutlvt-Fc5td8bFTkSm';
+            const folderId = '1M-lSX-URoyvX-IU7e-TK-nhgkl7ptda3';
             const uploaded = [];
             for (const f of customerPhotos) {
                 const up = await uploadFileToDrive(f, folderId);

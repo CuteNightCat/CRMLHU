@@ -48,7 +48,7 @@ const newEmptyMessage = () => ({ appliesToCourse: '', content: '' });
 export default function ServiceEditorForm({ mode = 'create', initial, onSubmit }) {
     const [name, setName] = useState(initial?.name || '');
     const [type, setType] = useState(initial?.type || 'dai_hoc');
-    const [saleGroup, setSaleGroup] = useState(initial?.saleGroup || '');
+    const [saleGroup, setSaleGroup] = useState(initial?.saleGroup || (mode === 'create' ? 'telesale' : ''));
     const [defaultSale, setDefaultSale] = useState(initial?.defaultSale || '');
     const [description, setDescription] = useState(initial?.description || '');
     const [coverPreview, setCoverPreview] = useState(coverUrlOf(initial?.cover) || '');

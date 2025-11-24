@@ -23,7 +23,7 @@ function TableSkeleton() {
     );
 }
 
-export default function CustomerView({ customer, c, running, initialResult, user, sources, labelData, formData, zaloData, users, variant, workflow, service }) {
+export default function CustomerView({ customer, c, running, initialResult, user, sources, messageSources = [], labelData, formData, zaloData, users, variant, workflow, service }) {
     const router = useRouter();
     const intervalRef = useRef(null);
 
@@ -145,6 +145,7 @@ export default function CustomerView({ customer, c, running, initialResult, user
                         users={allEnrollmentUsers}
                         labels={labelData}
                         sources={sources}
+                        messageSources={messageSources}
                         service={service}
                     />
                 </>

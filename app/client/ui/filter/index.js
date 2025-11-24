@@ -8,6 +8,7 @@ import Menu from '@/components/(ui)/(button)/menu';
 
 export default function FilterControls({
     sources = [],
+    messageSources = [],
     users = [],
     // Bạn có thể truyền "services" (mới) hoặc "service" (cũ). Ưu tiên "services".
     services: servicesProp = [],
@@ -15,6 +16,11 @@ export default function FilterControls({
     auth = { role: [] },
 }) {
     const services = servicesProp.length ? servicesProp : service;
+    
+    // Nguồn đặc biệt: "Trực tiếp"
+    const specialSources = [
+        { _id: 'Trực tiếp', name: 'Trực tiếp', isSpecialSource: true }
+    ];
 
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -65,8 +71,8 @@ export default function FilterControls({
             { value: 'valid_1', name: 'Hợp lệ (chờ xử lý)' },
             { value: 'msg_success_2', name: 'Gửi tin nhắn thành công' },
             { value: 'msg_error_2', name: 'Gửi tin nhắn thất bại' },
-            { value: 'noikhoa_3', name: 'Đã phân bổ: Telesale' },
-            { value: 'ngoaikhoa_3', name: 'Đã phân bổ: Care' },
+            { value: 'telesale_TuVan3', name: 'Đã phân bổ: Telesale' },
+            { value: 'CareService3', name: 'Đã phân bổ: Care' },
             { value: 'undetermined_3', name: 'Chưa phân bổ' },
             { value: 'consulted_pending_4', name: 'Đã tư vấn, chờ quyết định' },
             { value: 'scheduled_unconfirmed_4', name: 'Đã lên lịch, chưa xác nhận' },
@@ -93,9 +99,23 @@ export default function FilterControls({
         const value = searchParams.get(param);
         if (!value) return defaultText;
         if (param === 'tags' && value === 'null') return 'Chưa xác định';
-        const selected = data.find((item) => String(item[keyField]) === value);
+        
+        // Kiểm tra nguồn đặc biệt trước (cho param 'source')
+        if (param === 'source') {
+            const specialSource = specialSources.find((item) => String(item[keyField]) === value);
+            if (specialSource) return specialSource[nameField];
+        }
+        
+        // Kiểm tra trong data được truyền vào
+        let selected = data.find((item) => String(item[keyField]) === value);
+        
+        // Nếu không tìm thấy trong data và là param 'source', tìm trong messageSources
+        if (!selected && param === 'source') {
+            selected = messageSources.find((item) => String(item[keyField]) === value);
+        }
+        
         return selected ? selected[nameField] : defaultText;
-    }, [searchParams]);
+    }, [searchParams, messageSources, specialSources]);
 
     return (
         <div className={styles.wrapper}>
@@ -170,13 +190,33 @@ export default function FilterControls({
                     <Menu
                         isOpen={isSourceMenuOpen}
                         onOpenChange={setIsSourceMenuOpen}
-                        customButton={<div className="input text_6_400">{getSelectedName('source', sources, 'Tất cả nguồn')}</div>}
+                        customButton={
+                            <div className="input text_6_400">
+                                {getSelectedName('source', [...sources, ...specialSources, ...messageSources], 'Tất cả nguồn')}
+                            </div>
+                        }
                         menuItems={
-                            <div className={styles.menulist}>
+                            <div className={`${styles.menulist} scroll`}>
                                 <p className="text_6_400" onClick={() => { createURL({ source: '' }); setIsSourceMenuOpen(false); }}>
                                     Tất cả nguồn
                                 </p>
+                                
+                                {/* Danh sách nguồn Form */}
                                 {sources.map((s) => (
+                                    <p key={s._id} className="text_6_400" onClick={() => { createURL({ source: s._id }); setIsSourceMenuOpen(false); }}>
+                                        {s.name}
+                                    </p>
+                                ))}
+                                
+                                {/* Nguồn đặc biệt */}
+                                {specialSources.map((s) => (
+                                    <p key={s._id} className="text_6_400" onClick={() => { createURL({ source: s._id }); setIsSourceMenuOpen(false); }}>
+                                        {s.name}
+                                    </p>
+                                ))}
+                                
+                                {/* Danh sách nguồn Tin nhắn */}
+                                {messageSources.map((s) => (
                                     <p key={s._id} className="text_6_400" onClick={() => { createURL({ source: s._id }); setIsSourceMenuOpen(false); }}>
                                         {s.name}
                                     </p>

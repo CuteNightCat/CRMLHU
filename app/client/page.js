@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { user_data, label_data, zalo_data } from "@/data/actions/get";
-import { form_data } from '@/data/form_database/wraperdata.db'
+import { form_data, getMessageSources } from '@/data/form_database/wraperdata.db'
 import { getCombinedData } from "../actions/customer.actions";
 import checkAuthToken from "@/utils/checktoken";
 import CustomerView from './index';
@@ -19,11 +19,12 @@ export default async function Page({ searchParams }) {
     let c = await searchParams
     const user = await checkAuthToken()
     if (!user) return null
-    const [customer, initialResult, userAuth, sources, label, zalo, users, variant, running, workflow, service] = await Promise.all([
+    const [customer, initialResult, userAuth, sources, messageSources, label, zalo, users, variant, running, workflow, service] = await Promise.all([
         customer_data(),
         getCombinedData(c),
         user_data({ _id: user.id }),
         form_data(),
+        getMessageSources(),
         label_data(),
         zalo_data(),
         user_data({}),
@@ -60,6 +61,7 @@ export default async function Page({ searchParams }) {
                 initialResult={initialResult}
                 user={userAuth}
                 sources={sources}
+                messageSources={messageSources}
                 labelData={reversedLabel}
                 formData={sources}
                 zaloData={zalo}
