@@ -204,7 +204,7 @@ const FormSchema = new Schema(
         zaloPhase: { type: String, enum: ['welcome', 'nurturing', 'pre_surgery', 'post_surgery', 'longterm'], default: null },
         tags: { type: [{ type: Schema.Types.ObjectId, ref: 'service' }], default: [] },
         roles: { type: [{ type: Schema.Types.ObjectId, ref: 'user', required: true }], default: [] },
-        workflowTemplates: { type: [Schema.Types.ObjectId], ref: 'workflowtemplate', default: [] },
+        workflowTemplates: { type: Schema.Types.Mixed, default: {} }, // Object với key là idWorkflowAc, value là {success: true/false/null}
         assignee: { type: Schema.Types.ObjectId, ref: 'user', default: null },
         assignedBy: { type: Schema.Types.ObjectId, ref: 'user', default: null },
         assignedAt: { type: Date, default: null },

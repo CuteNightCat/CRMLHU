@@ -57,7 +57,7 @@ function CustomerDetailHeader({ customer, zalo }) {
 // == COMPONENT CHÍNH
 // =============================================================
 export default function CustomerRow({
-    customer, index, isSelected, onSelect, visibleColumns, renderCellContent, user, zalo, service
+    customer, index, isSelected, onSelect, visibleColumns, renderCellContent, user, zalo, service, workflow
 }) {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('pipeline');
@@ -174,6 +174,7 @@ export default function CustomerRow({
                         closeServiceAction={closeServiceActionFn}
                         closeState={closeState}
                         currentUserId={user[0]?._id}
+                        workflows={workflow}
                     />
                 );
             case 'history':
@@ -182,6 +183,7 @@ export default function CustomerRow({
                         customer={customer}
                         initialHistory={historyData}
                         isLoading={isHistoryLoading}
+                        customerId={customer._id}
                     />
                 );
             case 'info':

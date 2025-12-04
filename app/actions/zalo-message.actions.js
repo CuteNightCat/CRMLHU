@@ -18,12 +18,11 @@ function normalizeUid(uid) {
 }
 
 export async function sendZaloMessageAction(previousState, formData) {
-    console.log('🔵 [Zalo Message] Starting action...');
-    
+   
     // 1. Authentication check
     const user = await checkAuthToken();
     if (!user || !user.id) {
-        console.log('❌ [Zalo Message] Not authenticated');
+        
         return { success: false, message: 'Bạn cần đăng nhập để thực hiện hành động này.' };
     }
     const roleList = Array.isArray(user.role) ? user.role : [user.role];
@@ -191,6 +190,7 @@ export async function sendZaloMessageAction(previousState, formData) {
                     }
                 }
             });
+            console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus.0=${newStatus}, pipelineStatus.2=${newStatus} (zalo message success)`);
         } else {
             // Update pipeline status to error if failed
             const newStatus = 'msg_error_2';
@@ -208,6 +208,7 @@ export async function sendZaloMessageAction(previousState, formData) {
                     }
                 }
             });
+            console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus.0=${newStatus}, pipelineStatus.2=${newStatus} (zalo message error)`);
         }
 
         // 9. Revalidate data

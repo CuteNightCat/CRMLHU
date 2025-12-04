@@ -24,6 +24,7 @@ import { driveImage } from '@/function';
 import { FaBusinessTime } from "react-icons/fa6";
 import { IoChatbubbles } from "react-icons/io5";
 import { IoIosSettings } from "react-icons/io";
+import { IoSchoolOutline } from "react-icons/io5";
 // Hằng số định nghĩa chiều cao của mỗi mục nav, dùng để tính toán hiệu ứng highlight
 const ITEM_HEIGHT = 82;
 
@@ -47,6 +48,7 @@ const ALL_NAV_ITEMS = [
   { href: '/admin', icon: <Svg_Chart h={20} w={20} c={'var(--text-secondary)'} />, content: 'Thống kê' },
   { href: '/user', icon: <Svg_Profile h={20} w={20} c={'var(--text-secondary)'} />, content: 'Nhân sự' },
   { href: '/service', icon: <IoIosSettings style={{ width: 24, height: 24 }} />, content: 'Cài đặt' },
+  { href: '/guide', icon: <IoSchoolOutline style={{ width: 20, height: 20, color: 'var(--text-secondary)' }} />, content: 'Hướng dẫn' },
 ];
 
 // Định nghĩa component Nav, nhận prop `data` chứa thông tin người dùng (bao gồm cả `role`)
@@ -64,11 +66,11 @@ export default function Nav({ data }) {
   const navItemsForRole = useMemo(() => {
     // Định nghĩa các quyền và danh sách `href` tương ứng
     const rolePermissions = {
-      'Sale': ['/client', '/pancake', '/calendar'],
-      'Telesale': ['/client', '/pancake', '/calendar'],
-      'Care': ['/client', '/pancake', '/calendar'],
-      'Docter': [],
-      'Admin Sale': ['/user', '/client', '/pancake', '/admin', '/calendar'],
+      'Sale': ['/client', '/pancake', '/calendar', '/guide'],
+      'Telesale': ['/client', '/pancake', '/calendar', '/guide'],
+      'Care': ['/client', '/pancake', '/calendar', '/guide'],
+      'Docter': ['/guide'],
+      'Admin Sale': ['/user', '/client', '/pancake', '/admin', '/calendar', '/guide'],
     };
     // Nếu là Manager hoặc Admin thì trả về tất cả các mục
     if (userRole === 'Manager' || userRole === 'Admin') {

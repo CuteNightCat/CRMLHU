@@ -22,11 +22,11 @@ export async function workflow_data(id, filterType = 'all') {
 export async function reloadWorkflow() {
   revalidateTag('workflows');
 }
-
+// Tạo template workflow mới
 export async function createWorkflow(formData) {
   try {
     await connectDB();
-    let { name, type, steps, excludedSources } = formData;
+    let { name, type, steps, excludedSources, workflow_position, isSubWorkflow, autoWorkflow } = formData;
     if (type === 'fixed') {
       // Fixed: Steps cố định cho CRM hoặc Zalo
       steps = getFixedSteps(type); // Hàm helper định nghĩa 6/5 steps fixed
@@ -36,6 +36,9 @@ export async function createWorkflow(formData) {
       type,
       steps,
       excludedSources: excludedSources || [],
+      workflow_position: workflow_position || null,
+      isSubWorkflow: isSubWorkflow || false,
+      autoWorkflow: autoWorkflow || false,
     });
     await newTemplate.save();
     revalidateTag('workflows');
@@ -49,7 +52,7 @@ export async function createWorkflow(formData) {
 export async function updateWorkflow(id, formData) {
   try {
     await connectDB();
-    const { name, steps, excludedSources, applyMode } = formData;
+    const { name, steps, excludedSources, applyMode, workflow_position, isSubWorkflow, autoWorkflow } = formData;
     const template = await WorkflowTemplate.findById(id);
     if (!template) throw new Error('Workflow không tồn tại.');
     if (template.type === 'fixed') {
@@ -60,6 +63,9 @@ export async function updateWorkflow(id, formData) {
     }
     template.name = name;
     template.excludedSources = excludedSources || [];
+    if (workflow_position !== undefined) template.workflow_position = workflow_position;
+    if (isSubWorkflow !== undefined) template.isSubWorkflow = isSubWorkflow;
+    if (autoWorkflow !== undefined) template.autoWorkflow = autoWorkflow;
     await template.save();
     if (applyMode === 'immediate') {
       const customerWorkflows = await CustomerWorkflow.find({ templateId: id });

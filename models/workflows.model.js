@@ -29,6 +29,12 @@ const workflowTemplateSchema = new Schema({
     ],
     attachedTo: { type: Schema.Types.ObjectId, ref: 'WorkflowTemplate', default: null }, // Custom attached to fixed
     excludedSources: { type: [String], default: [] }, // Excluded sources
+    /** Vị trí step trong pipeline mà workflow con sẽ chạy sau bước đó (1-6) */
+    workflow_position: { type: Number, min: 1, max: 6, default: null },
+    /** Nhận biết đây có phải workflow con không */
+    isSubWorkflow: { type: Boolean, default: false },
+    /** Nhận biết đây có phải workflow con tự động (chạy ngay khi bước cha hoàn thành) */
+    autoWorkflow: { type: Boolean, default: false },
 });
 
 /** Schema for CustomerWorkflow to manage workflows assigned to customers. */
@@ -43,6 +49,12 @@ const customerWorkflowSchema = new Schema({
             status: { type: String, enum: ['pending', 'completed', 'failed'], default: 'pending' },
             params: Object,
             retryCount: { type: Number, default: 0 },
+            /** Nhận biết step này có phải sub-workflow không */
+            isSubWorkflow: { type: Boolean, default: false },
+            /** ID của step cha (nếu là step con) */
+            parentStepId: { type: Schema.Types.ObjectId, default: null },
+            /** ID của sub-workflow template (nếu là step con) */
+            subWorkflowId: { type: Schema.Types.ObjectId, ref: 'WorkflowTemplate', default: null },
         },
     ],
     nextStepTime: Date,

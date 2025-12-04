@@ -117,6 +117,16 @@ export async function createAppointmentAction(prevState, formData) {
                 'pipelineStatus.5': newPipelineStatus,
             }
         });
+        console.log(`🐳[pipelineStatus] Đặt lịch hẹn Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus.0=${newPipelineStatus}, pipelineStatus.5=${newPipelineStatus}`);
+
+        // Kích hoạt workflow auto cho Step 5 ngay sau khi tạo appointment thành công
+        // startDay = appointment.createdAt (thời gian tạo appointment)
+        const { autoSetupRepetitionWorkflow } = await import('@/config/agenda');
+        setImmediate(() => {
+            autoSetupRepetitionWorkflow(customerId, 5, newAppointment.createdAt).catch(err => {
+                console.error('[createAppointmentAction] Lỗi khi kích hoạt workflow auto cho step 5:', err);
+            });
+        });
 
         // Revalidate data
         await reloadAppointments();
@@ -265,6 +275,7 @@ export async function updateAppointmentStatusAction(prevState, formData) {
         }
 
         await Customer.findByIdAndUpdate(appointment.customer, customerUpdate);
+        console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${appointment.customer}:`, JSON.stringify(pipelineUpdates));
 
         // Revalidate data
         await reloadAppointments();
@@ -326,6 +337,7 @@ export async function cancelAppointmentAction(prevState, formData) {
                 'pipelineStatus.5': newPipelineStatus,
             }
         });
+        console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${appointment.customer}: pipelineStatus.0=${newPipelineStatus}, pipelineStatus.5=${newPipelineStatus}`);
 
         await reloadAppointments();
         await revalidateData();

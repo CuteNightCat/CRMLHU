@@ -122,6 +122,16 @@ const WorkflowStep = ({ step, index, onRemove, onUpdateDelay, onUpdateParam, isF
 };
 
 
+// Danh sách các bước pipeline (từ CustomerPipeline.js)
+const PIPELINE_STAGES = [
+    { id: 1, title: 'Tiếp nhận & Xử lý' },
+    { id: 2, title: 'Nhắn tin xác nhận' },
+    { id: 3, title: 'Phân bổ Telesale' },
+    { id: 4, title: 'Telesale Tư vấn' },
+    { id: 5, title: 'Nhắc lịch & Xác nhận vào học' },
+    { id: 6, title: 'Chốt đăng ký vào học' }
+];
+
 // --- Component chính ---
 export default function WorkflowForm({ workflow, forms, onSuccess, onCancel }) {
     // === Toàn bộ State và Effect được giữ nguyên ===
@@ -129,16 +139,26 @@ export default function WorkflowForm({ workflow, forms, onSuccess, onCancel }) {
     const [steps, setSteps] = useState([]);
     const [newStep, setNewStep] = useState({ action: '', delay: 0, params: {} });
     const [delayUnit, setDelayUnit] = useState('minutes');
+    const [workflowPosition, setWorkflowPosition] = useState(null); // Step cha được chọn
+    const [isSubWorkflow, setIsSubWorkflow] = useState(false);
+    const [autoWorkflow, setAutoWorkflow] = useState(false); // Workflow con tự động
+    const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
     const isFixed = workflow?.type === 'fixed';
 
     useEffect(() => {
         if (workflow) {
             setName(workflow.name);
             setSteps(workflow.steps);
+            setWorkflowPosition(workflow.workflow_position || null);
+            setIsSubWorkflow(workflow.isSubWorkflow || false);
+            setAutoWorkflow(workflow.autoWorkflow || false);
         } else {
             setName('');
             setSteps([]);
             setNewStep({ action: '', delay: 0, params: {} });
+            setWorkflowPosition(null);
+            setIsSubWorkflow(false);
+            setAutoWorkflow(false);
         }
     }, [workflow]);
 
@@ -163,8 +183,42 @@ export default function WorkflowForm({ workflow, forms, onSuccess, onCancel }) {
         setSteps(prev => prev.map((s, i) => i === index ? { ...s, delay: ms } : s));
     };
     const handleSubmit = async () => {
-        if (name && steps.length > 0) {
-            const formData = { name, steps };
+        // Tránh double submit
+        if (isSubmitting) {
+            console.log('[WorkflowForm] Đang submit, bỏ qua...');
+            return;
+        }
+        
+        // Validation
+        if (!name || name.trim() === '') {
+            alert('Vui lòng nhập tên workflow');
+            return;
+        }
+        
+        if (steps.length === 0) {
+            alert('Vui lòng thêm ít nhất một bước cho workflow');
+            return;
+        }
+        
+        // Nếu là workflow con thì phải chọn bước cha
+        if (isSubWorkflow && !workflowPosition) {
+            alert('Vui lòng chọn bước cha (Pipeline Step) cho workflow con');
+            return;
+        }
+        
+        setIsSubmitting(true);
+        
+        try {
+            const formData = { 
+                name: name.trim(), 
+                steps,
+                workflow_position: workflowPosition || null,
+                isSubWorkflow: isSubWorkflow,
+                autoWorkflow: autoWorkflow || false
+            };
+            
+            console.log('[WorkflowForm] Submitting formData:', formData);
+            
             let result;
             if (workflow && workflow._id) {
                 result = await updateWorkflow(workflow._id, formData);
@@ -172,7 +226,19 @@ export default function WorkflowForm({ workflow, forms, onSuccess, onCancel }) {
                 formData.type = isFixed ? 'fixed' : 'custom';
                 result = await createWorkflow(formData);
             }
-            if (result.success) onSuccess(formData);
+            
+            console.log('[WorkflowForm] Submit result:', result);
+            
+            if (result.success) {
+                onSuccess(formData);
+            } else {
+                alert(result.error || 'Có lỗi xảy ra khi lưu workflow');
+            }
+        } catch (error) {
+            console.error('[WorkflowForm] Error submitting:', error);
+            alert('Có lỗi xảy ra: ' + (error.message || error));
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -189,9 +255,80 @@ export default function WorkflowForm({ workflow, forms, onSuccess, onCancel }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: '35%' }}>
                     <Card>
                         <CardHeader><CardTitle>Thông tin cơ bản</CardTitle></CardHeader>
-                        <CardContent>
-                            <Label htmlFor="workflow-name">Tên Workflow</Label>
-                            <Input id="workflow-name" value={name} onChange={e => setName(e.target.value)} />
+                        <CardContent className="space-y-4">
+                            <div>
+                                <Label htmlFor="workflow-name">Tên Workflow</Label>
+                                <Input id="workflow-name" value={name} onChange={e => setName(e.target.value)} />
+                            </div>
+                            
+                                    {!isFixed && (
+                                <>
+                                    <div>
+                                        <Label>Loại Workflow</Label>
+                                        <div className="flex flex-col space-y-2 mt-2">
+                                            <div className="flex items-center space-x-2">
+                                                <input
+                                                    type="checkbox"
+                                                    id="isSubWorkflow"
+                                                    checked={isSubWorkflow}
+                                                    onChange={(e) => {
+                                                        setIsSubWorkflow(e.target.checked);
+                                                        if (!e.target.checked) {
+                                                            setWorkflowPosition(null);
+                                                            setAutoWorkflow(false);
+                                                        }
+                                                    }}
+                                                    className="w-4 h-4"
+                                                />
+                                                <Label htmlFor="isSubWorkflow" className="cursor-pointer">
+                                                    Đây là Workflow con
+                                                </Label>
+                                            </div>
+                                            
+                                            {isSubWorkflow && (
+                                                <div className="flex items-center space-x-2 ml-6">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="autoWorkflow"
+                                                        checked={autoWorkflow}
+                                                        onChange={(e) => setAutoWorkflow(e.target.checked)}
+                                                        className="w-4 h-4"
+                                                    />
+                                                    <Label htmlFor="autoWorkflow" className="cursor-pointer text-sm">
+                                                        Đây là workflow auto
+                                                    </Label>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    
+                                    {isSubWorkflow && (
+                                        <div>
+                                            <Label htmlFor="workflow-position">Chọn bước cha (Pipeline Step)</Label>
+                                            <Select 
+                                                value={workflowPosition?.toString() || ''} 
+                                                onValueChange={(value) => setWorkflowPosition(parseInt(value))}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Chọn bước cha..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {PIPELINE_STAGES.map((stage) => (
+                                                        <SelectItem key={stage.id} value={stage.id.toString()}>
+                                                            Bước {stage.id}: {stage.title}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <p className="text-xs text-gray-500 mt-1">
+                                                {autoWorkflow 
+                                                    ? "Workflow con auto sẽ chạy ngay khi bước cha hoàn thành"
+                                                    : "Workflow con sẽ chạy sau khi bước này hoàn thành"}
+                                            </p>
+                                        </div>
+                                    )}
+                                </>
+                            )}
                         </CardContent>
                     </Card>
 
@@ -265,8 +402,10 @@ export default function WorkflowForm({ workflow, forms, onSuccess, onCancel }) {
             </main>
 
             <footer className="p-4 border-t bg-white flex justify-end gap-3 flex-shrink-0">
-                <Button variant="outline" onClick={onCancel}>Hủy</Button>
-                <Button onClick={handleSubmit}>Lưu</Button>
+                <Button variant="outline" onClick={onCancel} disabled={isSubmitting}>Hủy</Button>
+                <Button onClick={handleSubmit} disabled={isSubmitting}>
+                    {isSubmitting ? 'Đang lưu...' : 'Lưu'}
+                </Button>
             </footer>
         </>
     );

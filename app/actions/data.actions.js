@@ -17,6 +17,21 @@ import ZaloAccount from '@/models/zalo.model';
 import Setting from '@/models/setting.model';
 import Logs from '@/models/log.model';
 import Variant from '@/models/variant.model';
+import { WorkflowTemplate } from '@/models/workflows.model';
+
+// Helper function để lấy workflow ID từ database dựa trên tên
+async function getWorkflowIdByName(namePattern) {
+    try {
+        await dbConnect();
+        const workflow = await WorkflowTemplate.findOne({ 
+            name: { $regex: namePattern, $options: 'i' } 
+        }).select('_id').lean();
+        return workflow ? workflow._id.toString() : null;
+    } catch (error) {
+        console.error(`[getWorkflowIdByName] Lỗi khi tìm workflow với pattern "${namePattern}":`, error);
+        return null;
+    }
+}
 
 export async function createAreaAction(_previousState, formData) {
     await dbConnect();
@@ -193,6 +208,7 @@ export async function addRegistrationToAction(_previousState, inputData) {
             existingCustomer.pipelineStatus[0] = 'duplicate_merged_1';
             existingCustomer.pipelineStatus[1] = 'duplicate_merged_1';
             await existingCustomer.save();
+            console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${existingCustomer._id}: pipelineStatus[0]=duplicate_merged_1, pipelineStatus[1]=duplicate_merged_1`);
             
             try {
                 if (!Array.isArray(existingCustomer.assignees) || existingCustomer.assignees.length === 0) {
@@ -227,6 +243,7 @@ export async function addRegistrationToAction(_previousState, inputData) {
 
         const newCustomer = new Customer(newCustomerData);
         await newCustomer.save();
+        console.log(`[pipelineStatus] Tạo customer mới ${newCustomer._id} với pipelineStatus: pipelineStatus[0]=new_unconfirmed_1, pipelineStatus[1]=new_unconfirmed_1 (addRegistrationToAction)`);
         
         try {
         await autoAssignForCustomer(newCustomer._id, { serviceId: rawData.service || null });
@@ -398,6 +415,34 @@ async function processFindUidAndSendMessage(newCustomer) {
     let findUidStatus = "thất bại";
     let renameStatus = "không thực hiện";
     let messageStatus = "không thực hiện";
+    
+    // Lấy workflow ID từ database thay vì hardcode
+    const findUidWorkflowId = await getWorkflowIdByName('B1.*Tiếp nhận');
+    if (!findUidWorkflowId) {
+        console.error('[processFindUidAndSendMessage] Không tìm thấy workflow "B1: Tiếp nhận & xử lý Data từ quảng cáo và nguồn ngoài"');
+    }
+    
+    // Lưu workflow đầu tiên (WF1) với success: null (đang chạy)
+    if (findUidWorkflowId) {
+        try {
+            const customer = await Customer.findById(customerId);
+            if (customer) {
+                // Kiểm tra và khởi tạo workflowTemplates nếu cần
+                if (!customer.workflowTemplates || typeof customer.workflowTemplates !== 'object' || Array.isArray(customer.workflowTemplates)) {
+                    customer.workflowTemplates = {};
+                }
+                customer.workflowTemplates[findUidWorkflowId] = { success: null };
+                customer.markModified('workflowTemplates'); // Quan trọng cho Schema.Types.Mixed
+                await customer.save();
+                console.log('[processFindUidAndSendMessage] Đã lưu workflow đầu tiên (WF1) với success: null, workflowTemplates:', JSON.stringify(customer.workflowTemplates));
+            } else {
+                console.error('[processFindUidAndSendMessage] Không tìm thấy customer với ID:', customerId);
+            }
+        } catch (error) {
+            console.error('[processFindUidAndSendMessage] Lỗi khi lưu workflow đầu tiên:', error);
+            console.error('[processFindUidAndSendMessage] Error stack:', error.stack);
+        }
+    }
     
     try {
         await dbConnect();
@@ -652,20 +697,34 @@ async function processFindUidAndSendMessage(newCustomer) {
                             });
                             
                             // Cập nhật care log và pipelineStatus khi thành công
-                            await Customer.findByIdAndUpdate(customerId, {
-                                $push: {
-                                    care: {
-                                        content: `✅ [Gửi tin nhắn Zalo] đã hoàn thành thành công: ${finalMessageToSend.substring(0, 100)}${finalMessageToSend.length > 100 ? '...' : ''}`,
-                                        createBy: newCustomer.createdBy || '68b0af5cf58b8340827174e0',
-                                        step: 2,
-                                        createAt: new Date()
+                            const customer = await Customer.findById(customerId);
+                            if (customer) {
+                                customer.care.push({
+                                    content: `✅ [Gửi tin nhắn Zalo] đã hoàn thành thành công: ${finalMessageToSend.substring(0, 100)}${finalMessageToSend.length > 100 ? '...' : ''}`,
+                                    createBy: newCustomer.createdBy || '68b0af5cf58b8340827174e0',
+                                    step: 2,
+                                    createAt: new Date()
+                                });
+                                customer.pipelineStatus[0] = 'msg_success_2';
+                                customer.pipelineStatus[2] = 'msg_success_2';
+                                console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus[0]=msg_success_2, pipelineStatus[2]=msg_success_2`);
+                                
+                                // Lưu workflow WF2 (B2: Gửi tin nhắn) vào workflowTemplates
+                                const messageWorkflowId = await getWorkflowIdByName('B2.*Gửi tin nhắn');
+                                if (messageWorkflowId) {
+                                    if (!customer.workflowTemplates || typeof customer.workflowTemplates !== 'object' || Array.isArray(customer.workflowTemplates)) {
+                                        customer.workflowTemplates = {};
                                     }
-                                },
-                                $set: {
-                                    'pipelineStatus.0': 'msg_success_2',
-                                    'pipelineStatus.2': 'msg_success_2'
+                                    if (!customer.workflowTemplates[messageWorkflowId]) {
+                                        customer.workflowTemplates[messageWorkflowId] = { success: null };
+                                    }
+                                    customer.workflowTemplates[messageWorkflowId].success = true;
+                                    customer.markModified('workflowTemplates');
+                                    console.log(`[processFindUidAndSendMessage] Đã lưu workflow WF2 vào workflowTemplates: ${messageWorkflowId}, success: true`);
                                 }
-                            });
+                                
+                                await customer.save();
+                            }
                         } else {
                             messageStatus = "thất bại";
                             const errorMsg = sendMessageResponse.content?.error_message || sendMessageResponse.message || 'Không xác định';
@@ -676,20 +735,34 @@ async function processFindUidAndSendMessage(newCustomer) {
                             });
                             
                             // Cập nhật care log và pipelineStatus khi thất bại
-                            await Customer.findByIdAndUpdate(customerId, {
-                                $push: {
-                                    care: {
-                                        content: `❌ [Gửi tin nhắn Zalo] thất bại: ${errorMsg}`,
-                                        createBy: newCustomer.createdBy || '68b0af5cf58b8340827174e0',
-                                        step: 2,
-                                        createAt: new Date()
+                            const customer = await Customer.findById(customerId);
+                            if (customer) {
+                                customer.care.push({
+                                    content: `❌ [Gửi tin nhắn Zalo] thất bại: ${errorMsg}`,
+                                    createBy: newCustomer.createdBy || '68b0af5cf58b8340827174e0',
+                                    step: 2,
+                                    createAt: new Date()
+                                });
+                                customer.pipelineStatus[0] = 'msg_error_2';
+                                customer.pipelineStatus[2] = 'msg_error_2';
+                                console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus[0]=msg_error_2, pipelineStatus[2]=msg_error_2`);
+                                
+                                // Lưu workflow WF2 (B2: Gửi tin nhắn) vào workflowTemplates với success: false
+                                const messageWorkflowId = await getWorkflowIdByName('B2.*Gửi tin nhắn');
+                                if (messageWorkflowId) {
+                                    if (!customer.workflowTemplates || typeof customer.workflowTemplates !== 'object' || Array.isArray(customer.workflowTemplates)) {
+                                        customer.workflowTemplates = {};
                                     }
-                                },
-                                $set: {
-                                    'pipelineStatus.0': 'msg_error_2',
-                                    'pipelineStatus.2': 'msg_error_2'
+                                    if (!customer.workflowTemplates[messageWorkflowId]) {
+                                        customer.workflowTemplates[messageWorkflowId] = { success: null };
+                                    }
+                                    customer.workflowTemplates[messageWorkflowId].success = false;
+                                    customer.markModified('workflowTemplates');
+                                    console.log(`[processFindUidAndSendMessage] Đã lưu workflow WF2 vào workflowTemplates: ${messageWorkflowId}, success: false`);
                                 }
-                            });
+                                
+                                await customer.save();
+                            }
                         }
                     } else {
                         messageStatus = "bỏ qua (template rỗng)";
@@ -703,6 +776,34 @@ async function processFindUidAndSendMessage(newCustomer) {
                 messageStatus = "thất bại";
             }
             
+            // Cập nhật success cho workflow đầu tiên (WF1) dựa trên kết quả của tất cả các hành động
+            // Workflow thành công nếu findUid thành công (tag và message có thể bỏ qua)
+            const workflowSuccess = findUidStatus === "thành công" || findUidStatus === "thành công (retry)";
+            if (findUidWorkflowId) {
+                try {
+                    const customer = await Customer.findById(customerId);
+                    if (customer) {
+                        // Kiểm tra và khởi tạo workflowTemplates nếu cần
+                        if (!customer.workflowTemplates || typeof customer.workflowTemplates !== 'object' || Array.isArray(customer.workflowTemplates)) {
+                            customer.workflowTemplates = {};
+                        }
+                        if (!customer.workflowTemplates[findUidWorkflowId]) {
+                            customer.workflowTemplates[findUidWorkflowId] = {};
+                        }
+                        customer.workflowTemplates[findUidWorkflowId].success = workflowSuccess;
+                        customer.markModified('workflowTemplates'); // Quan trọng cho Schema.Types.Mixed
+                        await customer.save();
+                        console.log(`[processFindUidAndSendMessage] Đã cập nhật success cho workflow đầu tiên (WF1): ${workflowSuccess} (findUid: ${findUidStatus}, tag: ${renameStatus}, message: ${messageStatus})`);
+                        console.log('[processFindUidAndSendMessage] workflowTemplates sau khi cập nhật:', JSON.stringify(customer.workflowTemplates));
+                    } else {
+                        console.error('[processFindUidAndSendMessage] Không tìm thấy customer với ID:', customerId);
+                    }
+                } catch (error) {
+                    console.error('[processFindUidAndSendMessage] Lỗi khi cập nhật success cho workflow đầu tiên:', error);
+                    console.error('[processFindUidAndSendMessage] Error stack:', error.stack);
+                }
+            }
+            
             // Revalidate để cập nhật UI
             revalidateData();
         } else {
@@ -711,17 +812,31 @@ async function processFindUidAndSendMessage(newCustomer) {
             
             // Thêm care log khi tìm UID thất bại
             const errorMsg = findUidResponse?.content?.error_message || findUidResponse?.message || 'Không tìm thấy UID';
-            await Customer.findByIdAndUpdate(customerId, {
-                $push: {
-                    care: {
-                        content: `❌ Tìm UID thất bại: ${errorMsg}`,
-                        createBy: newCustomer.createdBy || '68b0af5cf58b8340827174e0',
-                        step: 1,
-                        createAt: new Date()
+            const customer = await Customer.findById(customerId);
+            if (customer) {
+                customer.care.push({
+                    content: `❌ Tìm UID thất bại: ${errorMsg}`,
+                    createBy: newCustomer.createdBy || '68b0af5cf58b8340827174e0',
+                    step: 1,
+                    createAt: new Date()
+                });
+                customer.uid = null; // Đánh dấu là tìm thất bại
+                // Kiểm tra và khởi tạo workflowTemplates nếu cần
+                if (!customer.workflowTemplates || typeof customer.workflowTemplates !== 'object' || Array.isArray(customer.workflowTemplates)) {
+                    customer.workflowTemplates = {};
+                }
+                // Lấy workflow ID từ database
+                const findUidWorkflowId = await getWorkflowIdByName('B1.*Tiếp nhận');
+                if (findUidWorkflowId) {
+                    if (!customer.workflowTemplates[findUidWorkflowId]) {
+                        customer.workflowTemplates[findUidWorkflowId] = {};
                     }
-                },
-                $set: { uid: null } // Đánh dấu là tìm thất bại
-            });
+                    customer.workflowTemplates[findUidWorkflowId].success = false;
+                }
+                customer.markModified('workflowTemplates'); // Quan trọng cho Schema.Types.Mixed
+                await customer.save();
+                console.log('[processFindUidAndSendMessage] Đã cập nhật workflowTemplates khi tìm UID thất bại:', JSON.stringify(customer.workflowTemplates));
+            }
             
             // Revalidate để cập nhật UI
             revalidateData();

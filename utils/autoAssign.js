@@ -4,6 +4,40 @@ import Service from '@/models/services.model';
 import User from '@/models/users';
 import Setting from '@/models/setting.model';
 import { revalidateData } from '@/app/actions/customer.actions';
+import { WorkflowTemplate } from '@/models/workflows.model';
+
+// Helper function để lấy workflow ID từ database dựa trên tên
+async function getWorkflowIdByName(namePattern) {
+    try {
+        const workflow = await WorkflowTemplate.findOne({ 
+            name: { $regex: namePattern, $options: 'i' } 
+        }).select('_id').lean();
+        return workflow ? workflow._id.toString() : null;
+    } catch (error) {
+        console.error(`[getWorkflowIdByName] Lỗi khi tìm workflow với pattern "${namePattern}":`, error);
+        return null;
+    }
+}
+
+// Helper function để lưu workflow WF3 vào workflowTemplates
+async function saveWorkflowWF3(customer, success) {
+    try {
+        const allocationWorkflowId = await getWorkflowIdByName('B3.*Phân bổ');
+        if (allocationWorkflowId) {
+            if (!customer.workflowTemplates || typeof customer.workflowTemplates !== 'object' || Array.isArray(customer.workflowTemplates)) {
+                customer.workflowTemplates = {};
+            }
+            if (!customer.workflowTemplates[allocationWorkflowId]) {
+                customer.workflowTemplates[allocationWorkflowId] = { success: null };
+            }
+            customer.workflowTemplates[allocationWorkflowId].success = success;
+            customer.markModified('workflowTemplates');
+            console.log(`[autoAssignForCustomer] Đã lưu workflow WF3 vào workflowTemplates: ${allocationWorkflowId}, success: ${success}`);
+        }
+    } catch (error) {
+        console.error('[autoAssignForCustomer] Lỗi khi lưu workflow WF3:', error);
+    }
+}
 
 const PRIORITY_ENROLLMENT_ROLES = ['Telesale', 'Care'];
 const SALE_ROLE = 'Sale'; // Chỉ gán nhân viên có role chính xác là 'Sale'
@@ -159,7 +193,10 @@ export async function autoAssignForCustomer(customerId, options = {}) {
                 step: 3,
                 createAt: new Date()
             });
+            // Lưu workflow WF3 (B3: Phân bổ) vào workflowTemplates
+            await saveWorkflowWF3(customer, newStatus !== 'undetermined_3');
             await customer.save();
+            console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customer._id}: pipelineStatus[0]=${newStatus}, pipelineStatus[3]=${newStatus} (static assign)`);
             try { await revalidateData(); } catch {}
             return { ok: true, user: staticUser, service: null, static: true };
         }
@@ -187,7 +224,10 @@ export async function autoAssignForCustomer(customerId, options = {}) {
                 step: 3,
                 createAt: new Date()
             });
+            // Lưu workflow WF3 (B3: Phân bổ) vào workflowTemplates
+            await saveWorkflowWF3(customer, newStatus !== 'undetermined_3');
             await customer.save();
+            console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customer._id}: pipelineStatus[0]=${newStatus}, pipelineStatus[3]=${newStatus} (targetGroup assign)`);
             try { await revalidateData(); } catch {}
             return { ok: true, user: targetGroupUser, service: null, targetGroup: options.targetGroup };
         }
@@ -239,7 +279,10 @@ export async function autoAssignForCustomer(customerId, options = {}) {
             step: 3,
             createAt: new Date()
         });
+        // Lưu workflow WF3 (B3: Phân bổ) vào workflowTemplates
+        await saveWorkflowWF3(customer, fbStatus !== 'undetermined_3');
         await customer.save();
+        console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customer._id}: pipelineStatus[0]=${fbStatus}, pipelineStatus[3]=${fbStatus} (fallback assign)`);
         try { await revalidateData(); } catch {}
         return { ok: true, user: fallbackUser, service: null, fallback: true };
     }
@@ -357,6 +400,7 @@ export async function autoAssignForCustomer(customerId, options = {}) {
         step: 3,
         createAt: new Date()
     });
+    console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customer._id}: pipelineStatus[0]=${newStatus}, pipelineStatus[3]=${newStatus} (service assign)`);
 
     // Đồng bộ lại tags nếu người gọi truyền slug/name
     try {
@@ -365,6 +409,8 @@ export async function autoAssignForCustomer(customerId, options = {}) {
         }
     } catch (_) {}
 
+    // Lưu workflow WF3 (B3: Phân bổ) vào workflowTemplates
+    await saveWorkflowWF3(customer, newStatus !== 'undetermined_3');
     await customer.save();
     try { await revalidateData(); } catch (e) { /* ignore */ }
     

@@ -368,6 +368,7 @@ export async function closeServiceAction(prevState, formData) {
         if (newPipelineStatus) {
             customerDoc.pipelineStatus = customerDoc.pipelineStatus || [];
             customerDoc.pipelineStatus[6] = newPipelineStatus; // Giả sử step 6
+            console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus[6]=${newPipelineStatus} (closeServiceAction)`);
         }
 
         // 8. Ghi care log
@@ -444,6 +445,7 @@ export async function saveCallResultAction(prevState, formData) {
             },
             $push: { care: careNote },
         });
+        console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus.0=${newStatus}, pipelineStatus.3=${newStatus} (saveCallResultAction)`);
 
         revalidateData();
         return {
@@ -667,6 +669,7 @@ export async function updateServiceDetailAction(prevState, formData) {
                 },
             }
         );
+        console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus.0=${newPipeline}, pipelineStatus.6=${newPipeline} (updateServiceDetailAction)`);
 
         await pushCareLog(
             customerId,
@@ -770,6 +773,7 @@ export async function approveServiceDetailAction(prevState, formData) {
                 },
             }
         );
+        console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus.0=${newPipeline}, pipelineStatus.6=${newPipeline} (approveServiceDetailAction)`);
 
         await pushCareLog(
             customerId,
@@ -855,6 +859,7 @@ export async function approveServiceDealAction(prevState, formData) {
         customer.pipelineStatus[0] = newPipeline;
         customer.pipelineStatus[6] = newPipeline;
         await customer.save();
+        console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus[0]=${newPipeline}, pipelineStatus[6]=${newPipeline} (approveServiceDealAction)`);
 
         await pushCareLog(
             customerId,
@@ -905,6 +910,9 @@ export async function rejectServiceDealAction(prevState, formData) {
                 },
             }
         );
+        if (res.modifiedCount > 0) {
+            console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus.0=rejected_after_consult_6, pipelineStatus.6=rejected_after_consult_6 (rejectServiceDealAction)`);
+        }
 
         if (res.modifiedCount === 0) {
             return {

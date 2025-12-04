@@ -74,6 +74,7 @@ export async function POST(request) {
         }
 
         // 2. Map SIP status code to call status
+        console.log('☀️sipStatusCode 1: ', sipStatusCode);
         let finalCallStatus = callStatus;
         if (!finalCallStatus) {
             if (duration > 0) {
@@ -148,6 +149,18 @@ export async function POST(request) {
                 'pipelineStatus.4': pipelineStatus4,
             }
         });
+        console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus.0=${pipelineStatus4}, pipelineStatus.4=${pipelineStatus4}`);
+
+        // Trigger sub-workflow cho step 4 (nếu có)
+        // Chỉ trigger nếu cuộc gọi thành công (completed)
+        if (finalCallStatus === 'completed' && duration > 0) {
+            const { triggerSubWorkflowForPipelineStep } = await import('@/config/agenda');
+            setImmediate(() => {
+                triggerSubWorkflowForPipelineStep(customerId, 4).catch(err => {
+                    console.error('[API calls] Lỗi khi trigger sub-workflow:', err);
+                });
+            });
+        }
 
         return NextResponse.json({
             success: true,

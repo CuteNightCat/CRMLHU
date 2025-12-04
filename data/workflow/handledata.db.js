@@ -36,7 +36,7 @@ async function dataWorkflow(id) {
     throw new Error('Không thể lấy dữ liệu workflow.');
   }
 }
-
+// Lấy tất cả workflow
 export async function getWorkflowAll() {
   try {
     const cachedFunction = cacheData(() => dataWorkflow(), ['workflows']);
@@ -46,7 +46,7 @@ export async function getWorkflowAll() {
     throw new Error('Không thể lấy dữ liệu workflow.');
   }
 }
-
+// lấy chi tiết 1 template workflow
 export async function getWorkflowOne(id) {
   try {
     const cachedFunction = cacheData(() => dataWorkflow(id), ['workflows', id]);

@@ -11,6 +11,7 @@ import Customer from '@/models/customer.model';
 
 import { getCallsAll, getCallsByCustomer } from './handledata.db';
 import { revalidateData } from '@/app/actions/customer.actions';
+import { triggerSubWorkflowForPipelineStep } from '@/config/agenda';
 
 /**
  * API lấy dữ liệu (dùng file data đã cache)
@@ -150,8 +151,19 @@ export async function saveCallAction(prevState, formData) {
         'pipelineStatus.4': pipelineStatus4,
       }
     });
+    console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus.0=${pipelineStatus4}, pipelineStatus.4=${pipelineStatus4}`);
 
-    // 5) Revalidate
+    // 5) Trigger sub-workflow cho step 4 (nếu có)
+    // Chỉ trigger nếu cuộc gọi thành công (completed)
+    if (callStatus === 'completed' && duration > 0) {
+      setImmediate(() => {
+        triggerSubWorkflowForPipelineStep(customerId, 4).catch(err => {
+          console.error('[saveCallAction] Lỗi khi trigger sub-workflow:', err);
+        });
+      });
+    }
+
+    // 6) Revalidate
     revalidateTag('calls');
     revalidateTag(`calls:${customerId}`);
     revalidateData()

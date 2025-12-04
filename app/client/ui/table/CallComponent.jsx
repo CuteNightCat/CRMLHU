@@ -133,11 +133,11 @@ export default function CallComponent({ customer, user }) {
                 return;
             }
             
-            // Nếu SDK chưa tồn tại, load script
+            // Nếu SDK chưa tồn tại, load script (dùng cùng version với trang test: 3.0.33)
             if (!window.OMICallSDK) {
                 console.log('[CallComponent] Loading SDK script...');
                 const script = document.createElement('script');
-                script.src = 'https://cdn.omicrm.com/sdk/web/3.0.0/core.min.js';
+                script.src = 'https://cdn.omicrm.com/sdk/web/3.0.33/core.min.js';
                 script.onload = handleSDKLoad;
                 script.onerror = () => {
                     console.error('[CallComponent] Failed to load SDK script');
@@ -782,7 +782,7 @@ export default function CallComponent({ customer, user }) {
                 return;
             }
             
-            // Initialize SDK với UI ẩn
+            // Initialize SDK với UI ẩn (dùng trực tiếp giống trang testcallCRM)
             await window.OMICallSDK.init({ 
                 lng: 'vi', 
                 ui: { toggleDial: 'hide' }, 

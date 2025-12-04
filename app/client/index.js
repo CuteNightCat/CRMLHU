@@ -161,6 +161,7 @@ export default function CustomerView({ customer, c, running, initialResult, user
                     onToggleViewMode={toggleViewMode}
                     zalo={zaloData}
                     service={service}
+                    workflow={workflow}
                 />
             </Suspense>
         </div>
