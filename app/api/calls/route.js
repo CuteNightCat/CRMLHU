@@ -56,6 +56,15 @@ export async function POST(request) {
             }, { status: 400 });
         }
 
+        // KIỂM TRA: Nếu cuộc gọi dưới 5 giây, không lưu ghi âm
+        if (duration < 5) {
+            // console.log(`[API Calls] ⚠️ Cuộc gọi quá ngắn (${duration}s < 5s), không lưu ghi âm`);
+            return NextResponse.json({ 
+                success: false, 
+                error: `Cuộc gọi quá ngắn (${duration}s), không lưu ghi âm. Thời lượng tối thiểu: 5 giây.` 
+            }, { status: 400 });
+        }
+
         if (!recordingFile || recordingFile.size === 0) {
             return NextResponse.json({ 
                 success: false, 
@@ -74,7 +83,7 @@ export async function POST(request) {
         }
 
         // 2. Map SIP status code to call status
-        console.log('☀️sipStatusCode 1: ', sipStatusCode);
+        // console.log('☀️sipStatusCode 1: ', sipStatusCode);
         let finalCallStatus = callStatus;
         if (!finalCallStatus) {
             if (duration > 0) {
@@ -149,7 +158,7 @@ export async function POST(request) {
                 'pipelineStatus.4': pipelineStatus4,
             }
         });
-        console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus.0=${pipelineStatus4}, pipelineStatus.4=${pipelineStatus4}`);
+        // console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus.0=${pipelineStatus4}, pipelineStatus.4=${pipelineStatus4}`);
 
         // Trigger sub-workflow cho step 4 (nếu có)
         // Chỉ trigger nếu cuộc gọi thành công (completed)

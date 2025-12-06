@@ -12,10 +12,10 @@ export async function GET(req, { params }) {
         if (!callId) return new Response('Missing callId', { status: 400 });
 
         if (!callId) {
-            console.log('❌ Step 1: callId is missing');
+            // console.log('❌ Step 1: callId is missing');
             return new Response('Missing callId', { status: 400 });
         }
-        console.log('✅ Step 1: callId extracted successfully:', callId);
+        // console.log('✅ Step 1: callId extracted successfully:', callId);
         const session = await checkAuthToken();
         if (!session?.id) return new Response('Unauthorized', { status: 401 });
 
@@ -57,15 +57,15 @@ export async function GET(req, { params }) {
 
         const fileId = call.file;
         if (!fileId) {
-            console.log('❌ No file ID found for call:', callId);
+            // console.log('❌ No file ID found for call:', callId);
             return new Response('No recording', { status: 404 });
         }
 
-        console.log('🔍 File ID:', fileId);
+        // console.log('🔍 File ID:', fileId);
         const drive = await getDriveClient();
 
         // 3) Lấy metadata để biết mimeType/size
-        console.log('🔍 Getting file metadata from Drive...');
+        // console.log('🔍 Getting file metadata from Drive...');
         const metaRes = await drive.files.get({
             fileId,
             fields: 'name, mimeType, size',
@@ -76,12 +76,12 @@ export async function GET(req, { params }) {
         const mime = metaRes?.data?.mimeType || 'audio/webm';
         const size = Number(metaRes?.data?.size || 0);
         
-        console.log('🔍 File metadata:', {
-            name,
-            mime,
-            size,
-            fileId
-        });
+        // console.log('🔍 File metadata:', {
+        //     name,
+        //     mime,
+        //     size,
+        //     fileId
+        // });
 
         // 4) Hỗ trợ Range để tua
         const range = req.headers.get('range'); // e.g. "bytes=0-"
@@ -112,19 +112,19 @@ export async function GET(req, { params }) {
         }
 
         // 5) Lấy stream nội dung
-        console.log('🔍 Getting file stream from Drive...');
-        console.log('🔍 Drive options:', {
-            fileId: driveGetOpts.fileId,
-            alt: driveGetOpts.alt,
-            responseType: driveReqOpts.responseType,
-            headers: driveReqOpts.headers
-        });
+        // console.log('🔍 Getting file stream from Drive...');
+        // console.log('🔍 Drive options:', {
+        //     fileId: driveGetOpts.fileId,
+        //     alt: driveGetOpts.alt,
+        //     responseType: driveReqOpts.responseType,
+        //     headers: driveReqOpts.headers
+        // });
         
         const fileRes = await drive.files.get(driveGetOpts, driveReqOpts);
         const stream = fileRes.data; // Node stream
         
-        console.log('✅ File stream obtained successfully');
-        console.log('🔍 Response headers:', headers);
+        // console.log('✅ File stream obtained successfully');
+        // console.log('🔍 Response headers:', headers);
         
         return new Response(stream, { status, headers });
     } catch (err) {

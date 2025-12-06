@@ -39,7 +39,7 @@ export async function createAreaAction(_previousState, formData) {
     const user = await checkAuthToken();
 
     if (!user || !user.id) return { message: 'Bạn cần đăng nhập để thực hiện hành động này.', status: false };
-    console.log(user.role);
+    // console.log(user.role);
 
     if (!user.role.includes('Admin') && !user.role.includes('Manager')) {
         return { message: 'Bạn không có quyền thực hiện chức năng này', status: false };
@@ -208,7 +208,7 @@ export async function addRegistrationToAction(_previousState, inputData) {
             existingCustomer.pipelineStatus[0] = 'duplicate_merged_1';
             existingCustomer.pipelineStatus[1] = 'duplicate_merged_1';
             await existingCustomer.save();
-            console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${existingCustomer._id}: pipelineStatus[0]=duplicate_merged_1, pipelineStatus[1]=duplicate_merged_1`);
+            // console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${existingCustomer._id}: pipelineStatus[0]=duplicate_merged_1, pipelineStatus[1]=duplicate_merged_1`);
             
             try {
                 if (!Array.isArray(existingCustomer.assignees) || existingCustomer.assignees.length === 0) {
@@ -243,7 +243,7 @@ export async function addRegistrationToAction(_previousState, inputData) {
 
         const newCustomer = new Customer(newCustomerData);
         await newCustomer.save();
-        console.log(`[pipelineStatus] Tạo customer mới ${newCustomer._id} với pipelineStatus: pipelineStatus[0]=new_unconfirmed_1, pipelineStatus[1]=new_unconfirmed_1 (addRegistrationToAction)`);
+        // console.log(`[pipelineStatus] Tạo customer mới ${newCustomer._id} với pipelineStatus: pipelineStatus[0]=new_unconfirmed_1, pipelineStatus[1]=new_unconfirmed_1 (addRegistrationToAction)`);
         
         try {
         await autoAssignForCustomer(newCustomer._id, { serviceId: rawData.service || null });
@@ -287,7 +287,7 @@ async function sendUpdateNotification(customer, rawData, type, isManualEntry) {
         // Kiểm tra xem đã gửi thông báo cho customer này trong 30s gần đây chưa
         const lastSentTime = notificationSentMap.get(customerId);
         if (lastSentTime && (now - lastSentTime) < DEBOUNCE_TIME) {
-            console.log(`[sendUpdateNotification] ⚠️ Bỏ qua vì đã gửi thông báo cho KH ${customerId} trong ${Math.round((now - lastSentTime) / 1000)}s gần đây`);
+            // console.log(`[sendUpdateNotification] ⚠️ Bỏ qua vì đã gửi thông báo cho KH ${customerId} trong ${Math.round((now - lastSentTime) / 1000)}s gần đây`);
             return;
         }
         
@@ -434,7 +434,7 @@ async function processFindUidAndSendMessage(newCustomer) {
                 customer.workflowTemplates[findUidWorkflowId] = { success: null };
                 customer.markModified('workflowTemplates'); // Quan trọng cho Schema.Types.Mixed
                 await customer.save();
-                console.log('[processFindUidAndSendMessage] Đã lưu workflow đầu tiên (WF1) với success: null, workflowTemplates:', JSON.stringify(customer.workflowTemplates));
+                // console.log('[processFindUidAndSendMessage] Đã lưu workflow đầu tiên (WF1) với success: null, workflowTemplates:', JSON.stringify(customer.workflowTemplates));
             } else {
                 console.error('[processFindUidAndSendMessage] Không tìm thấy customer với ID:', customerId);
             }
@@ -454,7 +454,7 @@ async function processFindUidAndSendMessage(newCustomer) {
             return;
         }
         
-        console.log('[processFindUidAndSendMessage] ✅ Đã chọn tài khoản Zalo:', selectedZalo.name, 'UID:', selectedZalo.uid);
+        // console.log('[processFindUidAndSendMessage] ✅ Đã chọn tài khoản Zalo:', selectedZalo.name, 'UID:', selectedZalo.uid);
         
         // 2. Format phone number (đảm bảo có +84)
         let formattedPhone = phone.toString().trim();
@@ -467,7 +467,7 @@ async function processFindUidAndSendMessage(newCustomer) {
         }
         
         // 3. Tìm UID Zalo
-        console.log('[processFindUidAndSendMessage] Đang tìm UID Zalo cho số điện thoại:', formattedPhone);
+        // console.log('[processFindUidAndSendMessage] Đang tìm UID Zalo cho số điện thoại:', formattedPhone);
         let findUidResponse = await actionZalo({
             phone: formattedPhone,
             uid: selectedZalo.uid,
@@ -496,12 +496,12 @@ async function processFindUidAndSendMessage(newCustomer) {
         
         // Xử lý retry nếu tài khoản Zalo ngừng hoạt động
         if (!findUidResponse.status && findUidResponse.message?.includes('ngừng hoạt động')) {
-            console.log('[processFindUidAndSendMessage] ⚠️ Tài khoản Zalo đã ngừng hoạt động. Đang thử với tài khoản khác...');
+            // console.log('[processFindUidAndSendMessage] ⚠️ Tài khoản Zalo đã ngừng hoạt động. Đang thử với tài khoản khác...');
             const allAccounts = await ZaloAccount.find({ _id: { $ne: selectedZalo._id } }).sort({ _id: -1 }).lean();
             
             for (const retryZalo of allAccounts) {
                 if (retryZalo.rateLimitPerHour > 0 && retryZalo.rateLimitPerDay > 0) {
-                    console.log('[processFindUidAndSendMessage] Đang retry với tài khoản:', retryZalo.name);
+                    // console.log('[processFindUidAndSendMessage] Đang retry với tài khoản:', retryZalo.name);
                     selectedZalo = retryZalo;
                     
                     findUidResponse = await actionZalo({
@@ -514,7 +514,7 @@ async function processFindUidAndSendMessage(newCustomer) {
                         // Retry thành công - XÓA LOG ĐẦU TIÊN (thất bại) và chỉ giữ log thành công
                         if (firstLogId) {
                             await Logs.deleteOne({ _id: firstLogId });
-                            console.log('[processFindUidAndSendMessage] 🗑️ Đã xóa log thất bại đầu tiên (ID: ' + firstLogId + ') vì retry thành công');
+                            // console.log('[processFindUidAndSendMessage] 🗑️ Đã xóa log thất bại đầu tiên (ID: ' + firstLogId + ') vì retry thành công');
                         }
                         
                         // Log retry thành công
@@ -596,7 +596,7 @@ async function processFindUidAndSendMessage(newCustomer) {
                 }
             );
             
-            console.log('[processFindUidAndSendMessage] ✅ Đã cập nhật UID (' + normalizedUid + ') và thêm care log cho KH:', customerId);
+            // console.log('[processFindUidAndSendMessage] ✅ Đã cập nhật UID (' + normalizedUid + ') và thêm care log cho KH:', customerId);
             
             // Revalidate để cập nhật UI ngay lập tức
             revalidateData();
@@ -659,7 +659,7 @@ async function processFindUidAndSendMessage(newCustomer) {
                     const finalMessageToSend = await formatMessage(template, doc, selectedZalo);
                     
                     if (finalMessageToSend) {
-                        console.log('[processFindUidAndSendMessage] Đang gửi tin nhắn xác nhận...');
+                        // console.log('[processFindUidAndSendMessage] Đang gửi tin nhắn xác nhận...');
                         const sendMessageResponse = await actionZalo({
                             uid: selectedZalo.uid,
                             uidPerson: normalizedUid,
@@ -689,12 +689,12 @@ async function processFindUidAndSendMessage(newCustomer) {
                         
                         if (isSuccess) {
                             messageStatus = "thành công";
-                            console.log('[processFindUidAndSendMessage] ✅ Đã gửi tin nhắn xác nhận thành công');
-                            console.log('[processFindUidAndSendMessage] Response details:', {
-                                status: sendMessageResponse.status,
-                                error_code: sendMessageResponse.content?.error_code,
-                                error_message: sendMessageResponse.content?.error_message
-                            });
+                            // console.log('[processFindUidAndSendMessage] ✅ Đã gửi tin nhắn xác nhận thành công');
+                            // console.log('[processFindUidAndSendMessage] Response details:', {
+                            //     status: sendMessageResponse.status,
+                            //     error_code: sendMessageResponse.content?.error_code,
+                            //     error_message: sendMessageResponse.content?.error_message
+                            // });
                             
                             // Cập nhật care log và pipelineStatus khi thành công
                             const customer = await Customer.findById(customerId);
@@ -720,7 +720,7 @@ async function processFindUidAndSendMessage(newCustomer) {
                                     }
                                     customer.workflowTemplates[messageWorkflowId].success = true;
                                     customer.markModified('workflowTemplates');
-                                    console.log(`[processFindUidAndSendMessage] Đã lưu workflow WF2 vào workflowTemplates: ${messageWorkflowId}, success: true`);
+                                    // console.log(`[processFindUidAndSendMessage] Đã lưu workflow WF2 vào workflowTemplates: ${messageWorkflowId}, success: true`);
                                 }
                                 
                                 await customer.save();
@@ -745,7 +745,7 @@ async function processFindUidAndSendMessage(newCustomer) {
                                 });
                                 customer.pipelineStatus[0] = 'msg_error_2';
                                 customer.pipelineStatus[2] = 'msg_error_2';
-                                console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus[0]=msg_error_2, pipelineStatus[2]=msg_error_2`);
+                                // console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus[0]=msg_error_2, pipelineStatus[2]=msg_error_2`);
                                 
                                 // Lưu workflow WF2 (B2: Gửi tin nhắn) vào workflowTemplates với success: false
                                 const messageWorkflowId = await getWorkflowIdByName('B2.*Gửi tin nhắn');
@@ -758,7 +758,7 @@ async function processFindUidAndSendMessage(newCustomer) {
                                     }
                                     customer.workflowTemplates[messageWorkflowId].success = false;
                                     customer.markModified('workflowTemplates');
-                                    console.log(`[processFindUidAndSendMessage] Đã lưu workflow WF2 vào workflowTemplates: ${messageWorkflowId}, success: false`);
+                                    // console.log(`[processFindUidAndSendMessage] Đã lưu workflow WF2 vào workflowTemplates: ${messageWorkflowId}, success: false`);
                                 }
                                 
                                 await customer.save();
@@ -793,8 +793,8 @@ async function processFindUidAndSendMessage(newCustomer) {
                         customer.workflowTemplates[findUidWorkflowId].success = workflowSuccess;
                         customer.markModified('workflowTemplates'); // Quan trọng cho Schema.Types.Mixed
                         await customer.save();
-                        console.log(`[processFindUidAndSendMessage] Đã cập nhật success cho workflow đầu tiên (WF1): ${workflowSuccess} (findUid: ${findUidStatus}, tag: ${renameStatus}, message: ${messageStatus})`);
-                        console.log('[processFindUidAndSendMessage] workflowTemplates sau khi cập nhật:', JSON.stringify(customer.workflowTemplates));
+                        // console.log(`[processFindUidAndSendMessage] Đã cập nhật success cho workflow đầu tiên (WF1): ${workflowSuccess} (findUid: ${findUidStatus}, tag: ${renameStatus}, message: ${messageStatus})`);
+                        // console.log('[processFindUidAndSendMessage] workflowTemplates sau khi cập nhật:', JSON.stringify(customer.workflowTemplates));
                     } else {
                         console.error('[processFindUidAndSendMessage] Không tìm thấy customer với ID:', customerId);
                     }
@@ -835,7 +835,7 @@ async function processFindUidAndSendMessage(newCustomer) {
                 }
                 customer.markModified('workflowTemplates'); // Quan trọng cho Schema.Types.Mixed
                 await customer.save();
-                console.log('[processFindUidAndSendMessage] Đã cập nhật workflowTemplates khi tìm UID thất bại:', JSON.stringify(customer.workflowTemplates));
+                // console.log('[processFindUidAndSendMessage] Đã cập nhật workflowTemplates khi tìm UID thất bại:', JSON.stringify(customer.workflowTemplates));
             }
             
             // Revalidate để cập nhật UI

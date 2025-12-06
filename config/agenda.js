@@ -123,7 +123,7 @@ async function processMessage(rawMessage, customer) {
  * Gửi yêu cầu revalidate cache tới Next.js API để cập nhật giao diện người dùng.
  */
 function triggerRevalidation() {
-    console.log('[Agenda] Triggering revalidation via API for tag: customers');
+    // console.log('[Agenda] Triggering revalidation via API for tag: customers');
     try {
         const host = process.env.URL || 'http://localhost:4000';
         const secret = process.env.REVALIDATE_SECRET_TOKEN;
@@ -159,67 +159,10 @@ async function genericJobProcessor(job) {
     const now = new Date().toISOString();
     const isStepDelay = rawStepId === '6928f5f890519d95f67c7a6c';
     
-    // 🔥 LOG BẮT BUỘC - MỖI KHI STEP ĐƯỢC GỌI THỰC THI
-    console.log(`\n\n`);
-    console.log(`╔════════════════════════════════════════════════════════════════════════════════╗`);
-    console.log(`║                    🔥 STEP ĐƯỢC GỌI THỰC THI 🔥                                ║`);
-    console.log(`╠════════════════════════════════════════════════════════════════════════════════╣`);
-    console.log(`║ Job Name        : ${(jobName || 'N/A').padEnd(60)} ║`);
-    console.log(`║ Job ID          : ${(jobId || 'N/A').padEnd(60)} ║`);
-    console.log(`║ Step ID         : ${(rawStepId || 'N/A').padEnd(60)} ║`);
-    console.log(`║ Customer ID     : ${(customerId || 'N/A').padEnd(60)} ║`);
-    console.log(`║ Workflow ID     : ${(workflowTemplateId || 'N/A').padEnd(60)} ║`);
-    console.log(`║ Pipeline Step   : ${(pipelineStep?.toString() || 'N/A').padEnd(60)} ║`);
-    console.log(`║ Sub Workflow    : ${(subWorkflowName || 'N/A').padEnd(60)} ║`);
-    console.log(`║ Scheduled At    : ${scheduledAt.padEnd(60)} ║`);
-    console.log(`║ Now             : ${now.padEnd(60)} ║`);
-    console.log(`║ Is Step Delay   : ${(isStepDelay ? 'YES ⚠️' : 'NO').padEnd(60)} ║`);
-    if (isStepDelay) {
-        console.log(`║ ⚠️⚠️⚠️  STEP DELAY DETECTED - Đây là step có delay! ⚠️⚠️⚠️                        ║`);
-    }
-    console.log(`╚════════════════════════════════════════════════════════════════════════════════╝`);
-    console.log(`\n`);
+    
     
     // 🔥 DEBUG: Log đặc biệt cho step delay 6928f5f890519d95f67c7a6c
-    if (isStepDelay) {
-        console.log(`[genericJobProcessor] 🔥🔥🔥🔥🔥 STEP DELAY JOB CALLED (FIRST LOG): stepId=6928f5f890519d95f67c7a6c 🔥🔥🔥🔥🔥`, {
-            jobName: job.attrs.name,
-            jobId: job.attrs._id?.toString(),
-            scheduledAt: job.attrs.nextRunAt?.toISOString() || job.attrs.lastRunAt?.toISOString() || 'N/A',
-            lastRunAt: job.attrs.lastRunAt?.toISOString() || 'N/A',
-            lastFinishedAt: job.attrs.lastFinishedAt?.toISOString() || 'N/A',
-            nextRunAt: job.attrs.nextRunAt?.toISOString() || 'N/A',
-            now: new Date().toISOString(),
-            rawJobData: rawJobData,
-            fullJobAttrs: {
-                name: job.attrs.name,
-                data: job.attrs.data,
-                type: job.attrs.type,
-                priority: job.attrs.priority,
-                nextRunAt: job.attrs.nextRunAt?.toISOString(),
-                lastRunAt: job.attrs.lastRunAt?.toISOString(),
-                lastFinishedAt: job.attrs.lastFinishedAt?.toISOString(),
-                failedAt: job.attrs.failedAt?.toISOString(),
-                failCount: job.attrs.failCount,
-                failReason: job.attrs.failReason
-            }
-        });
-    }
     
-    console.log(`[genericJobProcessor] 🔍 DEBUG - Job được gọi:`, {
-        jobName: job.attrs.name,
-        scheduledAt: job.attrs.nextRunAt?.toISOString() || job.attrs.lastRunAt?.toISOString() || 'N/A',
-        jobId: job.attrs._id?.toString(),
-        jobDataKeys: Object.keys(rawJobData),
-        jobData: {
-            customerId: rawJobData.customerId,
-            stepId: rawJobData.stepId,
-            workflowTemplateId: rawJobData.workflowTemplateId,
-            pipelineStep: rawJobData.pipelineStep,
-            subWorkflowName: rawJobData.subWorkflowName,
-            params: rawJobData.params
-        }
-    });
     
     // Đã khai báo ở trên, chỉ lấy các biến còn thiếu
     const { params, cwId } = rawJobData;
@@ -236,19 +179,19 @@ async function genericJobProcessor(job) {
     // Fallback: Lấy pipelineStep và subWorkflowName từ workflowTemplateId nếu thiếu
     if ((!pipelineStep || !subWorkflowName) && workflowTemplateId) {
         try {
-            console.log(`[genericJobProcessor] 🔍 Đang lấy thông tin từ WorkflowTemplate: workflowTemplateId=${workflowTemplateId}`);
+            // console.log(`[genericJobProcessor] 🔍 Đang lấy thông tin từ WorkflowTemplate: workflowTemplateId=${workflowTemplateId}`);
             const template = await WorkflowTemplate.findById(workflowTemplateId).lean();
             if (template) {
-                console.log(`[genericJobProcessor] 🔍 Template found:`, {
-                    name: template.name,
-                    isSubWorkflow: template.isSubWorkflow,
-                    workflow_position: template.workflow_position
-                });
+                // console.log(`[genericJobProcessor] 🔍 Template found:`, {
+                //     name: template.name,
+                //     isSubWorkflow: template.isSubWorkflow,
+                //     workflow_position: template.workflow_position
+                // });
                 
                 if (template.isSubWorkflow) {
                     pipelineStep = template.workflow_position || pipelineStep;
                     subWorkflowName = template.name || subWorkflowName;
-                    console.log(`[genericJobProcessor] ✅ Lấy pipelineStep và subWorkflowName từ WorkflowTemplate: pipelineStep=${pipelineStep}, subWorkflowName="${subWorkflowName}"`);
+                    // console.log(`[genericJobProcessor] ✅ Lấy pipelineStep và subWorkflowName từ WorkflowTemplate: pipelineStep=${pipelineStep}, subWorkflowName="${subWorkflowName}"`);
                 } else {
                     console.log(`[genericJobProcessor] ⚠️ Template không phải sub-workflow: isSubWorkflow=${template.isSubWorkflow}`);
                 }
@@ -267,7 +210,7 @@ async function genericJobProcessor(job) {
             if (cw && cw.templateId && cw.templateId.isSubWorkflow) {
                 pipelineStep = cw.templateId.workflow_position || pipelineStep;
                 subWorkflowName = cw.templateId.name || subWorkflowName;
-                console.log(`[genericJobProcessor] Lấy pipelineStep và subWorkflowName từ CustomerWorkflow: pipelineStep=${pipelineStep}, subWorkflowName="${subWorkflowName}"`);
+                // console.log(`[genericJobProcessor] Lấy pipelineStep và subWorkflowName từ CustomerWorkflow: pipelineStep=${pipelineStep}, subWorkflowName="${subWorkflowName}"`);
             }
         } catch (error) {
             console.error(`[genericJobProcessor] Lỗi khi lấy thông tin từ CustomerWorkflow:`, error);
@@ -278,12 +221,7 @@ async function genericJobProcessor(job) {
     const isSubWorkflowStep = !!(pipelineStep && subWorkflowName && stepId && workflowTemplateId);
 
     // Log thông tin step & workflow đang chạy (áp dụng cho cả workflow cha và workflow con)
-    console.log(
-        `[genericJobProcessor] ▶️ Step đang chạy: jobName=${jobName}, ` +
-        `workflowTemplateId=${workflowTemplateId || 'N/A'}, stepId=${stepId || 'N/A'}, ` +
-        `customerId=${customerId}, pipelineStep=${pipelineStep || 'N/A'}, subWorkflowName=${subWorkflowName || 'N/A'}, ` +
-        `isSubWorkflowStep=${isSubWorkflowStep}`
-    );
+    
 
     try {
         // 🔥 BƯỚC 1: ĐẢM BẢO STEP ĐƯỢC KHỞI TẠO/GHI NHẬN TRƯỚC KHI CHẠY ACTION
@@ -302,8 +240,7 @@ async function genericJobProcessor(job) {
                 const workflowIdStr = workflowTemplateId.toString();
                 const stepIdStr = stepId.toString();
                 
-                console.log(`[genericJobProcessor] 🔥 BƯỚC 1: Khởi tạo/đảm bảo step ${stepIdStr} được ghi nhận trong workflowTemplates`);
-                
+               
                 // Lấy customer mới nhất từ database
                 const currentCustomer = await Customer.findById(customerId);
                 if (!currentCustomer) {
@@ -320,8 +257,7 @@ async function genericJobProcessor(job) {
                 // Đảm bảo workflowConfig tồn tại
                 let workflowConfig = currentCustomer.workflowTemplates[workflowIdStr];
                 if (!workflowConfig) {
-                    console.log(`[genericJobProcessor] ⚠️ WorkflowConfig chưa có, đang tạo mới cho workflowTemplateId=${workflowIdStr}`);
-                    
+                   
                     // Lấy thông tin workflow template để tạo config
                     const template = await WorkflowTemplate.findById(workflowTemplateId).lean();
                     if (!template) {
@@ -358,7 +294,7 @@ async function genericJobProcessor(job) {
                     currentCustomer.markModified('workflowTemplates');
                     await currentCustomer.save();
                     
-                    console.log(`[genericJobProcessor] ✅ Đã tạo mới workflowConfig cho workflowTemplateId=${workflowIdStr}`);
+                    // console.log(`[genericJobProcessor] ✅ Đã tạo mới workflowConfig cho workflowTemplateId=${workflowIdStr}`);
                     
                     // Lấy lại customer sau khi tạo
                     const updatedCustomer = await Customer.findById(customerId);
@@ -373,7 +309,7 @@ async function genericJobProcessor(job) {
                     
                     // Kiểm tra xem stepId đã có trong id_stepworkflow chưa
                     if (!workflowConfig.id_stepworkflow[stepIdStr]) {
-                        console.log(`[genericJobProcessor] ⚠️ Step ${stepIdStr} chưa có trong id_stepworkflow, đang khởi tạo với success=false`);
+                        // console.log(`[genericJobProcessor] ⚠️ Step ${stepIdStr} chưa có trong id_stepworkflow, đang khởi tạo với success=false`);
                         
                         // Khởi tạo step với success=false (sẽ cập nhật thành true sau khi action thành công)
                         await Customer.findByIdAndUpdate(
@@ -385,7 +321,7 @@ async function genericJobProcessor(job) {
                             }
                         );
                         
-                        console.log(`[genericJobProcessor] ✅ Đã khởi tạo step ${stepIdStr} trong id_stepworkflow với success=false`);
+                        // console.log(`[genericJobProcessor] ✅ Đã khởi tạo step ${stepIdStr} trong id_stepworkflow với success=false`);
                     } else {
                         console.log(`[genericJobProcessor] ✅ Step ${stepIdStr} đã tồn tại trong id_stepworkflow: success=${workflowConfig.id_stepworkflow[stepIdStr]?.success}`);
                     }
@@ -399,7 +335,7 @@ async function genericJobProcessor(job) {
         // Ghi log bắt đầu nếu là sub-workflow step
         if (isSubWorkflowStep) {
             const actionName = actionToNameMap[jobName] || jobName;
-            console.log(`[genericJobProcessor] Ghi log bắt đầu sub-workflow step: ${actionName}`);
+            // console.log(`[genericJobProcessor] Ghi log bắt đầu sub-workflow step: ${actionName}`);
             await logCareForStep(
                 customerId,
                 pipelineStep,
@@ -438,35 +374,10 @@ async function genericJobProcessor(job) {
         // 🔥 BƯỚC 3: CẬP NHẬT TRẠNG THÁI STEP SAU KHI ACTION THÀNH CÔNG
         // 🔥 QUAN TRỌNG: Cập nhật success cho TẤT CẢ steps của workflow (kể cả step delay)
         // Điều kiện: Có stepId và workflowTemplateId (không phân biệt delay hay không)
-        console.log(`[genericJobProcessor] 🔍 DEBUG - Kiểm tra điều kiện cập nhật step:`, {
-            isSubWorkflowStep,
-            stepId: stepId || 'MISSING',
-            workflowTemplateId: workflowTemplateId || 'MISSING',
-            pipelineStep: pipelineStep || 'MISSING',
-            subWorkflowName: subWorkflowName || 'MISSING',
-            hasAllRequiredFields: !!(stepId && workflowTemplateId),
-            willUpdate: !!(stepId && workflowTemplateId) // Chỉ cần stepId và workflowTemplateId
-        });
+        
         
         // 🔥 DEBUG: Log đặc biệt cho step delay 6928f5f890519d95f67c7a6c
-        if (stepId && stepId.toString() === '6928f5f890519d95f67c7a6c') {
-            console.log(`[genericJobProcessor] 🔥🔥🔥 STEP DELAY DETECTED - Đang xử lý step delay: stepId=6928f5f890519d95f67c7a6c 🔥🔥🔥`, {
-                isSubWorkflowStep,
-                hasStepId: !!stepId,
-                hasWorkflowTemplateId: !!workflowTemplateId,
-                hasPipelineStep: !!pipelineStep,
-                hasSubWorkflowName: !!subWorkflowName,
-                willUpdate: !!(stepId && workflowTemplateId),
-                customerId: customerId,
-                rawJobData: {
-                    customerId: job.attrs.data?.customerId,
-                    stepId: job.attrs.data?.stepId,
-                    workflowTemplateId: job.attrs.data?.workflowTemplateId,
-                    pipelineStep: job.attrs.data?.pipelineStep,
-                    subWorkflowName: job.attrs.data?.subWorkflowName
-                }
-            });
-        }
+        
         
         // 🔥 QUAN TRỌNG: Cập nhật success cho TẤT CẢ steps có stepId và workflowTemplateId
         // Không phân biệt delay hay không, miễn là có đủ thông tin
@@ -475,7 +386,7 @@ async function genericJobProcessor(job) {
                 const workflowIdStr = workflowTemplateId.toString();
                 const stepIdStr = stepId.toString();
                 
-                console.log(`[genericJobProcessor] 🔥 BƯỚC 3: Cập nhật step ${stepIdStr} success=true sau khi action thành công`);
+                // console.log(`[genericJobProcessor] 🔥 BƯỚC 3: Cập nhật step ${stepIdStr} success=true sau khi action thành công`);
                 
                 // 🔥 QUAN TRỌNG: Truy xuất khách hàng bằng customerId và xác minh workflowTemplateId, stepId trước khi cập nhật
                 // Đảm bảo không cập nhật nhầm step của workflow khác
@@ -525,7 +436,7 @@ async function genericJobProcessor(job) {
                                     console.error(`[genericJobProcessor] ❌ WorkflowConfig ${workflowIdStr} không tồn tại sau khi cập nhật step success - có thể đã bị xóa`);
                                     // Không return, tiếp tục xử lý
                                 } else {
-                        console.log(`[genericJobProcessor] ✅ Đã cập nhật step ${stepIdStr}: success=true`);
+                        // console.log(`[genericJobProcessor] ✅ Đã cập nhật step ${stepIdStr}: success=true`);
                         
                         // 🔥 BƯỚC 4: Tính lại step_active từ fresh data sau khi cập nhật step success
                         // 🔥 QUAN TRỌNG: Chỉ đếm steps đã CHẠY XONG (success: true), KHÔNG đếm steps có success: false (chưa chạy)
@@ -547,15 +458,7 @@ async function genericJobProcessor(job) {
                         }
                         
                         // 🔥 DEBUG: Log chi tiết để kiểm tra
-                        console.log(`[genericJobProcessor] 🔍 Tính toán step_active:`, {
-                            stepActiveCount: stepActiveCount,
-                            stepworkflow: workflowConfigAfterUpdate.stepworkflow || 'N/A',
-                            stepStatuses: stepStatuses,
-                            id_stepworkflow: Object.keys(workflowConfigAfterUpdate.id_stepworkflow || {}).map(key => ({
-                                stepId: key,
-                                success: workflowConfigAfterUpdate.id_stepworkflow[key]?.success
-                            }))
-                        });
+                        
                         
                         // 🔥 BƯỚC 5: Cập nhật step_active bằng atomic operation
                         await Customer.findByIdAndUpdate(
@@ -567,7 +470,7 @@ async function genericJobProcessor(job) {
                             }
                         );
                         
-                        console.log(`[genericJobProcessor] ✅ Đã cập nhật step_active=${stepActiveCount}/${workflowConfigAfterUpdate.stepworkflow || 'N/A'}`);
+                        // console.log(`[genericJobProcessor] ✅ Đã cập nhật step_active=${stepActiveCount}/${workflowConfigAfterUpdate.stepworkflow || 'N/A'}`);
                         
                         // 🔥 BƯỚC 6: Kiểm tra workflow hoàn thành với fresh data
                         // 🔥 QUAN TRỌNG: Lấy lại fresh customer từ database để đảm bảo có dữ liệu mới nhất
@@ -582,17 +485,17 @@ async function genericJobProcessor(job) {
                             const step_active = freshWorkflowConfig.step_active || 0;
                             
                             // 🔍 DEBUG: Log chi tiết để kiểm tra
-                            console.log(`[genericJobProcessor] 🔍 Kiểm tra workflow hoàn thành:`, {
-                                stepworkflow: stepworkflow,
-                                step_active: step_active,
-                                condition: `step_active (${step_active}) === stepworkflow (${stepworkflow})`,
-                                willCheck: step_active === stepworkflow && stepworkflow > 0,
-                                currentSuccess: freshWorkflowConfig.success,
-                                id_stepworkflow: Object.keys(freshWorkflowConfig.id_stepworkflow || {}).map(key => ({
-                                    stepId: key,
-                                    success: freshWorkflowConfig.id_stepworkflow[key]?.success
-                                }))
-                            });
+                            // console.log(`[genericJobProcessor] 🔍 Kiểm tra workflow hoàn thành:`, {
+                            //     stepworkflow: stepworkflow,
+                            //     step_active: step_active,
+                            //     condition: `step_active (${step_active}) === stepworkflow (${stepworkflow})`,
+                            //     willCheck: step_active === stepworkflow && stepworkflow > 0,
+                            //     currentSuccess: freshWorkflowConfig.success,
+                            //     id_stepworkflow: Object.keys(freshWorkflowConfig.id_stepworkflow || {}).map(key => ({
+                            //         stepId: key,
+                            //         success: freshWorkflowConfig.id_stepworkflow[key]?.success
+                            //     }))
+                            // });
                             
                             // 🔥 QUAN TRỌNG: Chỉ cập nhật success khi step_active === stepworkflow
                             // Đảm bảo tất cả steps (kể cả step delay) đã chạy xong
@@ -637,7 +540,7 @@ async function genericJobProcessor(job) {
                                     // Nếu workflow auto và đã hoàn thành, đánh dấu doneAuto = "done"
                                     if (freshWorkflowConfig.doneAuto === 'pending') {
                                         updateFields[`workflowTemplates.${workflowIdStr}.doneAuto`] = 'done';
-                                        console.log(`[genericJobProcessor] ✅ Workflow con auto đã hoàn thành → doneAuto = "done"`);
+                                        // console.log(`[genericJobProcessor] ✅ Workflow con auto đã hoàn thành → doneAuto = "done"`);
                                     }
                                     
                                     await Customer.findByIdAndUpdate(
@@ -645,14 +548,14 @@ async function genericJobProcessor(job) {
                                         { $set: updateFields }
                                     );
                                     
-                                    console.log(`[genericJobProcessor] ✅ Workflow con đã hoàn thành: success=${allStepsSuccess}, step_active=${step_active}/${stepworkflow}${needsUpdate ? ' (đã cập nhật lại)' : ''}`);
+                                    // console.log(`[genericJobProcessor] ✅ Workflow con đã hoàn thành: success=${allStepsSuccess}, step_active=${step_active}/${stepworkflow}${needsUpdate ? ' (đã cập nhật lại)' : ''}`);
                                     
                                     // 🔥 QUAN TRỌNG: Đồng bộ hóa statusWorkflow trong RepetitionTime với success của workflow con
                                     // Khi success của workflow con thay đổi → cập nhật statusWorkflow tương ứng
                                     // success = true → statusWorkflow = "done"
                                     // success = false → statusWorkflow = "failed"
                                     // Đặc biệt quan trọng cho step delay - có thể chạy sau khi workflow đã được đánh dấu failed
-                                    console.log(`[genericJobProcessor] 🔄 Đồng bộ hóa: Đang cập nhật statusWorkflow trong repetitiontimes theo success=${allStepsSuccess}...`);
+                                    // console.log(`[genericJobProcessor] 🔄 Đồng bộ hóa: Đang cập nhật statusWorkflow trong repetitiontimes theo success=${allStepsSuccess}...`);
                                     await checkAndUpdateRepetitionTimeStatus(customerId, workflowTemplateId);
                                 } else {
                                     console.log(`[genericJobProcessor] ⏳ Workflow con chưa hoàn thành: có step chưa được đánh dấu (null/undefined), step_active=${step_active}/${stepworkflow}`);
@@ -724,7 +627,7 @@ async function genericJobProcessor(job) {
                                 customer.workflowTemplates[workflowId].success = response?.status || false;
                                 customer.markModified('workflowTemplates');
                                 await customer.save();
-                                console.log(`[genericJobProcessor] Đã lưu workflow WF2 vào workflowTemplates: ${workflowId}, success: ${customer.workflowTemplates[workflowId].success}`);
+                                // console.log(`[genericJobProcessor] Đã lưu workflow WF2 vào workflowTemplates: ${workflowId}, success: ${customer.workflowTemplates[workflowId].success}`);
                             }
                         }
                     } catch (error) {
@@ -746,7 +649,7 @@ async function genericJobProcessor(job) {
                                 customer.workflowTemplates[messageWorkflowId].success = response?.status || false;
                                 customer.markModified('workflowTemplates');
                                 await customer.save();
-                                console.log(`[genericJobProcessor] Đã lưu workflow WF2 vào workflowTemplates: ${messageWorkflowId}, success: ${customer.workflowTemplates[messageWorkflowId].success}`);
+                                // console.log(`[genericJobProcessor] Đã lưu workflow WF2 vào workflowTemplates: ${messageWorkflowId}, success: ${customer.workflowTemplates[messageWorkflowId].success}`);
                             }
                         }
                     } catch (error) {
@@ -787,7 +690,7 @@ async function genericJobProcessor(job) {
         if (isSubWorkflowStep) {
             const actionName = actionToNameMap[jobName] || jobName;
             const logContent = `✅ [Workflow con: ${subWorkflowName}] Hoàn thành: ${actionName}${processedMessage ? ` - "${processedMessage.substring(0, 50)}${processedMessage.length > 50 ? '...' : ''}"` : ''}`;
-            console.log(`[genericJobProcessor] Ghi log hoàn thành sub-workflow step: ${logContent}`);
+            // console.log(`[genericJobProcessor] Ghi log hoàn thành sub-workflow step: ${logContent}`);
             await logCareForStep(
                 customerId,
                 pipelineStep,
@@ -831,7 +734,7 @@ async function genericJobProcessor(job) {
                         }
                         workflowConfig.step_active = stepActiveCount;
                         
-                        console.log(`[genericJobProcessor] ❌ Đã cập nhật step ${stepId}: success=false, step_active=${workflowConfig.step_active}/${workflowConfig.stepworkflow || 'N/A'}`);
+                        // console.log(`[genericJobProcessor] ❌ Đã cập nhật step ${stepId}: success=false, step_active=${workflowConfig.step_active}/${workflowConfig.stepworkflow || 'N/A'}`);
                         
                         // Kiểm tra xem đã chạy hết tất cả steps chưa
                         const stepworkflow = workflowConfig.stepworkflow || 0;
@@ -846,15 +749,15 @@ async function genericJobProcessor(job) {
                             customer.markModified('workflowTemplates');
                             await customer.save();
                             
-                            console.log(`[genericJobProcessor] ❌ Workflow con đã hoàn thành với lỗi: success=false, step_active=${step_active}/${stepworkflow}`);
+                            // console.log(`[genericJobProcessor] ❌ Workflow con đã hoàn thành với lỗi: success=false, step_active=${step_active}/${stepworkflow}`);
                             
                             // 🔥 QUAN TRỌNG: Đồng bộ hóa statusWorkflow trong RepetitionTime với success = false
                             // success = false → statusWorkflow = "failed"
-                            console.log(`[genericJobProcessor] 🔄 Đồng bộ hóa: Đang cập nhật statusWorkflow trong repetitiontimes theo success=false...`);
+                            // console.log(`[genericJobProcessor] 🔄 Đồng bộ hóa: Đang cập nhật statusWorkflow trong repetitiontimes theo success=false...`);
                             await checkAndUpdateRepetitionTimeStatus(customerId, workflowTemplateId);
                         } else {
                             // Chưa chạy hết, chỉ cập nhật step hiện tại
-                            console.log(`[genericJobProcessor] ⏳ Chưa chạy hết tất cả steps: step_active=${step_active}/${stepworkflow}, chỉ cập nhật step hiện tại`);
+                            // console.log(`[genericJobProcessor] ⏳ Chưa chạy hết tất cả steps: step_active=${step_active}/${stepworkflow}, chỉ cập nhật step hiện tại`);
                             customer.markModified('workflowTemplates');
                             await customer.save();
                         }
@@ -869,7 +772,7 @@ async function genericJobProcessor(job) {
         if (isSubWorkflowStep) {
             const actionName = actionToNameMap[jobName] || jobName;
             const logContent = `❌ [Workflow con: ${subWorkflowName}] Thất bại: ${actionName} - ${error.message}`;
-            console.log(`[genericJobProcessor] Ghi log thất bại sub-workflow step: ${logContent}`);
+            // console.log(`[genericJobProcessor] Ghi log thất bại sub-workflow step: ${logContent}`);
             await logCareForStep(
                 customerId,
                 pipelineStep,
@@ -895,7 +798,7 @@ async function genericJobProcessor(job) {
 async function allocationJobProcessor(job) {
     const { customerId, cwId } = job.attrs.data;
     const jobName = 'allocation';
-    console.log(`[Job ${jobName}] Bắt đầu xử lý cho KH: ${customerId}`);
+    // console.log(`[Job ${jobName}] Bắt đầu xử lý cho KH: ${customerId}`);
     let newStatus = 'undetermined_3'
     try {
         const customer = await Customer.findById(customerId);
@@ -904,7 +807,7 @@ async function allocationJobProcessor(job) {
 
         const requiredGroups = await getRequiredGroups(customer.tags);
         if (requiredGroups.length === 0) {
-            console.log(`[Job ${jobName}] KH ${customerId} không có tag ngành học nào cần phân bổ.`);
+            // console.log(`[Job ${jobName}] KH ${customerId} không có tag ngành học nào cần phân bổ.`);
             await logCareHistory(customerId, jobName, 'success', 'Không có tag ngành học nào cần phân bổ.');
             await updateStepStatus(cwId, jobName, 'completed', customerId);
             return;
@@ -915,14 +818,14 @@ async function allocationJobProcessor(job) {
         for (const group of requiredGroups) {
             const isAlreadyAssigned = customer.assignees.some(a => a.group === group);
             if (isAlreadyAssigned) {
-                console.log(`[Job ${jobName}] KH đã được gán cho nhóm ${group}. Bỏ qua.`);
+                // console.log(`[Job ${jobName}] KH đã được gán cho nhóm ${group}. Bỏ qua.`);
                 continue;
             }
             const nextStaff = await findNextEnrollmentForGroup(group, zaloAccountId);
             if (nextStaff) {
                 customer.assignees.push({ user: nextStaff._id, group: group, assignedAt: new Date() });
                 assignmentsMade++;
-                console.log(`[Job ${jobName}] Đã gán KH ${customerId} cho nhân sự ${nextStaff._id} nhóm ${group}.`);
+                // console.log(`[Job ${jobName}] Đã gán KH ${customerId} cho nhân sự ${nextStaff._id} nhóm ${group}.`);
 
                 // ==========================================================
                 // == THÊM LOGIC CẬP NHẬT newStatus TẠI ĐÂY ==
@@ -956,7 +859,7 @@ async function allocationJobProcessor(job) {
                     }
                     customer.workflowTemplates[workflowId].success = newStatus !== 'undetermined_3';
                     customer.markModified('workflowTemplates');
-                    console.log(`[allocationJobProcessor] Đã lưu workflow WF3 vào workflowTemplates: ${workflowId}, success: ${customer.workflowTemplates[workflowId].success}`);
+                    // console.log(`[allocationJobProcessor] Đã lưu workflow WF3 vào workflowTemplates: ${workflowId}, success: ${customer.workflowTemplates[workflowId].success}`);
                 }
             } catch (error) {
                 console.error('[allocationJobProcessor] Lỗi khi lưu workflow WF3:', error);
@@ -974,7 +877,7 @@ async function allocationJobProcessor(job) {
                     }
                     customer.workflowTemplates[allocationWorkflowId].success = newStatus !== 'undetermined_3';
                     customer.markModified('workflowTemplates');
-                    console.log(`[allocationJobProcessor] Đã lưu workflow WF3 vào workflowTemplates: ${allocationWorkflowId}, success: ${customer.workflowTemplates[allocationWorkflowId].success}`);
+                    // console.log(`[allocationJobProcessor] Đã lưu workflow WF3 vào workflowTemplates: ${allocationWorkflowId}, success: ${customer.workflowTemplates[allocationWorkflowId].success}`);
                 }
             } catch (error) {
                 console.error('[allocationJobProcessor] Lỗi khi lưu workflow WF3:', error);
@@ -1026,7 +929,7 @@ async function allocationJobProcessor(job) {
 async function bellJobProcessor(job) {
     const { customerId, cwId } = job.attrs.data;
     const jobName = 'bell';
-    console.log(`[Job ${jobName}] Bắt đầu gửi thông báo cho KH: ${customerId}`);
+    // console.log(`[Job ${jobName}] Bắt đầu gửi thông báo cho KH: ${customerId}`);
     try {
         const customer = await Customer.findById(customerId).populate('care.createBy', 'name').lean();
         if (!customer) throw new Error(`Không tìm thấy KH ID: ${customerId}`);
@@ -1061,7 +964,7 @@ async function bellJobProcessor(job) {
 
         if (!success) throw new Error('Gửi thông báo qua Google Apps Script thất bại');
 
-        console.log(`[Job ${jobName}] Đã gửi thông báo thành công cho KH ${customerId}.`);
+        // console.log(`[Job ${jobName}] Đã gửi thông báo thành công cho KH ${customerId}.`);
         
         // Lưu workflow WF3 (B3: Phân bổ) vào workflowTemplates nếu chưa có
         // (bell là step của WF3, nên cần đảm bảo WF3 được lưu)
@@ -1155,7 +1058,7 @@ async function findSubWorkflowsForStep(pipelineStep) {
  */
 async function autoSetupRepetitionWorkflow(customerId, pipelineStep, parentActionCompletedTime) {
     try {
-        console.log(`[autoSetupRepetitionWorkflow] Bắt đầu thiết lập workflow con cho step ${pipelineStep}, customer ${customerId}`);
+        // console.log(`[autoSetupRepetitionWorkflow] Bắt đầu thiết lập workflow con cho step ${pipelineStep}, customer ${customerId}`);
         
         // Tìm tất cả workflow con cho step này (không phân biệt autoWorkflow)
         const allSubWorkflows = await WorkflowTemplate.find({
@@ -1164,7 +1067,7 @@ async function autoSetupRepetitionWorkflow(customerId, pipelineStep, parentActio
         }).lean();
         
         if (allSubWorkflows.length === 0) {
-            console.log(`[autoSetupRepetitionWorkflow] Không có workflow con nào cho step ${pipelineStep}`);
+            // console.log(`[autoSetupRepetitionWorkflow] Không có workflow con nào cho step ${pipelineStep}`);
             return;
         }
         
@@ -1175,7 +1078,7 @@ async function autoSetupRepetitionWorkflow(customerId, pipelineStep, parentActio
         
         // TRƯỜNG HỢP 1: Có workflow con autoWorkflow
         if (autoWorkflow) {
-            console.log(`[autoSetupRepetitionWorkflow] Tìm thấy workflow con auto: "${autoWorkflow.name}"`);
+            // console.log(`[autoSetupRepetitionWorkflow] Tìm thấy workflow con auto: "${autoWorkflow.name}"`);
             
             // Kiểm tra xem auto workflow đã từng chạy chưa (có record trong workflowTemplates với success !== null)
             const customer = await Customer.findById(customerId);
@@ -1195,11 +1098,11 @@ async function autoSetupRepetitionWorkflow(customerId, pipelineStep, parentActio
             
             // Nếu auto workflow đã từng chạy (success !== null), không chạy lại
             if (existingAutoWorkflowConfig && existingAutoWorkflowConfig.success !== null) {
-                console.log(`[autoSetupRepetitionWorkflow] ⚠️ Workflow tự động "${autoWorkflow.name}" đã hoàn thành (success=${existingAutoWorkflowConfig.success}) - hiện tại không kích hoạt`);
+                // console.log(`[autoSetupRepetitionWorkflow] ⚠️ Workflow tự động "${autoWorkflow.name}" đã hoàn thành (success=${existingAutoWorkflowConfig.success}) - hiện tại không kích hoạt`);
                 startDayTime = new Date(); // Nếu đã hoàn thành, lấy thời gian hiện tại làm startDayTime
             } else {
                 // Auto workflow chưa chạy hoặc đang pending (success === null) → chạy ngay
-                console.log(`[autoSetupRepetitionWorkflow] Workflow tự động "${autoWorkflow.name}" chưa chạy hoặc đang pending - kích hoạt ngay`);
+                // console.log(`[autoSetupRepetitionWorkflow] Workflow tự động "${autoWorkflow.name}" chưa chạy hoặc đang pending - kích hoạt ngay`);
                 
                 // Đảm bảo có record trong workflowTemplates
                 if (!existingAutoWorkflowConfig) {
@@ -1306,6 +1209,31 @@ async function autoSetupRepetitionWorkflow(customerId, pipelineStep, parentActio
                         existingAutoWorkflowConfig.units = normalizedUnits;
                     }
                     existingAutoWorkflowConfig.switchButton = true;
+                    
+                    // 🔥 QUAN TRỌNG: Đảm bảo tất cả steps (kể cả delay) đã được khởi tạo trong id_stepworkflow
+                    // Điều này đảm bảo step delay có thể cập nhật success sau này
+                    if (!existingAutoWorkflowConfig.id_stepworkflow || typeof existingAutoWorkflowConfig.id_stepworkflow !== 'object') {
+                        existingAutoWorkflowConfig.id_stepworkflow = {};
+                    }
+                    
+                    let needsUpdateSteps = false;
+                    if (autoWorkflow.steps && Array.isArray(autoWorkflow.steps)) {
+                        for (const step of autoWorkflow.steps) {
+                            const stepId = step._id ? step._id.toString() : null;
+                            if (stepId && !existingAutoWorkflowConfig.id_stepworkflow[stepId]) {
+                                // Step chưa có trong id_stepworkflow, khởi tạo
+                                existingAutoWorkflowConfig.id_stepworkflow[stepId] = { success: false };
+                                needsUpdateSteps = true;
+                                console.log(`[autoSetupRepetitionWorkflow] ⚠️ Đã thêm step ${stepId} vào id_stepworkflow (có thể là step delay)`);
+                            }
+                        }
+                    }
+                    
+                    if (needsUpdateSteps) {
+                        customer.markModified('workflowTemplates');
+                        await customer.save();
+                        console.log(`[autoSetupRepetitionWorkflow] ✅ Đã cập nhật id_stepworkflow với các steps còn thiếu`);
+                    }
                 }
                 customer.markModified('workflowTemplates');
                 await customer.save();
@@ -1424,7 +1352,7 @@ async function autoSetupRepetitionWorkflow(customerId, pipelineStep, parentActio
             }
         }
         
-        console.log(`[autoSetupRepetitionWorkflow] ✅ Hoàn thành thiết lập workflow con cho step ${pipelineStep}`);
+        // console.log(`[autoSetupRepetitionWorkflow] ✅ Hoàn thành thiết lập workflow con cho step ${pipelineStep}`);
     } catch (error) {
         console.error(`[autoSetupRepetitionWorkflow] ❌ Lỗi:`, error);
     }
@@ -1525,7 +1453,7 @@ async function setupRepetitionTimes(customerId, workflowTemplate, config, startD
             existingRepetitionTime.units = normalizedUnit;
             existingRepetitionTime.updatedAt = new Date();
             await existingRepetitionTime.save();
-            console.log(`[setupRepetitionTimes] ✅ Đã cập nhật repetitionTimes cho workflow "${workflowTemplate.name}"`);
+            // console.log(`[setupRepetitionTimes] ✅ Đã cập nhật repetitionTimes cho workflow "${workflowTemplate.name}"`);
         } else {
             // Tạo record mới
             const repetitionTimeRecord = {
@@ -1541,7 +1469,7 @@ async function setupRepetitionTimes(customerId, workflowTemplate, config, startD
             };
             
             await RepetitionTime.create(repetitionTimeRecord);
-            console.log(`[setupRepetitionTimes] ✅ Đã tạo mới repetitionTimes cho workflow "${workflowTemplate.name}"`);
+            // console.log(`[setupRepetitionTimes] ✅ Đã tạo mới repetitionTimes cho workflow "${workflowTemplate.name}"`);
         }
     } catch (error) {
         console.error(`[setupRepetitionTimes] ❌ Lỗi:`, error);
@@ -1556,7 +1484,7 @@ async function setupRepetitionTimes(customerId, workflowTemplate, config, startD
  */
 async function logCareForStep(customerId, step, content) {
     try {
-        console.log(`[logCareForStep] Ghi log: customerId=${customerId}, step=${step}, content="${content}"`);
+        // console.log(`[logCareForStep] Ghi log: customerId=${customerId}, step=${step}, content="${content}"`);
         const result = await Customer.updateOne(
             { _id: customerId },
             {
@@ -3066,18 +2994,18 @@ const initAgenda = async () => {
     });
     
     // 🔥 DEBUG: Thêm event listeners để theo dõi step delay
-    agendaInstance.on('start', (job) => {
-        const stepId = job.attrs.data?.stepId?.toString();
-        if (stepId === '6928f5f890519d95f67c7a6c') {
-            console.log(`[Agenda event: start] 🔥🔥🔥 STEP DELAY JOB STARTED: stepId=6928f5f890519d95f67c7a6c 🔥🔥🔥`, {
-                jobId: job.attrs._id?.toString(),
-                jobName: job.attrs.name,
-                scheduledAt: job.attrs.nextRunAt?.toISOString() || job.attrs.lastRunAt?.toISOString(),
-                now: new Date().toISOString(),
-                jobData: job.attrs.data
-            });
-        }
-    });
+    // agendaInstance.on('start', (job) => {
+    //     const stepId = job.attrs.data?.stepId?.toString();
+    //     if (stepId === '6928f5f890519d95f67c7a6c') {
+    //         console.log(`[Agenda event: start] 🔥🔥🔥 STEP DELAY JOB STARTED: stepId=6928f5f890519d95f67c7a6c 🔥🔥🔥`, {
+    //             jobId: job.attrs._id?.toString(),
+    //             jobName: job.attrs.name,
+    //             scheduledAt: job.attrs.nextRunAt?.toISOString() || job.attrs.lastRunAt?.toISOString(),
+    //             now: new Date().toISOString(),
+    //             jobData: job.attrs.data
+    //         });
+    //     }
+    // });
     
     agendaInstance.on('complete', (job) => {
         const stepId = job.attrs.data?.stepId?.toString();
@@ -3092,7 +3020,7 @@ const initAgenda = async () => {
     });
 
     await agendaInstance.start();
-    console.log('[initAgenda] Agenda đã khởi động thành công.');
+    // console.log('[initAgenda] Agenda đã khởi động thành công.');
     
     // Schedule job tự động quét tin nhắn mỗi 30 giây
     try {
@@ -3116,7 +3044,7 @@ const initAgenda = async () => {
         // Xóa các job cũ nếu có (để tránh duplicate)
         const existingRepetitionJobs = await agendaInstance.jobs({ name: 'processRepetitionTimes' });
         if (existingRepetitionJobs.length > 0) {
-            console.log(`[initAgenda] Tìm thấy ${existingRepetitionJobs.length} job processRepetitionTimes cũ, đang xóa...`);
+            // console.log(`[initAgenda] Tìm thấy ${existingRepetitionJobs.length} job processRepetitionTimes cũ, đang xóa...`);
             for (const job of existingRepetitionJobs) {
                 await job.remove();
             }

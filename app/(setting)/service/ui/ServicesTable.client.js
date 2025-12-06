@@ -123,13 +123,13 @@ export default function ServicesTable({ initialData, actions }) {
     };
 
     const coverUrlOf = (cover) => {
-        console.log('🔍 coverUrlOf called with:', cover, 'type:', typeof cover);
+        // console.log('🔍 coverUrlOf called with:', cover, 'type:', typeof cover);
         if (!cover) {
-            console.log('❌ No cover provided');
+            // console.log('❌ No cover provided');
             return null;
         }
         if (typeof cover === 'string' && (cover.startsWith('http') || cover.startsWith('data:'))) {
-            console.log('✅ Using direct URL:', cover);
+            // console.log('✅ Using direct URL:', cover);
             return cover;
         }
         // Thử nhiều URL format khác nhau
@@ -137,7 +137,7 @@ export default function ServicesTable({ initialData, actions }) {
         const url2 = `https://lh3.googleusercontent.com/d/${cover}`;
         const url3 = `https://drive.google.com/file/d/${cover}/view`;
         
-        console.log('✅ Generated URLs:', { url1, url2, url3 });
+        // console.log('✅ Generated URLs:', { url1, url2, url3 });
         return url1; // Sử dụng format uc?export=view
     };
 
@@ -178,7 +178,7 @@ export default function ServicesTable({ initialData, actions }) {
             {/* “Bảng” dạng card */}
             <div className="mt-2 space-y-4 flex-1 scroll p-1">
                 {data.map((svc) => {
-                    console.log('🔍 Service data:', svc.name, 'cover:', svc.cover);
+                    // console.log('🔍 Service data:', svc.name, 'cover:', svc.cover);
                     const interest = svc.stats?.interest ?? 0;
                     const completed = svc.stats?.completed ?? 0;
                     const courseCount = svc.treatmentCourses?.length || 0;
@@ -302,8 +302,8 @@ export default function ServicesTable({ initialData, actions }) {
                                                 className="h-full w-full object-cover"
                                                 loading="lazy"
                                                 onError={(e) => {
-                                                    console.log('❌ Image load error for:', coverUrl);
-                                                    console.log('🔄 Trying alternative URL format...');
+                                                    // console.log('❌ Image load error for:', coverUrl);
+                                                    // console.log('🔄 Trying alternative URL format...');
                                                     // Thử URL format khác
                                                     const altUrl = `https://lh3.googleusercontent.com/d/${svc.cover}`;
                                                     e.target.src = altUrl;

@@ -421,7 +421,7 @@ export default function CloseServiceForm({
                     // Kiểm tra validation trước khi submit
                     form.handleSubmit(
                         (values) => {
-                            console.log('✅ Form validation passed, submitting...', values);
+                            // console.log('✅ Form validation passed, submitting...', values);
                             onSubmit(values);
                         },
                         (errors) => {

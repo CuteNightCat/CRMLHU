@@ -883,10 +883,10 @@ export default function CustomerPipeline({ customer, addNoteAction, isNotePendin
     };
 
     const onSubmit = async (values) => {
-        console.log('🟡 [onSubmit] Starting submit with values:', values);
-        console.log('🟡 [onSubmit] editingDetail:', editingDetail);
-        console.log('🟡 [onSubmit] deletedImageIds:', deletedImageIds);
-        console.log('🟡 [onSubmit] deletedCustomerPhotoIds:', deletedCustomerPhotoIds);
+        // console.log('🟡 [onSubmit] Starting submit with values:', values);
+        // console.log('🟡 [onSubmit] editingDetail:', editingDetail);
+        // console.log('🟡 [onSubmit] deletedImageIds:', deletedImageIds);
+        // console.log('🟡 [onSubmit] deletedCustomerPhotoIds:', deletedCustomerPhotoIds);
         
         const formData = new FormData();
         formData.append('customerId', customer._id);
@@ -942,7 +942,7 @@ export default function CustomerPipeline({ customer, addNoteAction, isNotePendin
                 deletedCustomerPhotoIds.forEach(id => formData.append('deletedCustomerPhotoIds', id));
             }
             
-            console.log('🟡 [onSubmit] Calling updateServiceDetailAction...');
+            // console.log('🟡 [onSubmit] Calling updateServiceDetailAction...');
             await runFormAction(updateServiceDetailAction, [null, formData], {
                 successMessage: 'Cập nhật đơn thành công!',
                 errorMessage: (err) => {
@@ -950,7 +950,7 @@ export default function CustomerPipeline({ customer, addNoteAction, isNotePendin
                     return err?.error || "Cập nhật thất bại.";
                 },
                 onSuccess: (res) => {
-                    console.log('✅ [onSubmit] Update success:', res);
+                    // console.log('✅ [onSubmit] Update success:', res);
                     handleSuccess();
                 },
             });

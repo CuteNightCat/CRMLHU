@@ -6,7 +6,7 @@ export async function getLabelData() {
     try {
         await dbConnect();
         const allLabels = await Label.find({}).sort({ createdAt: 'desc' });
-        console.log(allLabels);
+        // console.log(allLabels);
         
         return JSON.parse(JSON.stringify(allLabels));
     } catch (error) {

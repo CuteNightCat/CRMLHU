@@ -66,7 +66,7 @@ async function getSheetsClient() {
  * Xử lý yêu cầu GET để import dữ liệu từ Google Sheet.
  */
 export async function GET(request) {
-    console.log('--- Bắt đầu Import Google Sheet ---');
+    // console.log('--- Bắt đầu Import Google Sheet ---');
 
     try {
         // 1. Kết nối MongoDB (Sử dụng hàm đã import)
@@ -87,7 +87,7 @@ export async function GET(request) {
             return NextResponse.json({ message: 'No data found in Google Sheet.', count: 0 }, { status: 200 });
         }
 
-        console.log(`Tìm thấy ${rows.length} dòng dữ liệu.`);
+        // console.log(`Tìm thấy ${rows.length} dòng dữ liệu.`);
 
         // 3. Xử lý và Chuẩn bị Bulk Write
         const bulkOps = [];
@@ -106,7 +106,7 @@ export async function GET(request) {
             // 3.1. Lọc lần 1: Có đủ A, B, C (cột 0, 1, 2)
             if (!colA || !colB_name || !colC_phone) {
                 skippedCount++;
-                console.log(`Dòng ${rowIndex} bị bỏ qua: Thiếu dữ liệu ở cột A, B hoặc C.`);
+                // console.log(`Dòng ${rowIndex} bị bỏ qua: Thiếu dữ liệu ở cột A, B hoặc C.`);
                 continue;
             }
 
@@ -161,7 +161,7 @@ export async function GET(request) {
         // 4. Thực hiện Bulk Write
         let successCount = 0;
         if (bulkOps.length > 0) {
-            console.log(`Thực hiện Bulk Write cho ${bulkOps.length} bản ghi...`);
+            // console.log(`Thực hiện Bulk Write cho ${bulkOps.length} bản ghi...`);
             const bulkWriteResult = await Cus.bulkWrite(bulkOps);
             successCount = bulkWriteResult.upsertedCount + bulkWriteResult.modifiedCount;
         }

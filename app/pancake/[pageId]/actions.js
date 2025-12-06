@@ -19,12 +19,12 @@ export async function uploadImageToDriveAction(file, pageId, accessToken) {
         const formData = new FormData();
         formData.append('file', file);
 
-        console.log('[uploadImageToDriveAction] Uploading to Pancake CDN:', {
-            pageId,
-            fileName: file.name,
-            fileSize: file.size,
-            fileType: file.type
-        });
+        // console.log('[uploadImageToDriveAction] Uploading to Pancake CDN:', {
+        //     pageId,
+        //     fileName: file.name,
+        //     fileSize: file.size,
+        //     fileType: file.type
+        // });
 
         const response = await fetch(uploadUrl, {
             method: 'POST',
@@ -32,8 +32,8 @@ export async function uploadImageToDriveAction(file, pageId, accessToken) {
         });
 
         const responseText = await response.text();
-        console.log('[uploadImageToDriveAction] Response status:', response.status);
-        console.log('[uploadImageToDriveAction] Response text:', responseText);
+        // console.log('[uploadImageToDriveAction] Response status:', response.status);
+        // console.log('[uploadImageToDriveAction] Response text:', responseText);
 
         let result;
         try {
@@ -43,7 +43,7 @@ export async function uploadImageToDriveAction(file, pageId, accessToken) {
             return { success: false, error: `Invalid response: ${responseText.substring(0, 200)}` };
         }
 
-        console.log('[uploadImageToDriveAction] Response JSON:', result);
+        // console.log('[uploadImageToDriveAction] Response JSON:', result);
 
         if (result.success && result.content_url) {
             return {
@@ -102,26 +102,26 @@ export async function sendImageAction(pageId, accessToken, conversationId, image
             url = `https://pancake.vn/api/v1/pages/${pageId}/conversations/${conversationIdForRequest}/messages?access_token=${accessToken}`;
         }
         
-        console.log('[sendImageAction] URL and conversationId:', {
-            url,
-            conversationId,
-            conversationIdForRequest,
-            isZalo,
-            isComment,
-            conversationType
-        });
+        // console.log('[sendImageAction] URL and conversationId:', {
+        //     url,
+        //     conversationId,
+        //     conversationIdForRequest,
+        //     isZalo,
+        //     isComment,
+        //     conversationType
+        // });
 
         // Xác định contentUrl và imageData cho cả INBOX và COMMENT
         let contentUrl = null;
         let finalImageData = null;
         
-        console.log('[sendImageAction] Input params:', {
-            imageId,
-            imageUrl,
-            imageData,
-            useDirectUrl,
-            conversationType
-        });
+        // console.log('[sendImageAction] Input params:', {
+        //     imageId,
+        //     imageUrl,
+        //     imageData,
+        //     useDirectUrl,
+        //     conversationType
+        // });
         
         if (useDirectUrl) {
             // Có URL trực tiếp (từ Pancake CDN upload)
@@ -131,15 +131,15 @@ export async function sendImageAction(pageId, accessToken, conversationId, image
                 width: 736,
                 height: 736
             };
-            console.log('[sendImageAction] Using direct URL from upload:', contentUrl);
+            // console.log('[sendImageAction] Using direct URL from upload:', contentUrl);
         } else {
             // Nếu imageId là URL từ Pancake CDN
             if (typeof imageId === 'string' && (imageId.startsWith('http://') || imageId.startsWith('https://'))) {
                 contentUrl = imageId;
-                console.log('[sendImageAction] imageId is already a URL:', contentUrl);
+                // console.log('[sendImageAction] imageId is already a URL:', contentUrl);
             } else if (typeof imageId === 'string' && (imageId.includes('content.pancake.vn') || imageId.includes('pancake.vn'))) {
                 contentUrl = imageId.startsWith('http') ? imageId : `https://${imageId}`;
-                console.log('[sendImageAction] imageId contains pancake.vn, converted to:', contentUrl);
+                // console.log('[sendImageAction] imageId contains pancake.vn, converted to:', contentUrl);
             } else {
                 // Có thể là content_id từ Pancake, nhưng cần URL đầy đủ
                 // Fallback: giả sử là Google Drive ID (nếu vẫn dùng Drive)
@@ -159,10 +159,10 @@ export async function sendImageAction(pageId, accessToken, conversationId, image
             return { success: false, error: `Invalid content_url: ${contentUrl || 'URL is required'}` };
         }
         
-        console.log('[sendImageAction] Final contentUrl and imageData:', {
-            contentUrl,
-            imageData: finalImageData
-        });
+        // console.log('[sendImageAction] Final contentUrl and imageData:', {
+        //     contentUrl,
+        //     imageData: finalImageData
+        // });
         
         // Với COMMENT type, cần gửi FormData với action reply_comment
         if (conversationType === 'COMMENT' && replyToMessageId) {
@@ -183,19 +183,19 @@ export async function sendImageAction(pageId, accessToken, conversationId, image
             
             fd.append('user_selected_reply_to', '');
             
-            console.log('[sendImageAction] COMMENT FormData:', {
-                action: 'reply_comment',
-                message_id: replyToMessageId,
-                message: message || '',
-                content_url: contentUrl,
-                width: finalImageData.width,
-                height: finalImageData.height,
-                mime_type: 'photo',
-                send_by_platform: 'web',
-                parent_id: replyToMessageId,
-                post_id: postId
-            });
-            console.log('[sendImageAction] COMMENT URL:', url);
+            // console.log('[sendImageAction] COMMENT FormData:', {
+            //     action: 'reply_comment',
+            //     message_id: replyToMessageId,
+            //     message: message || '',
+            //     content_url: contentUrl,
+            //     width: finalImageData.width,
+            //     height: finalImageData.height,
+            //     mime_type: 'photo',
+            //     send_by_platform: 'web',
+            //     parent_id: replyToMessageId,
+            //     post_id: postId
+            // });
+            // console.log('[sendImageAction] COMMENT URL:', url);
             
             let res = await fetch(url, {
                 method: 'POST',
@@ -203,8 +203,8 @@ export async function sendImageAction(pageId, accessToken, conversationId, image
             });
             
             const responseText = await res.text();
-            console.log('[sendImageAction] Response status:', res.status);
-            console.log('[sendImageAction] Response text:', responseText);
+            // console.log('[sendImageAction] Response status:', res.status);
+            // console.log('[sendImageAction] Response text:', responseText);
             
             try {
                 res = JSON.parse(responseText);
@@ -213,7 +213,7 @@ export async function sendImageAction(pageId, accessToken, conversationId, image
                 return { success: false, error: `Invalid response: ${responseText.substring(0, 200)}` };
             }
             
-            console.log('[sendImageAction] Response JSON:', res);
+            // console.log('[sendImageAction] Response JSON:', res);
             if (res.success) return { success: true };
             return { success: false, error: res.error || res.message || 'Pancake API reported failure' };
         } else {
@@ -231,32 +231,32 @@ export async function sendImageAction(pageId, accessToken, conversationId, image
             fd.append('message', message || '');
 
             // Log FormData entries để debug
-            console.log('[sendImageAction] INBOX FormData entries:');
+            // console.log('[sendImageAction] INBOX FormData entries:');
             for (const [key, value] of fd.entries()) {
                 console.log(`  ${key}:`, value);
             }
-            console.log('[sendImageAction] INBOX URL:', url);
-            console.log('[sendImageAction] Full request details:', {
-                url,
-                method: 'POST',
-                action: 'reply_inbox',
-                content_url: contentUrl,
-                width: finalImageData.width,
-                height: finalImageData.height,
-                mime_type: 'photo',
-                send_by_platform: 'web',
-                message: message || '',
-                pageId,
-                conversationId: conversationIdForRequest
-            });
+            // console.log('[sendImageAction] INBOX URL:', url);
+            // console.log('[sendImageAction] Full request details:', {
+            //     url,
+            //     method: 'POST',
+            //     action: 'reply_inbox',
+            //     content_url: contentUrl,
+            //     width: finalImageData.width,
+            //     height: finalImageData.height,
+            //     mime_type: 'photo',
+            //     send_by_platform: 'web',
+            //     message: message || '',
+            //     pageId,
+            //     conversationId: conversationIdForRequest
+            // });
 
             let res = await fetch(url, { method: 'POST', body: fd });
-            console.log('[sendImageAction] Response status:', res.status);
-            console.log('[sendImageAction] Response headers:', Object.fromEntries(res.headers.entries()));
+            // console.log('[sendImageAction] Response status:', res.status);
+            // console.log('[sendImageAction] Response headers:', Object.fromEntries(res.headers.entries()));
             
             const responseText = await res.text();
-            console.log('[sendImageAction] Response text (full):', responseText);
-            console.log('[sendImageAction] Response text (first 500 chars):', responseText.substring(0, 500));
+            // console.log('[sendImageAction] Response text (full):', responseText);
+            // console.log('[sendImageAction] Response text (first 500 chars):', responseText.substring(0, 500));
             
             try {
                 res = JSON.parse(responseText);
@@ -266,10 +266,10 @@ export async function sendImageAction(pageId, accessToken, conversationId, image
                 return { success: false, error: `Invalid response: ${responseText.substring(0, 200)}` };
             }
             
-            console.log('[sendImageAction] Response JSON:', res);
-            console.log('[sendImageAction] Response success:', res.success);
-            console.log('[sendImageAction] Response error:', res.error);
-            console.log('[sendImageAction] Response message:', res.message);
+            // console.log('[sendImageAction] Response JSON:', res);
+            // console.log('[sendImageAction] Response success:', res.success);
+            // console.log('[sendImageAction] Response error:', res.error);
+            // console.log('[sendImageAction] Response message:', res.message);
             
             if (res.success) return { success: true };
             return { success: false, error: res.error || res.message || 'Pancake API reported failure' };
@@ -293,6 +293,7 @@ export async function sendMessageAction(pageId, accessToken, conversationId, mes
 
         // Với COMMENT type, thử dùng Pancake endpoint với action reply_comment
         // Với INBOX type, vẫn dùng pancake.vn
+        // 🤔 xem xét
         let url;
         if (conversationType === 'COMMENT' && replyToMessageId) {
             // COMMENT type: thử dùng Pancake endpoint với action reply_comment
@@ -318,8 +319,8 @@ export async function sendMessageAction(pageId, accessToken, conversationId, mes
             if (postId) {
                 payload.post_id = postId;
             }
-            console.log('[sendMessageAction] COMMENT payload:', payload);
-            console.log('[sendMessageAction] COMMENT URL:', url);
+            // console.log('[sendMessageAction] COMMENT payload:', payload);
+            // console.log('[sendMessageAction] COMMENT URL:', url);
         } else {
             // Với INBOX type, sử dụng reply_inbox
             payload = {
@@ -340,8 +341,8 @@ export async function sendMessageAction(pageId, accessToken, conversationId, mes
         });
         
         const responseText = await res.text();
-        console.log('[sendMessageAction] Response status:', res.status);
-        console.log('[sendMessageAction] Response text:', responseText);
+        // console.log('[sendMessageAction] Response status:', res.status);
+        // console.log('[sendMessageAction] Response text:', responseText);
         
         try {
             res = JSON.parse(responseText);
@@ -350,11 +351,11 @@ export async function sendMessageAction(pageId, accessToken, conversationId, mes
             return { success: false, error: `Invalid response: ${responseText.substring(0, 100)}` };
         }
         
-        console.log('[sendMessageAction] Response JSON:', res);
+        // console.log('[sendMessageAction] Response JSON:', res);
         if (res.success) return { success: true };
         return { success: false, error: res.error || res.message || 'Pancake API reported failure' };
     } catch (e) {
-        console.log('[sendMessageAction] error:', e?.response?.data || e?.message || e);
+        // console.log('[sendMessageAction] error:', e?.response?.data || e?.message || e);
         return { success: false, error: e?.response?.data?.message || 'Failed to send message' };
     }
 }

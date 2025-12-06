@@ -34,7 +34,7 @@ export async function GET() {
                 { upsert: true }
             );
             
-            console.log(`[Zalo Reset] ${currentDate.toISOString()} - Reset cả giới hạn giờ và ngày`);
+            // console.log(`[Zalo Reset] ${currentDate.toISOString()} - Reset cả giới hạn giờ và ngày`);
         } else {
             console.log(`[Zalo Reset] ${currentDate.toISOString()} - Chỉ reset giới hạn giờ`);
         }

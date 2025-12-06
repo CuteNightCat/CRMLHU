@@ -27,7 +27,7 @@ export async function sendZaloMessageAction(previousState, formData) {
     }
     const roleList = Array.isArray(user.role) ? user.role : [user.role];
     if (!roleList.some((role) => ['Admin', 'Manager', 'Sale', 'Admin Sale', 'Telesale', 'Care'].includes(role))) {
-        console.log('❌ [Zalo Message] No permission');
+        // console.log('❌ [Zalo Message] No permission');
         return { success: false, message: 'Bạn không có quyền thực hiện chức năng này' };
     }
 
@@ -36,11 +36,11 @@ export async function sendZaloMessageAction(previousState, formData) {
     const message = formData.get('message');
 
     if (!customerId || !message) {
-        console.log('❌ [Zalo Message] Missing data', { customerId, message: !!message });
+        // console.log('❌ [Zalo Message] Missing data', { customerId, message: !!message });
         return { success: false, message: 'Thiếu thông tin cần thiết.' };
     }
 
-    console.log('✅ [Zalo Message] Valid input, connecting to DB...');
+    // console.log('✅ [Zalo Message] Valid input, connecting to DB...');
     
     try {
         await connectDB();
@@ -51,7 +51,7 @@ export async function sendZaloMessageAction(previousState, formData) {
             return { success: false, message: 'Không tìm thấy khách hàng.' };
         }
 
-        console.log('✅ [Zalo Message] Customer found:', customer.name, 'Phone:', customer.phone);
+        // console.log('✅ [Zalo Message] Customer found:', customer.name, 'Phone:', customer.phone);
 
         // 4. Find Zalo account
         // PRIORITY 1: Use the Zalo account that found the customer's UID (same as agenda.js)
@@ -71,24 +71,24 @@ export async function sendZaloMessageAction(previousState, formData) {
         }
 
         if (!selectedZalo) {
-            console.log('❌ [Zalo Message] No Zalo account found');
+            // console.log('❌ [Zalo Message] No Zalo account found');
             return { success: false, message: 'Không tìm thấy tài khoản Zalo để sử dụng.' };
         }
 
-        console.log('✅ [Zalo Message] Found Zalo account:', selectedZalo.name, 'ID:', selectedZalo._id.toString(), 'UID:', selectedZalo.uid);
+        // console.log('✅ [Zalo Message] Found Zalo account:', selectedZalo.name, 'ID:', selectedZalo._id.toString(), 'UID:', selectedZalo.uid);
 
         // 5. Check if customer has Zalo UID
         let uidPerson = null;
-        console.log('🔍 [Zalo Message] Customer uid array:', JSON.stringify(customer.uid));
-        console.log('🔍 [Zalo Message] Looking for Zalo ID:', selectedZalo._id.toString());
+        // console.log('🔍 [Zalo Message] Customer uid array:', JSON.stringify(customer.uid));
+        // console.log('🔍 [Zalo Message] Looking for Zalo ID:', selectedZalo._id.toString());
         
         const uidEntry = customer.uid?.find(u => u.zalo?.toString() === selectedZalo._id.toString());
         
-        console.log('🔍 [Zalo Message] Found uidEntry:', JSON.stringify(uidEntry));
+        // console.log('🔍 [Zalo Message] Found uidEntry:', JSON.stringify(uidEntry));
         
         if (uidEntry && uidEntry.uid) {
             uidPerson = uidEntry.uid;
-            console.log('✅ [Zalo Message] Found existing UID:', uidPerson);
+            // console.log('✅ [Zalo Message] Found existing UID:', uidPerson);
         } else {
             console.log('⚠️ [Zalo Message] No UID found, searching by phone...');
             // Try to find UID by phone using actionZalo
@@ -98,11 +98,11 @@ export async function sendZaloMessageAction(previousState, formData) {
                 actionType: 'findUid'
             });
             
-            console.log('📋 [Zalo Message] Find UID result:', JSON.stringify(findUidResult));
+            // console.log('📋 [Zalo Message] Find UID result:', JSON.stringify(findUidResult));
             
             if (findUidResult.status) {
                 const targetUid = findUidResult.content?.data?.uid;
-                console.log('📋 [Zalo Message] Extracted targetUid:', targetUid);
+                // console.log('📋 [Zalo Message] Extracted targetUid:', targetUid);
                 const normalizedUid = normalizeUid(targetUid);
                 
                 if (normalizedUid) {
@@ -126,16 +126,16 @@ export async function sendZaloMessageAction(previousState, formData) {
                     );
                     
                     uidPerson = normalizedUid;
-                    console.log('✅ [Zalo Message] Saved new UID:', uidPerson);
+                    // console.log('✅ [Zalo Message] Saved new UID:', uidPerson);
                 } else {
-                    console.log('❌ [Zalo Message] Normalized UID is empty');
+                    // console.log('❌ [Zalo Message] Normalized UID is empty');
                     return { 
                         success: false, 
                         message: 'Không tìm thấy UID Zalo của khách hàng. Vui lòng kiểm tra lại số điện thoại.' 
                     };
                 }
             } else {
-                console.log('❌ [Zalo Message] Find UID failed:', findUidResult.content?.error_message || findUidResult.message);
+                // console.log('❌ [Zalo Message] Find UID failed:', findUidResult.content?.error_message || findUidResult.message);
                 return { 
                     success: false, 
                     message: findUidResult.content?.error_message || findUidResult.message || 'Không tìm thấy UID Zalo của khách hàng. Vui lòng kiểm tra lại số điện thoại.' 
@@ -145,7 +145,7 @@ export async function sendZaloMessageAction(previousState, formData) {
 
         // 6. Send message via actionZalo
         const phone = customer.phone;
-        console.log('📤 [Zalo Message] Sending message to', phone, 'with UID', uidPerson);
+        // console.log('📤 [Zalo Message] Sending message to', phone, 'with UID', uidPerson);
         
         const result = await actionZalo({
             phone: phone,
@@ -155,7 +155,7 @@ export async function sendZaloMessageAction(previousState, formData) {
             uid: selectedZalo.uid
         });
 
-        console.log('📥 [Zalo Message] Send result:', result.status, result.content);
+        // console.log('📥 [Zalo Message] Send result:', result.status, result.content);
 
         // 7. Log the action
         await Logs.create({
@@ -190,7 +190,7 @@ export async function sendZaloMessageAction(previousState, formData) {
                     }
                 }
             });
-            console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus.0=${newStatus}, pipelineStatus.2=${newStatus} (zalo message success)`);
+            // console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus.0=${newStatus}, pipelineStatus.2=${newStatus} (zalo message success)`);
         } else {
             // Update pipeline status to error if failed
             const newStatus = 'msg_error_2';
@@ -208,17 +208,17 @@ export async function sendZaloMessageAction(previousState, formData) {
                     }
                 }
             });
-            console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus.0=${newStatus}, pipelineStatus.2=${newStatus} (zalo message error)`);
+            // console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus.0=${newStatus}, pipelineStatus.2=${newStatus} (zalo message error)`);
         }
 
         // 9. Revalidate data
         await revalidateData();
 
         if (result.status) {
-            console.log('✅ [Zalo Message] Success!');
+            // console.log('✅ [Zalo Message] Success!');
             return { success: true, message: 'Đã gửi tin nhắn thành công!' };
         } else {
-            console.log('❌ [Zalo Message] Failed:', result.content?.error_message || result.message);
+            // console.log('❌ [Zalo Message] Failed:', result.content?.error_message || result.message);
             return { 
                 success: false, 
                 message: result.content?.error_message || result.message || 'Gửi tin nhắn thất bại.' 
@@ -226,7 +226,7 @@ export async function sendZaloMessageAction(previousState, formData) {
         }
 
     } catch (error) {
-        console.error('❌ [Zalo Message] Error:', error);
+        // console.error('❌ [Zalo Message] Error:', error);
         return { success: false, message: 'Đã xảy ra lỗi khi gửi tin nhắn. Vui lòng thử lại.' };
     }
 }

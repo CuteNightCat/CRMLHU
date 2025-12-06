@@ -343,22 +343,22 @@ export async function updateCustomerInfo(previousState, formData) {
         const coverCustomerFile = formData.get('cover_customer');
         const coverCustomerIdToRemove = formData.get('cover_customer_id');
 
-        console.log('[updateCustomerInfo] coverCustomerFile:', coverCustomerFile);
-        console.log('[updateCustomerInfo] coverCustomerIdToRemove:', coverCustomerIdToRemove);
+        // console.log('[updateCustomerInfo] coverCustomerFile:', coverCustomerFile);
+        // console.log('[updateCustomerInfo] coverCustomerIdToRemove:', coverCustomerIdToRemove);
 
         // Nếu có ảnh mới: upload lên Google Drive
         if (coverCustomerFile && typeof coverCustomerFile === 'object' && 'size' in coverCustomerFile && coverCustomerFile.size > 0) {
-            console.log('[updateCustomerInfo] Uploading image to Drive...');
+            // console.log('[updateCustomerInfo] Uploading image to Drive...');
             const folderId = '1u-2ExUF5LOXB_3bOBbI1beNOWb47aEfQ';
             const uploadedFile = await uploadFileToDrive(coverCustomerFile, folderId);
             
-            console.log('[updateCustomerInfo] Upload result:', uploadedFile);
+            // console.log('[updateCustomerInfo] Upload result:', uploadedFile);
             
             if (uploadedFile?.id) {
                 payload.cover_customer = uploadedFile.id;
-                console.log('[updateCustomerInfo] Set cover_customer to:', uploadedFile.id);
+                // console.log('[updateCustomerInfo] Set cover_customer to:', uploadedFile.id);
             } else {
-                console.error('[updateCustomerInfo] Upload failed, no ID returned');
+                // console.error('[updateCustomerInfo] Upload failed, no ID returned');
                 return { success: false, error: 'Tải ảnh lên Google Drive thất bại. Vui lòng thử lại.' };
             }
         } 
@@ -525,7 +525,7 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
         // ========== BƯỚC 1: KHÔNG XÓA workflow con cũ ==========
         // Mỗi workflow con có vùng riêng trong workflowTemplates và repetitiontimes
         // Không được ghi đè hoặc xóa workflow con khác
-        console.log(`[updateSubWorkflowConfigAction] Cập nhật/tạo mới workflow con ${workflowIdStr} (không xóa workflow con khác)`);
+        // console.log(`[updateSubWorkflowConfigAction] Cập nhật/tạo mới workflow con ${workflowIdStr} (không xóa workflow con khác)`);
 
         // ========== BƯỚC 2: Cập nhật hoặc tạo mới customers.workflowTemplates ==========
         const existingConfig = customer.workflowTemplates[workflowIdStr];
@@ -566,10 +566,10 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
                 step_active: 0,
                 doneAuto: isAutoWorkflow ? 'pending' : null // Chỉ workflow auto mới có doneAuto
             };
-            console.log(`[updateSubWorkflowConfigAction] ✅ Tạo mới workflow con ${workflowIdStr} trong workflowTemplates (doneAuto=${isAutoWorkflow ? 'pending' : 'null'})`);
+            // console.log(`[updateSubWorkflowConfigAction] ✅ Tạo mới workflow con ${workflowIdStr} trong workflowTemplates (doneAuto=${isAutoWorkflow ? 'pending' : 'null'})`);
         } else {
             // Workflow con đã tồn tại → reset các trạng thái TRỪ doneAuto
-            console.log(`[updateSubWorkflowConfigAction] ✅ Cập nhật workflow con ${workflowIdStr} (đã tồn tại) - reset trạng thái trừ doneAuto`);
+            // console.log(`[updateSubWorkflowConfigAction] ✅ Cập nhật workflow con ${workflowIdStr} (đã tồn tại) - reset trạng thái trừ doneAuto`);
             
             // 🔥 QUAN TRỌNG: Giữ nguyên doneAuto hoàn toàn (không reset)
             // - Nếu doneAuto = "done" → giữ nguyên "done" (không auto lại)
@@ -593,17 +593,17 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
             if (!isAutoWorkflow && existingDoneAuto !== null && existingDoneAuto !== undefined) {
                 // Workflow không phải auto → doneAuto = null
                 customer.workflowTemplates[workflowIdStr].doneAuto = null;
-                console.log(`[updateSubWorkflowConfigAction] ℹ️ Workflow không phải auto → set doneAuto=null`);
+                // console.log(`[updateSubWorkflowConfigAction] ℹ️ Workflow không phải auto → set doneAuto=null`);
             } else if (isAutoWorkflow && (existingDoneAuto === null || existingDoneAuto === undefined)) {
                 // Workflow là auto nhưng chưa có doneAuto → set "pending"
                 customer.workflowTemplates[workflowIdStr].doneAuto = 'pending';
-                console.log(`[updateSubWorkflowConfigAction] ℹ️ Workflow auto nhưng chưa có doneAuto → set doneAuto="pending"`);
+                // console.log(`[updateSubWorkflowConfigAction] ℹ️ Workflow auto nhưng chưa có doneAuto → set doneAuto="pending"`);
             } else {
                 // Giữ nguyên doneAuto
                 console.log(`[updateSubWorkflowConfigAction] ✅ Giữ nguyên doneAuto=${existingDoneAuto}`);
             }
             
-            console.log(`[updateSubWorkflowConfigAction] ✅ Đã reset trạng thái: success=null, step_active=0, id_stepworkflow đã reset, doneAuto=${customer.workflowTemplates[workflowIdStr].doneAuto} (giữ nguyên)`);
+            // console.log(`[updateSubWorkflowConfigAction] ✅ Đã reset trạng thái: success=null, step_active=0, id_stepworkflow đã reset, doneAuto=${customer.workflowTemplates[workflowIdStr].doneAuto} (giữ nguyên)`);
         }
 
         // Cập nhật các giá trị (chỉ cập nhật nếu có giá trị)
@@ -673,7 +673,7 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
                 
                 // Nếu chưa có record, tạo mới với các giá trị mặc định
                 if (!existingRepetitionTime) {
-                    console.log(`[updateSubWorkflowConfigAction] Tạo mới record repetitionTime cơ bản cho customer ${customerIdStr}, workflow ${workflowIdStrForRepetition}`);
+                    // console.log(`[updateSubWorkflowConfigAction] Tạo mới record repetitionTime cơ bản cho customer ${customerIdStr}, workflow ${workflowIdStrForRepetition}`);
                     
                     await RepetitionTime.create({
                         customerId: customerIdStr,
@@ -687,7 +687,7 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
                         updatedAt: new Date()
                     });
                     
-                    console.log(`[updateSubWorkflowConfigAction] ✅ Đã tạo mới record repetitionTime cơ bản`);
+                    // console.log(`[updateSubWorkflowConfigAction] ✅ Đã tạo mới record repetitionTime cơ bản`);
                 } else {
                     console.log(`[updateSubWorkflowConfigAction] ✅ Record repetitionTime đã tồn tại: _id=${existingRepetitionTime._id}`);
                 }
@@ -698,7 +698,7 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
         }
 
         // ========== BƯỚC 4: Cập nhật hoặc tạo mới bảng repetitionTimes (với đầy đủ thông tin) ==========
-        console.log(`[updateSubWorkflowConfigAction] Bắt đầu xử lý repetitionTimes cho customer ${customerId}, workflow ${workflowId}`);
+        // console.log(`[updateSubWorkflowConfigAction] Bắt đầu xử lý repetitionTimes cho customer ${customerId}, workflow ${workflowId}`);
         
         const currentConfig = customer.workflowTemplates[workflowIdStr];
         const currentStartDay = currentConfig?.startDay;
@@ -707,20 +707,20 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
         const currentSwitchButton = currentConfig?.switchButton;
         const currentUnits = currentConfig?.units;
         
-        console.log(`[updateSubWorkflowConfigAction] Config hiện tại:`, {
-            startDay: currentStartDay,
-            repeat: currentRepeat,
-            timeRepeate: currentTimeRepeate,
-            switchButton: currentSwitchButton,
-            units: currentUnits
-        });
+        // console.log(`[updateSubWorkflowConfigAction] Config hiện tại:`, {
+        //     startDay: currentStartDay,
+        //     repeat: currentRepeat,
+        //     timeRepeate: currentTimeRepeate,
+        //     switchButton: currentSwitchButton,
+        //     units: currentUnits
+        // });
         
-        console.log(`[updateSubWorkflowConfigAction] Workflow template:`, {
-            _id: workflowTemplate?._id,
-            name: workflowName,
-            isSubWorkflow: isSubWorkflow,
-            workflow_position: workflowPosition
-        });
+        // console.log(`[updateSubWorkflowConfigAction] Workflow template:`, {
+        //     _id: workflowTemplate?._id,
+        //     name: workflowName,
+        //     isSubWorkflow: isSubWorkflow,
+        //     workflow_position: workflowPosition
+        // });
         
         // Điều kiện để sinh nhiệm vụ:
         // 1. isSubWorkflow === true
@@ -732,13 +732,13 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
         const hasValidStartDay = currentStartDay && !isNaN(new Date(currentStartDay).getTime());
         const hasTimeRepeate = currentTimeRepeate && typeof currentTimeRepeate === 'string' && currentTimeRepeate.trim().length > 0;
         
-        console.log(`[updateSubWorkflowConfigAction] Kiểm tra điều kiện:`, {
-            isSubWorkflow: isSubWorkflow,
-            switchButton: isSwitchOn,
-            repeat: hasValidRepeat ? `${currentRepeat} (> 0)` : 'không hợp lệ',
-            startDay: hasValidStartDay ? 'hợp lệ' : 'không hợp lệ',
-            timeRepeate: hasTimeRepeate ? currentTimeRepeate : 'không có'
-        });
+        // console.log(`[updateSubWorkflowConfigAction] Kiểm tra điều kiện:`, {
+        //     isSubWorkflow: isSubWorkflow,
+        //     switchButton: isSwitchOn,
+        //     repeat: hasValidRepeat ? `${currentRepeat} (> 0)` : 'không hợp lệ',
+        //     startDay: hasValidStartDay ? 'hợp lệ' : 'không hợp lệ',
+        //     timeRepeate: hasTimeRepeate ? currentTimeRepeate : 'không có'
+        // });
         
         if (isSubWorkflow) {
             try {
@@ -747,13 +747,13 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
                 const hasValidStartDay = currentStartDay && !isNaN(new Date(currentStartDay).getTime());
                 const hasTimeRepeate = currentTimeRepeate && typeof currentTimeRepeate === 'string' && currentTimeRepeate.trim().length > 0;
                 
-                console.log(`[updateSubWorkflowConfigAction] Kiểm tra điều kiện:`, {
-                    isSubWorkflow: isSubWorkflow,
-                    switchButton: isSwitchOn,
-                    repeat: hasValidRepeat ? `${currentRepeat} (> 0)` : 'không hợp lệ',
-                    startDay: hasValidStartDay ? 'hợp lệ' : 'không hợp lệ',
-                    timeRepeate: hasTimeRepeate ? currentTimeRepeate : 'không có'
-                });
+                // console.log(`[updateSubWorkflowConfigAction] Kiểm tra điều kiện:`, {
+                //     isSubWorkflow: isSubWorkflow,
+                //     switchButton: isSwitchOn,
+                //     repeat: hasValidRepeat ? `${currentRepeat} (> 0)` : 'không hợp lệ',
+                //     startDay: hasValidStartDay ? 'hợp lệ' : 'không hợp lệ',
+                //     timeRepeate: hasTimeRepeate ? currentTimeRepeate : 'không có'
+                // });
 
                 // Nếu switchButton = false, xóa tất cả nhiệm vụ cũ
                 if (!isSwitchOn) {
@@ -822,8 +822,8 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
                                 iterationIndexArray.push(executionTime);
                             }
                             
-                            console.log(`[updateSubWorkflowConfigAction] Đã tính toán ${iterationIndexArray.length} thời gian thực thi:`, 
-                                iterationIndexArray.map(d => d.toISOString()));
+                            // console.log(`[updateSubWorkflowConfigAction] Đã tính toán ${iterationIndexArray.length} thời gian thực thi:`, 
+                            //     iterationIndexArray.map(d => d.toISOString()));
                             
                             try {
                                 // ========== LOGIC XỬ LÝ repetitionTimes THEO QUY TẮC ==========
@@ -833,26 +833,26 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
                                 // 3. Có thì UPDATE, chưa có thì CREATE
                                 // 4. Mỗi workflow con = 1 record riêng
                                 
-                                console.log(`[updateSubWorkflowConfigAction] 🔍 Bắt đầu xử lý repetitionTimes: customerId=${customerIdStr}, workflowTemplateId=${workflowIdStrForRepetition}`);
+                                // console.log(`[updateSubWorkflowConfigAction] 🔍 Bắt đầu xử lý repetitionTimes: customerId=${customerIdStr}, workflowTemplateId=${workflowIdStrForRepetition}`);
                                 
                                 // STEP 1: Tìm tất cả record repetitionTimes theo customerId
                                 const allRecordsForCustomer = await RepetitionTime.find({
                                     customerId: customerIdStr
                                 }).lean();
                                 
-                                console.log(`[updateSubWorkflowConfigAction] 📊 STEP 1 - Tổng số record repetitionTime cho customer này: ${allRecordsForCustomer.length}`);
-                                if (allRecordsForCustomer.length > 0) {
-                                    console.log(`[updateSubWorkflowConfigAction] 📋 Danh sách record hiện có:`, allRecordsForCustomer.map(r => ({
-                                        _id: r._id,
-                                        workflowTemplateId: r.workflowTemplateId,
-                                        workflowName: r.workflowName
-                                    })));
-                                }
+                                // console.log(`[updateSubWorkflowConfigAction] 📊 STEP 1 - Tổng số record repetitionTime cho customer này: ${allRecordsForCustomer.length}`);
+                                // if (allRecordsForCustomer.length > 0) {
+                                //     console.log(`[updateSubWorkflowConfigAction] 📋 Danh sách record hiện có:`, allRecordsForCustomer.map(r => ({
+                                //         _id: r._id,
+                                //         workflowTemplateId: r.workflowTemplateId,
+                                //         workflowName: r.workflowName
+                                //     })));
+                                // }
                                 
                                 // Nếu KHÔNG có bất kỳ record nào của customerId
                                 if (allRecordsForCustomer.length === 0) {
                                     // Đây là khách hàng mới hoàn toàn → tạo mới 100% record
-                                    console.log(`[updateSubWorkflowConfigAction] ✅ CASE 3: Khách hàng mới hoàn toàn (không có record nào) → CREATE mới`);
+                                    // console.log(`[updateSubWorkflowConfigAction] ✅ CASE 3: Khách hàng mới hoàn toàn (không có record nào) → CREATE mới`);
                                     
                                     try {
                                         const newRepetitionTime = await RepetitionTime.create({
@@ -866,7 +866,7 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
                                             createdAt: new Date(),
                                             updatedAt: new Date()
                                         });
-                                        console.log(`[updateSubWorkflowConfigAction] ✅ Đã tạo mới record repetitionTime cho customer mới: _id=${newRepetitionTime._id}`);
+                                        // console.log(`[updateSubWorkflowConfigAction] ✅ Đã tạo mới record repetitionTime cho customer mới: _id=${newRepetitionTime._id}`);
                                         
                                         // 🔥 QUAN TRỌNG: Đảm bảo workflowTemplates có trạng thái đúng sau khi tạo mới repetitionTimes
                                         const customerAfterCreate = await Customer.findById(customerId);
@@ -894,12 +894,12 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
                                             
                                             customerAfterCreate.markModified('workflowTemplates');
                                             await customerAfterCreate.save();
-                                            console.log(`[updateSubWorkflowConfigAction] ✅ Đã đảm bảo workflowTemplates có trạng thái đúng sau khi tạo mới repetitionTimes cho customer mới`);
+                                            // console.log(`[updateSubWorkflowConfigAction] ✅ Đã đảm bảo workflowTemplates có trạng thái đúng sau khi tạo mới repetitionTimes cho customer mới`);
                                         }
                                     } catch (createError) {
                                         if (createError.code === 11000) {
                                             // Duplicate key error → fallback to updateOne
-                                            console.log(`[updateSubWorkflowConfigAction] ⚠️ Duplicate key error khi tạo mới, fallback to updateOne`);
+                                            // console.log(`[updateSubWorkflowConfigAction] ⚠️ Duplicate key error khi tạo mới, fallback to updateOne`);
                                             await RepetitionTime.updateOne(
                                                 { customerId: customerIdStr, workflowTemplateId: workflowIdStrForRepetition },
                                                 {
@@ -917,7 +917,7 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
                                                 },
                                                 { upsert: true }
                                             );
-                                            console.log(`[updateSubWorkflowConfigAction] ✅ Đã cập nhật bằng updateOne sau duplicate key error`);
+                                            // console.log(`[updateSubWorkflowConfigAction] ✅ Đã cập nhật bằng updateOne sau duplicate key error`);
                                             
                                             // Reset lại trạng thái trong workflowTemplates sau khi fallback update
                                             const customerAfterFallback = await Customer.findById(customerId);
@@ -941,7 +941,7 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
                                                 
                                                 customerAfterFallback.markModified('workflowTemplates');
                                                 await customerAfterFallback.save();
-                                                console.log(`[updateSubWorkflowConfigAction] ✅ Đã reset trạng thái workflowTemplates sau khi fallback update cho customer mới`);
+                                                // console.log(`[updateSubWorkflowConfigAction] ✅ Đã reset trạng thái workflowTemplates sau khi fallback update cho customer mới`);
                                             }
                                         } else {
                                             throw createError;
@@ -956,8 +956,8 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
                                     
                                     if (existWorkflowForCustomer) {
                                         // CASE A: ĐÃ CÓ (customerId + workflowTemplateId) → UPDATE
-                                        console.log(`[updateSubWorkflowConfigAction] ✅ CASE 1: Đã có record với workflowTemplateId → UPDATE (không xóa)`);
-                                        console.log(`[updateSubWorkflowConfigAction] 📝 Record cần cập nhật: _id=${existWorkflowForCustomer._id}, workflowTemplateId=${existWorkflowForCustomer.workflowTemplateId}`);
+                                        // console.log(`[updateSubWorkflowConfigAction] ✅ CASE 1: Đã có record với workflowTemplateId → UPDATE (không xóa)`);
+                                        // console.log(`[updateSubWorkflowConfigAction] 📝 Record cần cập nhật: _id=${existWorkflowForCustomer._id}, workflowTemplateId=${existWorkflowForCustomer.workflowTemplateId}`);
                                         
                                         // UPDATE record hiện có, reset về trạng thái ban đầu khi cập nhật schedule mới
                                         await RepetitionTime.updateOne(
@@ -974,7 +974,7 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
                                             }
                                         );
                                         
-                                        console.log(`[updateSubWorkflowConfigAction] ✅ Đã cập nhật record repetitionTime: _id=${existWorkflowForCustomer._id}`);
+                                        // console.log(`[updateSubWorkflowConfigAction] ✅ Đã cập nhật record repetitionTime: _id=${existWorkflowForCustomer._id}`);
                                         
                                         // 🔥 QUAN TRỌNG: Reset lại trạng thái trong workflowTemplates sau khi cập nhật repetitionTimes
                                         // Đảm bảo các trạng thái step được reset về ban đầu
@@ -1000,11 +1000,11 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
                                             
                                             customerAfterUpdate.markModified('workflowTemplates');
                                             await customerAfterUpdate.save();
-                                            console.log(`[updateSubWorkflowConfigAction] ✅ Đã reset trạng thái workflowTemplates sau khi cập nhật repetitionTimes: success=null, step_active=0, doneAuto=${workflowConfig.doneAuto} (giữ nguyên)`);
+                                            // console.log(`[updateSubWorkflowConfigAction] ✅ Đã reset trạng thái workflowTemplates sau khi cập nhật repetitionTimes: success=null, step_active=0, doneAuto=${workflowConfig.doneAuto} (giữ nguyên)`);
                                         }
                                     } else {
                                         // CASE B: CHƯA CÓ (customerId có rồi nhưng workflowTemplateId chưa có) → CREATE mới
-                                        console.log(`[updateSubWorkflowConfigAction] ✅ CASE 2: Customer đã có record nhưng chưa có workflowTemplateId này → CREATE mới (không xóa record khác)`);
+                                        // console.log(`[updateSubWorkflowConfigAction] ✅ CASE 2: Customer đã có record nhưng chưa có workflowTemplateId này → CREATE mới (không xóa record khác)`);
                                         
                                         try {
                                             const newRepetitionTime = await RepetitionTime.create({
@@ -1018,7 +1018,7 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
                                                 createdAt: new Date(),
                                                 updatedAt: new Date()
                                             });
-                                            console.log(`[updateSubWorkflowConfigAction] ✅ Đã tạo mới record repetitionTime: _id=${newRepetitionTime._id}, workflowTemplateId=${workflowIdStrForRepetition}`);
+                                            // console.log(`[updateSubWorkflowConfigAction] ✅ Đã tạo mới record repetitionTime: _id=${newRepetitionTime._id}, workflowTemplateId=${workflowIdStrForRepetition}`);
                                             
                                             // 🔥 QUAN TRỌNG: Đảm bảo workflowTemplates có trạng thái đúng sau khi tạo mới repetitionTimes
                                             const customerAfterCreate = await Customer.findById(customerId);
@@ -1046,12 +1046,12 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
                                                 
                                                 customerAfterCreate.markModified('workflowTemplates');
                                                 await customerAfterCreate.save();
-                                                console.log(`[updateSubWorkflowConfigAction] ✅ Đã đảm bảo workflowTemplates có trạng thái đúng sau khi tạo mới repetitionTimes`);
+                                                // console.log(`[updateSubWorkflowConfigAction] ✅ Đã đảm bảo workflowTemplates có trạng thái đúng sau khi tạo mới repetitionTimes`);
                                             }
                                         } catch (createError) {
                                             if (createError.code === 11000) {
                                                 // Duplicate key error → fallback to updateOne
-                                                console.log(`[updateSubWorkflowConfigAction] ⚠️ Duplicate key error khi tạo mới, fallback to updateOne`);
+                                                // console.log(`[updateSubWorkflowConfigAction] ⚠️ Duplicate key error khi tạo mới, fallback to updateOne`);
                                                 await RepetitionTime.updateOne(
                                                     { customerId: customerIdStr, workflowTemplateId: workflowIdStrForRepetition },
                                                     {
@@ -1069,7 +1069,7 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
                                                     },
                                                     { upsert: true }
                                                 );
-                                                console.log(`[updateSubWorkflowConfigAction] ✅ Đã cập nhật bằng updateOne sau duplicate key error`);
+                                                // console.log(`[updateSubWorkflowConfigAction] ✅ Đã cập nhật bằng updateOne sau duplicate key error`);
                                                 
                                                 // Reset lại trạng thái trong workflowTemplates sau khi fallback update
                                                 const customerAfterFallback = await Customer.findById(customerId);
@@ -1093,7 +1093,7 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
                                                     
                                                     customerAfterFallback.markModified('workflowTemplates');
                                                     await customerAfterFallback.save();
-                                                    console.log(`[updateSubWorkflowConfigAction] ✅ Đã reset trạng thái workflowTemplates sau khi fallback update`);
+                                                    // console.log(`[updateSubWorkflowConfigAction] ✅ Đã reset trạng thái workflowTemplates sau khi fallback update`);
                                                 }
                                             } else {
                                                 throw createError;
@@ -1108,18 +1108,18 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
                                     workflowTemplateId: workflowIdStrForRepetition
                                 }).lean();
                                 
-                                if (verifyRecord) {
-                                    if (Array.isArray(verifyRecord.iterationIndex)) {
-                                        console.log(`[updateSubWorkflowConfigAction] ✅ Xác minh: Record có ${verifyRecord.iterationIndex.length} thời gian trong iterationIndex`);
-                                        if (verifyRecord.iterationIndex.length > 0) {
-                                            console.log(`[updateSubWorkflowConfigAction] Mẫu thời gian:`, verifyRecord.iterationIndex.slice(0, 3).map(d => new Date(d).toISOString()));
-                                        }
-                                    } else {
-                                        console.error(`[updateSubWorkflowConfigAction] ❌ iterationIndex không phải là mảng trong database!`);
-                                    }
-                                } else {
-                                    console.error(`[updateSubWorkflowConfigAction] ❌ Không tìm thấy record sau khi lưu!`);
-                                }
+                                // if (verifyRecord) {
+                                //     if (Array.isArray(verifyRecord.iterationIndex)) {
+                                //         console.log(`[updateSubWorkflowConfigAction] ✅ Xác minh: Record có ${verifyRecord.iterationIndex.length} thời gian trong iterationIndex`);
+                                //         if (verifyRecord.iterationIndex.length > 0) {
+                                //             console.log(`[updateSubWorkflowConfigAction] Mẫu thời gian:`, verifyRecord.iterationIndex.slice(0, 3).map(d => new Date(d).toISOString()));
+                                //         }
+                                //     } else {
+                                //         console.error(`[updateSubWorkflowConfigAction] ❌ iterationIndex không phải là mảng trong database!`);
+                                //     }
+                                // } else {
+                                //     console.error(`[updateSubWorkflowConfigAction] ❌ Không tìm thấy record sau khi lưu!`);
+                                // }
                             } catch (saveError) {
                                 console.error(`[updateSubWorkflowConfigAction] ❌ Lỗi khi lưu record:`, saveError);
                                 console.error(`[updateSubWorkflowConfigAction] Chi tiết lỗi:`, {
@@ -1139,7 +1139,7 @@ export async function updateSubWorkflowConfigAction(previousState, formData) {
         revalidateData();
         return { success: true, message: 'Cập nhật cấu hình workflow con thành công!' };
     } catch (error) {
-        console.error('Lỗi khi cập nhật cấu hình workflow con:', error);
+        // console.error('Lỗi khi cập nhật cấu hình workflow con:', error);
         return { success: false, error: 'Lỗi server khi cập nhật.' };
     }
 }
@@ -1298,7 +1298,7 @@ export async function assignRoleToCustomersAction(prevState, formData) {
                 }
             }
         );
-        console.log(`[pipelineStatus] Cập nhật pipelineStatus cho ${result.modifiedCount} customers: pipelineStatus.0=${newPipelineStatus}, pipelineStatus.3=${newPipelineStatus} (assignRoleToCustomers)`);
+        // console.log(`[pipelineStatus] Cập nhật pipelineStatus cho ${result.modifiedCount} customers: pipelineStatus.0=${newPipelineStatus}, pipelineStatus.3=${newPipelineStatus} (assignRoleToCustomers)`);
 
         revalidateData();
         if (result.modifiedCount > 0) {

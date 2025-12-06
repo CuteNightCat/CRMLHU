@@ -142,7 +142,7 @@ const createAutoCustomer = async (customerName, messageContent, conversationId, 
         const result = await response.json();
         
         if (result.success) {
-            console.log('✅ [Auto Customer] Tạo khách hàng thành công:', result);
+            // console.log('✅ [Auto Customer] Tạo khách hàng thành công:', result);
             return result;
         } else {
             console.log('⚠️ [Auto Customer] Không thể tạo khách hàng:', result.message);
@@ -174,17 +174,17 @@ const normalizePancakeMessage = (raw, pageId) => {
     ];
     
     // Debug: Log attachments cho COMMENT type
-    if (raw.type === 'COMMENT' && (atts.length > 0 || raw.media || raw.media_url || raw.image_url)) {
-        console.log('[normalizePancakeMessage] COMMENT attachments:', {
-            id: raw.id,
-            attachments: raw.attachments,
-            message_attachments: raw.message_attachments,
-            media: raw.media,
-            media_url: raw.media_url,
-            image_url: raw.image_url,
-            allAtts: atts
-        });
-    }
+    // if (raw.type === 'COMMENT' && (atts.length > 0 || raw.media || raw.media_url || raw.image_url)) {
+    //     console.log('[normalizePancakeMessage] COMMENT attachments:', {
+    //         id: raw.id,
+    //         attachments: raw.attachments,
+    //         message_attachments: raw.message_attachments,
+    //         media: raw.media,
+    //         media_url: raw.media_url,
+    //         image_url: raw.image_url,
+    //         allAtts: atts
+    //     });
+    // }
 
     // ✅ Phát hiện sticker - sticker có type="sticker" hoặc trong payload
     const stickerAtts = atts
@@ -282,15 +282,15 @@ const normalizePancakeMessage = (raw, pageId) => {
             
             // ✅ Với COMMENT, nếu URL là Facebook photo.php, cần giữ lại để convert sau
             // Nhưng ưu tiên tìm URL khác nếu có (như preview_url, image_data.url)
-            if (raw.type === 'COMMENT' && url && url.includes('facebook.com/photo.php')) {
-                // Vẫn giữ Facebook URL nhưng đánh dấu để convert trong MessageContent
-                console.log('[normalizePancakeMessage] COMMENT Facebook photo URL:', {
-                    url: url,
-                    hasPreviewUrl: !!a?.preview_url,
-                    hasImageDataUrl: !!a?.image_data?.url,
-                    attachment: a
-                });
-            }
+            // if (raw.type === 'COMMENT' && url && url.includes('facebook.com/photo.php')) {
+            //     // Vẫn giữ Facebook URL nhưng đánh dấu để convert trong MessageContent
+            //     console.log('[normalizePancakeMessage] COMMENT Facebook photo URL:', {
+            //         url: url,
+            //         hasPreviewUrl: !!a?.preview_url,
+            //         hasImageDataUrl: !!a?.image_data?.url,
+            //         attachment: a
+            //     });
+            // }
             
             // Nếu có URL, đảm bảo type được set đúng
             if (url) {
@@ -309,12 +309,12 @@ const normalizePancakeMessage = (raw, pageId) => {
         .filter((a) => a?.url);
     
     // Debug: Log detected images cho COMMENT
-    if (raw.type === 'COMMENT' && imageAtts.length > 0) {
-        console.log('[normalizePancakeMessage] COMMENT detected images:', {
-            id: raw.id,
-            imageAtts: imageAtts.map(a => ({ url: a.url, type: a.type }))
-        });
-    }
+    // if (raw.type === 'COMMENT' && imageAtts.length > 0) {
+    //     console.log('[normalizePancakeMessage] COMMENT detected images:', {
+    //         id: raw.id,
+    //         imageAtts: imageAtts.map(a => ({ url: a.url, type: a.type }))
+    //     });
+    // }
     // Parse text message trước để kiểm tra xem có text không
     // Với COMMENT type, ưu tiên original_message (text thuần), nếu không có thì parse từ message (HTML)
     let text = '';
@@ -485,15 +485,15 @@ const normalizePancakeMessage = (raw, pageId) => {
     
     if (text && typeof text === 'string') {
         // Debug log để kiểm tra dữ liệu
-        if (text.includes('[') || text.includes('❤️') || text.includes(']')) {
-            console.log('🔍 [Reaction Parse] Original text:', text);
-            console.log('🔍 [Reaction Parse] Raw message:', {
-                id: raw.id,
-                original_message: raw.original_message,
-                message: raw.message,
-                attachments: raw.attachments
-            });
-        }
+        // if (text.includes('[') || text.includes('❤️') || text.includes(']')) {
+        //     console.log('🔍 [Reaction Parse] Original text:', text);
+        //     console.log('🔍 [Reaction Parse] Raw message:', {
+        //         id: raw.id,
+        //         original_message: raw.original_message,
+        //         message: raw.message,
+        //         attachments: raw.attachments
+        //     });
+        // }
         
         // Tìm tất cả các reaction ở đầu message trong format [emoji] hoặc [emoji ]
         // Cải thiện regex để bắt được cả format [❤️ ] (có khoảng trắng)
@@ -523,13 +523,13 @@ const normalizePancakeMessage = (raw, pageId) => {
                 // Loại bỏ phần reaction ở đầu khỏi text
                 cleanText = text.replace(reactionRegex, '').trim();
                 
-                console.log('✅ [Reaction Parse] Parsed:', {
-                    reactions,
-                    cleanText,
-                    originalText: text,
-                    reactionPart,
-                    reactionMatches: reactionMatches.map(m => m[1])
-                });
+                // console.log('✅ [Reaction Parse] Parsed:', {
+                //     reactions,
+                //     cleanText,
+                //     originalText: text,
+                //     reactionPart,
+                //     reactionMatches: reactionMatches.map(m => m[1])
+                // });
             }
         } else {
             // Nếu không match với regex, thử cách khác: tìm pattern [xxx] ở đầu
@@ -563,14 +563,14 @@ const normalizePancakeMessage = (raw, pageId) => {
     } : { type: 'system', content: '' };
     
     // Debug log để kiểm tra kết quả cuối cùng
-    if (reactions.length > 0) {
-        console.log('📤 [Reaction Parse] Final normalized message:', {
-            id: raw.id,
-            content: normalizedContent,
-            hasReactions: !!normalizedContent.reactions,
-            reactionsCount: reactions.length
-        });
-    }
+    // if (reactions.length > 0) {
+    //     console.log('📤 [Reaction Parse] Final normalized message:', {
+    //         id: raw.id,
+    //         content: normalizedContent,
+    //         hasReactions: !!normalizedContent.reactions,
+    //         reactionsCount: reactions.length
+    //     });
+    // }
     
     const result = {
         id: raw.id,
@@ -815,7 +815,7 @@ const ImageWithFallback = ({ src, originalUrl, alt }) => {
         if (retryCount === 0) {
             const fallbackUrl = getFallbackUrl(originalUrl || src);
             if (fallbackUrl && fallbackUrl !== e.target.src) {
-                console.log('[ImageWithFallback] Trying fallback URL:', fallbackUrl);
+                // console.log('[ImageWithFallback] Trying fallback URL:', fallbackUrl);
                 setRetryCount(1);
                 e.target.src = fallbackUrl;
                 return;
@@ -909,7 +909,7 @@ const FacebookPhotoEmbed = ({ url, pancakeProxyUrl }) => {
                 })
                 .then(data => {
                     if (data && data.data && data.data.url) {
-                        console.log('[FacebookPhotoEmbed] Got direct image URL from Graph API:', data.data.url);
+                        // console.log('[FacebookPhotoEmbed] Got direct image URL from Graph API:', data.data.url);
                         setImageUrl(data.data.url);
                         setLoading(false);
                     } else {
@@ -1100,13 +1100,13 @@ const MessageContent = ({ content, pageId }) => {
                         }
                         
                         // Debug log
-                        if (isFacebookUrl) {
-                            console.log('[MessageContent] Processing Facebook photo URL:', {
-                                original: originalUrl,
-                                converted: imageUrl,
-                                pageId: pageId
-                            });
-                        }
+                        // if (isFacebookUrl) {
+                        //     console.log('[MessageContent] Processing Facebook photo URL:', {
+                        //         original: originalUrl,
+                        //         converted: imageUrl,
+                        //         pageId: pageId
+                        //     });
+                        // }
                         
                         // Với Facebook photo.php URL, dùng component đặc biệt để hiển thị
                         if (isFacebookUrl) {
@@ -1462,7 +1462,7 @@ export default function ChatClient({
         setIsLoadingConversations(true);
         setLoadedCount(0);
         
-        console.log('🔌 [ChatClient] Connecting to socket:', SOCKET_URL);
+        // console.log('🔌 [ChatClient] Connecting to socket:', SOCKET_URL);
         const s = io(SOCKET_URL, {
             path: '/socket.io',
             reconnection: true,
@@ -1518,15 +1518,15 @@ export default function ChatClient({
                 }
             }
             
-            console.log('📨 [msg:new] Received:', {
-                targetId,
-                currentId: current?.id,
-                currentType: current?.type,
-                isComment,
-                isZalo,
-                shouldRefresh,
-                rawMsg: msg
-            });
+            // console.log('📨 [msg:new] Received:', {
+            //     targetId,
+            //     currentId: current?.id,
+            //     currentType: current?.type,
+            //     isComment,
+            //     isZalo,
+            //     shouldRefresh,
+            //     rawMsg: msg
+            // });
             
             // Kiểm tra tin nhắn mới có phải từ khách hàng không và có chứa số điện thoại
             const normalizedMsg = normalizePancakeMessage(msg, pageConfig.id);
@@ -1542,15 +1542,15 @@ export default function ChatClient({
                     const platform = pageConfig?.platform || 'facebook';
                     const pageName = pageConfig?.name || 'Page Facebook';
                     
-                    console.log('🔍 [Auto Customer] Phát hiện số điện thoại trong tin nhắn:', {
-                        customerName,
-                        messageText,
-                        detectedPhones,
-                        conversationId,
-                        platform,
-                        pageName,
-                        rawMsg: msg
-                    });
+                    // console.log('🔍 [Auto Customer] Phát hiện số điện thoại trong tin nhắn:', {
+                    //     customerName,
+                    //     messageText,
+                    //     detectedPhones,
+                    //     conversationId,
+                    //     platform,
+                    //     pageName,
+                    //     rawMsg: msg
+                    // });
                     
                     // Gọi API tạo khách hàng tự động (không await để không block UI)
                     createAutoCustomer(customerName, messageText, conversationId, platform, pageName)
@@ -1627,35 +1627,35 @@ export default function ChatClient({
                                     return;
                                 }
                                 
-                                console.log('📥 [msg:new] Refreshing messages after new message:', {
-                                    ok: res?.ok,
-                                    itemsCount: res?.items?.length || 0,
-                                    isComment,
-                                    conversationIdForRequest
-                                });
+                                // console.log('📥 [msg:new] Refreshing messages after new message:', {
+                                //     ok: res?.ok,
+                                //     itemsCount: res?.items?.length || 0,
+                                //     isComment,
+                                //     conversationIdForRequest
+                                // });
                                 
                                 if (res?.ok && Array.isArray(res.items)) {
                                     // Với COMMENT type, filter các comment đã bị remove
                                     let itemsToProcess = res.items;
                                     if (isComment) {
                                         itemsToProcess = res.items.filter(item => !item.is_removed);
-                                        console.log('📋 [msg:new] Filtered removed comments:', {
-                                            total: res.items.length,
-                                            afterFilter: itemsToProcess.length
-                                        });
+                                        // console.log('📋 [msg:new] Filtered removed comments:', {
+                                        //     total: res.items.length,
+                                        //     afterFilter: itemsToProcess.length
+                                        // });
                                     }
                                     
                                     const normalized = sortAscByTime(
                                         itemsToProcess.map((m) => normalizePancakeMessage(m, pageConfig.id))
                                     );
-                                    console.log('✅ [msg:new] Updated messages count:', normalized.length);
+                                    // console.log('✅ [msg:new] Updated messages count:', normalized.length);
                                     
                                     // Xóa optimistic entries khi đã có tin nhắn thật từ server
                                     setMessages((prev) => {
                                         // Kiểm tra lại conversation ID một lần nữa
                                         const checkConvAgain = selectedConvoRef.current;
                                         if (!checkConvAgain || checkConvAgain.id !== conversationIdAtStart) {
-                                            console.log('⏭️ [msg:new] Conversation đã thay đổi trong setMessages, bỏ qua');
+                                            // console.log('⏭️ [msg:new] Conversation đã thay đổi trong setMessages, bỏ qua');
                                             return prev;
                                         }
                                         
@@ -1693,13 +1693,13 @@ export default function ChatClient({
                                             }
                                         }
                                         
-                                        console.log('🔄 [msg:new] Merged messages:', {
-                                            before: prev.length,
-                                            optimisticRemoved: prev.length - withoutOptimistic.length,
-                                            newFromServer: normalized.length,
-                                            after: uniqueMessages.length,
-                                            optimisticIds: prev.filter(m => m.id?.startsWith('optimistic-') || m.status === 'sending').map(m => m.id)
-                                        });
+                                        // console.log('🔄 [msg:new] Merged messages:', {
+                                        //     before: prev.length,
+                                        //     optimisticRemoved: prev.length - withoutOptimistic.length,
+                                        //     newFromServer: normalized.length,
+                                        //     after: uniqueMessages.length,
+                                        //     optimisticIds: prev.filter(m => m.id?.startsWith('optimistic-') || m.status === 'sending').map(m => m.id)
+                                        // });
                                         
                                         // Với COMMENT type, scroll ngay
                                         if (isNearBottomRef.current) {
@@ -1751,12 +1751,12 @@ export default function ChatClient({
         setIsLoadingConversations(true);
         console.log('[ChatClient] Loading conversations for page:', pageConfig.id, pageConfig.name);
         s.emit('conv:get', { pageId: pageConfig.id, token, current_count: 0 }, (res) => {
-            console.log('[ChatClient] conv:get response:', {
-                ok: res?.ok,
-                itemsCount: Array.isArray(res?.items) ? res.items.length : 0,
-                error: res?.error,
-                sampleTypes: Array.isArray(res?.items) ? [...new Set(res.items.map(c => c?.type))] : []
-            });
+            // console.log('[ChatClient] conv:get response:', {
+            //     ok: res?.ok,
+            //     itemsCount: Array.isArray(res?.items) ? res.items.length : 0,
+            //     error: res?.error,
+            //     sampleTypes: Array.isArray(res?.items) ? [...new Set(res.items.map(c => c?.type))] : []
+            // });
             
             if (res?.ok && Array.isArray(res.items)) {
                 const incoming = res.items.filter(isInbox);
@@ -1766,19 +1766,19 @@ export default function ChatClient({
                 const commentCount = incoming.filter(c => c.type === 'COMMENT').length;
                 const otherCount = incoming.filter(c => c.type !== 'INBOX' && c.type !== 'COMMENT').length;
                 
-                console.log('📊 [ChatClient] Thống kê conversation types:');
-                console.log(`   ✉ INBOX: ${inboxCount} cuộc hội thoại`);
-                console.log(`   🗨️ COMMENT: ${commentCount} cuộc hội thoại`);
-                if (otherCount > 0) {
-                    console.log(`   ❓ Khác: ${otherCount} cuộc hội thoại`);
-                }
-                console.log(`   📝 Tổng cộng: ${incoming.length} cuộc hội thoại`);
+                // console.log('📊 [ChatClient] Thống kê conversation types:');
+                // console.log(`   ✉ INBOX: ${inboxCount} cuộc hội thoại`);
+                // console.log(`   🗨️ COMMENT: ${commentCount} cuộc hội thoại`);
+                // if (otherCount > 0) {
+                //     console.log(`   ❓ Khác: ${otherCount} cuộc hội thoại`);
+                // }
+                // console.log(`   📝 Tổng cộng: ${incoming.length} cuộc hội thoại`);
                 
-                console.log('[ChatClient] Filtered conversations:', {
-                    total: res.items.length,
-                    afterFilter: incoming.length,
-                    types: [...new Set(res.items.map(c => c?.type))]
-                });
+                // console.log('[ChatClient] Filtered conversations:', {
+                //     total: res.items.length,
+                //     afterFilter: incoming.length,
+                //     types: [...new Set(res.items.map(c => c?.type))]
+                // });
                 
                 setConversations((prev) => {
                     const merged = mergeConversations(prev, incoming);
@@ -1877,16 +1877,16 @@ export default function ChatClient({
         
         // ✅ Với append (load more), kiểm tra đang loading
         if (append && isLoadingOlderRef.current) {
-            console.log('⏳ [fetchMessages] Đang tải tin nhắn cũ, bỏ qua request mới');
+            // console.log('⏳ [fetchMessages] Đang tải tin nhắn cũ, bỏ qua request mới');
             return;
         }
         
-        console.log('📥 [fetchMessages] Bắt đầu fetch:', {
-            append,
-            currentCount,
-            messagesLength: messages?.length || 0,
-            conversationId: conv.id
-        });
+        // console.log('📥 [fetchMessages] Bắt đầu fetch:', {
+        //     append,
+        //     currentCount,
+        //     messagesLength: messages?.length || 0,
+        //     conversationId: conv.id
+        // });
         
         // Lưu conversation ID để kiểm tra sau khi nhận kết quả
         const conversationIdAtStart = conv.id;
@@ -1912,10 +1912,10 @@ export default function ChatClient({
                     // ✅ QUAN TRỌNG: Kiểm tra conversation ID trước khi cập nhật messages
                     const currentConv = selectedConvoRef.current;
                     if (!currentConv || currentConv.id !== conversationIdAtStart) {
-                        console.log('⏭️ [fetchMessages] Conversation đã thay đổi, bỏ qua kết quả:', {
-                            conversationIdAtStart,
-                            currentId: currentConv?.id
-                        });
+                        // console.log('⏭️ [fetchMessages] Conversation đã thay đổi, bỏ qua kết quả:', {
+                        //     conversationIdAtStart,
+                        //     currentId: currentConv?.id
+                        // });
                         setIsLoadingMessages(false);
                         setIsLoadingOlder(false);
                         resolve();
@@ -1934,7 +1934,7 @@ export default function ChatClient({
                                 // Kiểm tra lại conversation ID một lần nữa
                                 const checkConv = selectedConvoRef.current;
                                 if (!checkConv || checkConv.id !== conversationIdAtStart) {
-                                    console.log('⏭️ [fetchMessages] Conversation đã thay đổi trong setMessages, bỏ qua');
+                                    // console.log('⏭️ [fetchMessages] Conversation đã thay đổi trong setMessages, bỏ qua');
                                     return prev;
                                 }
                                 
@@ -1956,14 +1956,14 @@ export default function ChatClient({
                                 if (hasNoNewMessages) {
                                     // Không có tin nhắn mới → đánh dấu hết
                                     setHasMoreMessages(false);
-                                    console.log('📭 [fetchMessages] Hết tin nhắn cũ hơn:', {
-                                        prevLength,
-                                        requestedCount,
-                                        receivedCount,
-                                        newMessagesLength: newMessages.length,
-                                        reason: 'Không có tin nhắn mới (tất cả đều duplicate hoặc không còn tin nhắn cũ hơn)',
-                                        duplicateCount: receivedCount
-                                    });
+                                    // console.log('📭 [fetchMessages] Hết tin nhắn cũ hơn:', {
+                                    //     prevLength,
+                                    //     requestedCount,
+                                    //     receivedCount,
+                                    //     newMessagesLength: newMessages.length,
+                                    //     reason: 'Không có tin nhắn mới (tất cả đều duplicate hoặc không còn tin nhắn cũ hơn)',
+                                    //     duplicateCount: receivedCount
+                                    // });
                                     setTimeout(() => resolve(), 0);
                                     return prev;
                                 }
@@ -1971,28 +1971,28 @@ export default function ChatClient({
                                 // Nếu API trả về ít hơn số lượng yêu cầu VÀ có tin nhắn mới
                                 // → Có thể đã gần hết, nhưng vẫn còn một ít
                                 // → Tiếp tục load
-                                if (receivedLessThanRequested && newMessages.length > 0) {
-                                    console.log('⚠️ [fetchMessages] API trả về ít hơn yêu cầu nhưng có tin nhắn mới:', {
-                                        prevLength,
-                                        requestedCount,
-                                        receivedCount,
-                                        newMessagesLength: newMessages.length,
-                                        note: 'Có thể gần hết, nhưng vẫn tiếp tục load'
-                                    });
-                                }
+                                // if (receivedLessThanRequested && newMessages.length > 0) {
+                                //     console.log('⚠️ [fetchMessages] API trả về ít hơn yêu cầu nhưng có tin nhắn mới:', {
+                                //         prevLength,
+                                //         requestedCount,
+                                //         receivedCount,
+                                //         newMessagesLength: newMessages.length,
+                                //         note: 'Có thể gần hết, nhưng vẫn tiếp tục load'
+                                //     });
+                                // }
                                 
                                 // 3. Có tin nhắn mới → Thêm tin nhắn cũ vào ĐẦU danh sách
                                 const merged = [...newMessages, ...prev];
                                 const sorted = sortAscByTime(merged);
                                 
-                                console.log('📥 [fetchMessages] Đã tải thêm tin nhắn:', {
-                                    prevLength,
-                                    requestedCount,
-                                    receivedCount,
-                                    newMessagesCount: newMessages.length,
-                                    totalAfter: sorted.length,
-                                    duplicateCount: receivedCount - newMessages.length
-                                });
+                                // console.log('📥 [fetchMessages] Đã tải thêm tin nhắn:', {
+                                //     prevLength,
+                                //     requestedCount,
+                                //     receivedCount,
+                                //     newMessagesCount: newMessages.length,
+                                //     totalAfter: sorted.length,
+                                //     duplicateCount: receivedCount - newMessages.length
+                                // });
                                 
                                 // Resolve sau khi state update
                                 setTimeout(() => resolve(), 0);
@@ -2099,11 +2099,11 @@ export default function ChatClient({
                             // Giữ nguyên vị trí nhìn thấy bằng cách điều chỉnh scrollTop
                             scrollerAfter.scrollTop = scrollTop + heightDiff;
                             
-                            console.log('✅ [loadOlderMessages] Hoàn thành tải tin nhắn:', {
-                                heightDiff,
-                                newScrollTop: scrollerAfter.scrollTop,
-                                newScrollHeight
-                            });
+                            // console.log('✅ [loadOlderMessages] Hoàn thành tải tin nhắn:', {
+                            //     heightDiff,
+                            //     newScrollTop: scrollerAfter.scrollTop,
+                            //     newScrollHeight
+                            // });
                             
                             setIsLoadingOlder(false);
                         });
@@ -2151,7 +2151,7 @@ export default function ChatClient({
                 // ✅ Kiểm tra conversation ID trước khi cập nhật
                 const checkConv = selectedConvoRef.current;
                 if (!checkConv || checkConv.id !== conversationIdAtStart) {
-                    console.log('⏭️ [loadOlderMessages] Conversation đã thay đổi, bỏ qua kết quả COMMENT');
+                    // console.log('⏭️ [loadOlderMessages] Conversation đã thay đổi, bỏ qua kết quả COMMENT');
                     setIsLoadingOlder(false);
                     return;
                 }
@@ -2224,11 +2224,11 @@ export default function ChatClient({
             return;
         }
         
-        console.log('✅ [handleScroll] Attaching scroll handler for conversation:', {
-            conversationId: conv.id,
-            conversationType: conv.type,
-            hasMoreMessages: conv.type === 'INBOX' ? hasMoreMessages : hasMore
-        });
+        // console.log('✅ [handleScroll] Attaching scroll handler for conversation:', {
+        //     conversationId: conv.id,
+        //     conversationType: conv.type,
+        //     hasMoreMessages: conv.type === 'INBOX' ? hasMoreMessages : hasMore
+        // });
         
         // Debounce timer để tránh gọi quá nhiều lần
         let scrollTimeout = null;
@@ -2303,16 +2303,16 @@ export default function ChatClient({
                         
                         // Chỉ cần kiểm tra: ở gần đầu, có thể load, và chưa trigger
                         if (checkTop <= threshold && checkCanLoad && !hasTriggeredLoadRef.current) {
-                            console.log('📜 [handleScroll] Phát hiện scroll đến đầu, trigger load more:', {
-                                currentTop: checkTop,
-                                threshold,
-                                scrollHeight: checkEl.scrollHeight,
-                                clientHeight: checkEl.clientHeight,
-                                hasMoreMessages: checkConv?.type === 'INBOX' ? hasMoreMessagesRef.current : hasMoreRef.current,
-                                isLoadingOlder: isLoadingOlderRef.current,
-                                conversationId: checkConv?.id,
-                                conversationType: checkConv?.type
-                            });
+                            // console.log('📜 [handleScroll] Phát hiện scroll đến đầu, trigger load more:', {
+                            //     currentTop: checkTop,
+                            //     threshold,
+                            //     scrollHeight: checkEl.scrollHeight,
+                            //     clientHeight: checkEl.clientHeight,
+                            //     hasMoreMessages: checkConv?.type === 'INBOX' ? hasMoreMessagesRef.current : hasMoreRef.current,
+                            //     isLoadingOlder: isLoadingOlderRef.current,
+                            //     conversationId: checkConv?.id,
+                            //     conversationType: checkConv?.type
+                            // });
                             lastLoadTime = Date.now();
                             hasTriggeredLoadRef.current = true; // Đánh dấu đã trigger
                             loadOlderMessages().then(() => {
@@ -2378,12 +2378,12 @@ export default function ChatClient({
     // ===================== Handlers =====================
     const handleSelectConvo = useCallback(
         async (conversation) => {
-            console.log('🎯 [ChatClient] handleSelectConvo called:', {
-                conversationId: conversation?.id,
-                conversationType: conversation?.type,
-                currentSelectedId: selectedConvo?.id,
-                isSame: selectedConvo?.id === conversation.id
-            });
+            // console.log('🎯 [ChatClient] handleSelectConvo called:', {
+            //     conversationId: conversation?.id,
+            //     conversationType: conversation?.type,
+            //     currentSelectedId: selectedConvo?.id,
+            //     isSame: selectedConvo?.id === conversation.id
+            // });
             
             if (selectedConvo?.id === conversation.id) {
                 console.log('⏭️ [ChatClient] Same conversation, skipping');
@@ -2391,11 +2391,11 @@ export default function ChatClient({
             }
 
             const s = socketRef.current;
-            console.log('🔌 [ChatClient] Socket check:', {
-                hasSocket: !!s,
-                socketConnected: s?.connected,
-                socketId: s?.id
-            });
+            // console.log('🔌 [ChatClient] Socket check:', {
+            //     hasSocket: !!s,
+            //     socketConnected: s?.connected,
+            //     socketId: s?.id
+            // });
             
             if (!s) {
                 console.error('❌ [ChatClient] No socket available!');
@@ -2454,10 +2454,10 @@ export default function ChatClient({
                     
                     if (!isInitialFetchRef.current) {
                         isInitialFetchRef.current = true; // Đánh dấu đã fetch
-                        console.log('📥 [handleSelectConvo] Gọi fetchMessages lần đầu cho INBOX:', {
-                            conversationId: finalConversation.id,
-                            conversationType: finalConversation.type
-                        });
+                        // console.log('📥 [handleSelectConvo] Gọi fetchMessages lần đầu cho INBOX:', {
+                        //     conversationId: finalConversation.id,
+                        //     conversationType: finalConversation.type
+                        // });
                         // Gọi fetchMessages không có currentCount (lần đầu tải)
                         fetchMessagesRef.current(null, false);
                     } else {
@@ -2514,18 +2514,18 @@ export default function ChatClient({
                 || finalConversation?.from_psid
                 || null;
             
-            console.log('📤 [ChatClient] Loading messages:', {
-                platform: pageConfig?.platform,
-                conversationType: finalConversation?.type,
-                conversationId: finalConversation.id,
-                conversationIdForRequest,
-                isZalo,
-                isComment,
-                customerId,
-                postId: finalConversation?.post_id,
-                threadId: finalConversation?.thread_id,
-                fullConversation: finalConversation // Log toàn bộ conversation để debug
-            });
+            // console.log('📤 [ChatClient] Loading messages:', {
+            //     platform: pageConfig?.platform,
+            //     conversationType: finalConversation?.type,
+            //     conversationId: finalConversation.id,
+            //     conversationIdForRequest,
+            //     isZalo,
+            //     isComment,
+            //     customerId,
+            //     postId: finalConversation?.post_id,
+            //     threadId: finalConversation?.thread_id,
+            //     fullConversation: finalConversation // Log toàn bộ conversation để debug
+            // });
             
             // Với COMMENT type, vẫn gọi msg:get nhưng có thể cần format khác
             // API messages có thể trả về comments dưới dạng messages
@@ -2537,10 +2537,10 @@ export default function ChatClient({
                 count: 0 
             };
             
-            console.log('📡 [ChatClient] Emitting msg:get with params:', emitParams);
-            console.log('📡 [ChatClient] Expected URL format:', 
-                `https://pancake.vn/api/v1/pages/${pageConfig.id}/conversations/${conversationIdForRequest}/messages?customer_id=${customerId || ''}&access_token=${token?.substring(0, 20)}...&user_view=true&is_new_api=true&separate_pos=true`
-            );
+            // console.log('📡 [ChatClient] Emitting msg:get with params:', emitParams);
+            // console.log('📡 [ChatClient] Expected URL format:', 
+            //     `https://pancake.vn/api/v1/pages/${pageConfig.id}/conversations/${conversationIdForRequest}/messages?customer_id=${customerId || ''}&access_token=${token?.substring(0, 20)}...&user_view=true&is_new_api=true&separate_pos=true`
+            // );
             
             // Lưu conversation ID để kiểm tra sau khi nhận kết quả
             const conversationIdAtStart = finalConversation.id;
@@ -2552,27 +2552,27 @@ export default function ChatClient({
                     // ✅ Kiểm tra conversation ID trước khi cập nhật
                     const checkConv = selectedConvoRef.current;
                     if (!checkConv || checkConv.id !== conversationIdAtStart) {
-                        console.log('⏭️ [ChatClient] Conversation đã thay đổi, bỏ qua kết quả COMMENT');
+                        // console.log('⏭️ [ChatClient] Conversation đã thay đổi, bỏ qua kết quả COMMENT');
                         setIsLoadingMessages(false);
                         return;
                     }
                     
-                    console.log('📥 [ChatClient] Messages response (raw):', res);
-                    console.log('📥 [ChatClient] Messages response (summary):', {
-                        ok: res?.ok,
-                        itemsCount: res?.items?.length || 0,
-                        error: res?.error,
-                        isComment,
-                        hasItems: Array.isArray(res?.items),
-                        firstItem: res?.items?.[0] ? {
-                            id: res.items[0].id,
-                            type: res.items[0].type,
-                            message: res.items[0].message,
-                            original_message: res.items[0].original_message,
-                            from: res.items[0].from,
-                            inserted_at: res.items[0].inserted_at
-                        } : null
-                    });
+                    // console.log('📥 [ChatClient] Messages response (raw):', res);
+                    // console.log('📥 [ChatClient] Messages response (summary):', {
+                    //     ok: res?.ok,
+                    //     itemsCount: res?.items?.length || 0,
+                    //     error: res?.error,
+                    //     isComment,
+                    //     hasItems: Array.isArray(res?.items),
+                    //     firstItem: res?.items?.[0] ? {
+                    //         id: res.items[0].id,
+                    //         type: res.items[0].type,
+                    //         message: res.items[0].message,
+                    //         original_message: res.items[0].original_message,
+                    //         from: res.items[0].from,
+                    //         inserted_at: res.items[0].inserted_at
+                    //     } : null
+                    // });
                     
                     if (res?.ok && Array.isArray(res.items)) {
                         // Kiểm tra lại conversation ID một lần nữa
@@ -2583,25 +2583,25 @@ export default function ChatClient({
                             return;
                         }
                         
-                        console.log('📋 [ChatClient] Raw items before normalization:', res.items.slice(0, 3)); // Log 3 items đầu
+                        // console.log('📋 [ChatClient] Raw items before normalization:', res.items.slice(0, 3)); // Log 3 items đầu
                         
                         // Với COMMENT type, filter các comment đã bị remove
                         let itemsToProcess = res.items;
                         if (isComment) {
                             itemsToProcess = res.items.filter(item => !item.is_removed);
-                            console.log('📋 [ChatClient] Filtered removed comments:', {
-                                total: res.items.length,
-                                afterFilter: itemsToProcess.length,
-                                removed: res.items.length - itemsToProcess.length
-                            });
+                            // console.log('📋 [ChatClient] Filtered removed comments:', {
+                            //     total: res.items.length,
+                            //     afterFilter: itemsToProcess.length,
+                            //     removed: res.items.length - itemsToProcess.length
+                            // });
                         }
                         
                         // Normalize messages/comments
                         const normalized = sortAscByTime(
                             itemsToProcess.map((m) => normalizePancakeMessage(m, pageConfig.id))
                         );
-                        console.log('✅ [ChatClient] Normalized messages/comments:', normalized.length);
-                        console.log('📋 [ChatClient] Normalized items (first 3):', normalized.slice(0, 3));
+                        // console.log('✅ [ChatClient] Normalized messages/comments:', normalized.length);
+                        // console.log('📋 [ChatClient] Normalized items (first 3):', normalized.slice(0, 3));
                         setMessages(normalized);
                         setHasMore(itemsToProcess.length > 0);
                         if (isNearBottomRef.current) {
@@ -2669,11 +2669,11 @@ export default function ChatClient({
         const trySelect = (convo, context = {}) => {
             if (!convo) return false;
             const convoName = convo?.customers?.[0]?.name || convo?.from?.name || 'Unknown';
-            console.log('✅ [Preselect Match] Selecting conversation:', {
-                id: convo.id,
-                name: convoName,
-                ...context,
-            });
+            // console.log('✅ [Preselect Match] Selecting conversation:', {
+            //     id: convo.id,
+            //     name: convoName,
+            //     ...context,
+            // });
             handleSelectConvo(convo);
             return true;
         };
@@ -2772,18 +2772,18 @@ export default function ChatClient({
             }
         }
 
-        console.log('🔍 [Preselect Match] Looking for:', {
-            customerName: preselect.name,
-            normalized: preNameNormalized,
-            phone: prePhone,
-            nameParts: preNameParts
-        });
-        console.log('🔍 [Preselect Match] Scored conversations:', scored.sort((a, b) => b.score - a.score).slice(0, 5));
-        console.log('🔍 [Preselect Match] Best match:', best ? {
-            id: best.id,
-            name: best?.customers?.[0]?.name || best?.from?.name || 'Unknown',
-            score: bestScore
-        } : 'None');
+        // console.log('🔍 [Preselect Match] Looking for:', {
+        //     customerName: preselect.name,
+        //     normalized: preNameNormalized,
+        //     phone: prePhone,
+        //     nameParts: preNameParts
+        // });
+        // console.log('🔍 [Preselect Match] Scored conversations:', scored.sort((a, b) => b.score - a.score).slice(0, 5));
+        // console.log('🔍 [Preselect Match] Best match:', best ? {
+        //     id: best.id,
+        //     name: best?.customers?.[0]?.name || best?.from?.name || 'Unknown',
+        //     score: bestScore
+        // } : 'None');
 
         // Only select if score is high enough (at least partial match with 2+ words)
         if (bestScore >= 600 && trySelect(best, { reason: 'score-match', score: bestScore })) return;
@@ -2866,11 +2866,11 @@ export default function ChatClient({
                             } 
                             : it
                     ));
-                    console.log('✅ [onPickImage] Upload thành công:', {
-                        id: res.id || res.content_id,
-                        content_url: res.content_url,
-                        image_data: res.image_data
-                    });
+                    // console.log('✅ [onPickImage] Upload thành công:', {
+                    //     id: res.id || res.content_id,
+                    //     content_url: res.content_url,
+                    //     image_data: res.image_data
+                    // });
                 } catch (err) {
                     toast.error(`Tải ảnh thất bại: ${err?.message || ''}`);
                 }
@@ -2886,10 +2886,10 @@ export default function ChatClient({
     }, []);
 
     const handleSendMessage = async (formData) => {
-        console.log('=== SENDING MESSAGE ===');
-        console.log('FormData:', formData);
-        console.log('Selected conversation:', selectedConvo);
-        console.log('PageConfig:', pageConfig);
+        // console.log('=== SENDING MESSAGE ===');
+        // console.log('FormData:', formData);
+        // console.log('Selected conversation:', selectedConvo);
+        // console.log('PageConfig:', pageConfig);
         
         if (!selectedConvo) {
             console.log('❌ No selected conversation');
@@ -2898,8 +2898,8 @@ export default function ChatClient({
         
         const text = (formData.get('message') || '').trim();
         const hasImages = pendingImages.length > 0;
-        console.log('Message text:', text);
-        console.log('Has images:', hasImages);
+        // console.log('Message text:', text);
+        // console.log('Has images:', hasImages);
         
         if (!text && !hasImages) {
             console.log('❌ No text or images to send');
@@ -2945,12 +2945,12 @@ export default function ChatClient({
         }
 
         // Gửi thật
-        console.log('🚀 Sending message to server...');
+        // console.log('🚀 Sending message to server...');
         let overallOk = true;
         let lastError = null;
         try {
             if (hasImages) {
-                console.log('📷 Sending image message...');
+                // console.log('📷 Sending image message...');
                 // Với COMMENT type, cần tìm message_id của comment muốn reply
                 let replyToMessageId = null;
                 if (selectedConvo?.type === 'COMMENT') {
@@ -2965,7 +2965,7 @@ export default function ChatClient({
                     
                     if (customerComments.length > 0) {
                         replyToMessageId = customerComments[0].id;
-                        console.log('📝 [COMMENT] Replying to message_id:', replyToMessageId);
+                        // console.log('📝 [COMMENT] Replying to message_id:', replyToMessageId);
                     } else {
                         // Fallback: tìm bất kỳ comment nào từ customer
                         const anyCustomerComment = messages
@@ -2974,7 +2974,7 @@ export default function ChatClient({
                         
                         if (anyCustomerComment) {
                             replyToMessageId = anyCustomerComment.id;
-                            console.log('📝 [COMMENT] Using any customer comment as fallback:', replyToMessageId);
+                            // console.log('📝 [COMMENT] Using any customer comment as fallback:', replyToMessageId);
                         } else {
                             console.warn('⚠️ [COMMENT] No customer comments found to reply to');
                             toast.error('Không tìm thấy comment để reply. Vui lòng thử lại.');
@@ -2990,14 +2990,14 @@ export default function ChatClient({
                 }
                 
                 const first = pendingImages[0];
-                console.log('📷 [handleSendMessage] Sending image with data:', {
-                    id: first.id,
-                    content_url: first.content_url,
-                    url: first.url,
-                    image_data: first.image_data,
-                    conversationId: selectedConvo.id,
-                    conversationType: selectedConvo?.type || 'INBOX'
-                });
+                // console.log('📷 [handleSendMessage] Sending image with data:', {
+                //     id: first.id,
+                //     content_url: first.content_url,
+                //     url: first.url,
+                //     image_data: first.image_data,
+                //     conversationId: selectedConvo.id,
+                //     conversationType: selectedConvo?.type || 'INBOX'
+                // });
                 
                 const res1 = await sendImageAction(
                     pageConfig.id,
@@ -3011,7 +3011,7 @@ export default function ChatClient({
                     first.content_url || first.url, // Ưu tiên content_url từ Pancake CDN
                     first.image_data // Truyền image_data từ upload response
                 );
-                console.log('📷 [handleSendMessage] Image send result:', res1);
+                // console.log('📷 [handleSendMessage] Image send result:', res1);
                 if (!res1?.success) {
                     overallOk = false;
                     lastError = res1?.error || 'SEND_IMAGE_FAILED';
@@ -3038,7 +3038,7 @@ export default function ChatClient({
                     }
                 }
             } else if (text) {
-                console.log('💬 Sending text message...');
+                // console.log('💬 Sending text message...');
                 // Với COMMENT type, cần tìm message_id của comment muốn reply
                 // Reply vào comment mới nhất từ customer (parent comment, không phải reply)
                 let replyToMessageId = null;
@@ -3055,22 +3055,22 @@ export default function ChatClient({
                         })
                         .sort((a, b) => new Date(b.inserted_at) - new Date(a.inserted_at));
                     
-                    console.log('🔍 [COMMENT] Finding comment to reply:', {
-                        totalMessages: messages.length,
-                        customerComments: customerComments.length,
-                        sampleIds: customerComments.slice(0, 3).map(c => ({ id: c.id || c.rawId, is_parent: c.is_parent }))
-                    });
+                    // console.log('🔍 [COMMENT] Finding comment to reply:', {
+                    //     totalMessages: messages.length,
+                    //     customerComments: customerComments.length,
+                    //     sampleIds: customerComments.slice(0, 3).map(c => ({ id: c.id || c.rawId, is_parent: c.is_parent }))
+                    // });
                     
                     if (customerComments.length > 0) {
                         // Sử dụng rawId nếu có (ID gốc từ API), nếu không dùng id
                         replyToMessageId = customerComments[0].rawId || customerComments[0].id;
-                        console.log('📝 [COMMENT] Replying to message_id:', replyToMessageId, {
-                            commentId: customerComments[0].id,
-                            rawId: customerComments[0].rawId,
-                            original_message: customerComments[0].content?.content,
-                            is_parent: customerComments[0].is_parent,
-                            from: customerComments[0].from
-                        });
+                        // console.log('📝 [COMMENT] Replying to message_id:', replyToMessageId, {
+                        //     commentId: customerComments[0].id,
+                        //     rawId: customerComments[0].rawId,
+                        //     original_message: customerComments[0].content?.content,
+                        //     is_parent: customerComments[0].is_parent,
+                        //     from: customerComments[0].from
+                        // });
                     } else {
                         // Nếu không có parent comment, thử tìm bất kỳ comment nào từ customer
                         const anyCustomerComment = messages
@@ -3102,12 +3102,12 @@ export default function ChatClient({
                     return;
                 }
                 
-                console.log('📤 [COMMENT] Sending with params:', {
-                    conversationType: selectedConvo?.type,
-                    replyToMessageId,
-                    hasMessageId: !!replyToMessageId,
-                    conversationId: selectedConvo.id
-                });
+                // console.log('📤 [COMMENT] Sending with params:', {
+                //     conversationType: selectedConvo?.type,
+                //     replyToMessageId,
+                //     hasMessageId: !!replyToMessageId,
+                //     conversationId: selectedConvo.id
+                // });
                 
                 const r = await sendMessageAction(
                     pageConfig.id,
@@ -3145,11 +3145,11 @@ export default function ChatClient({
                     || selectedConvo?.from_psid
                     || null;
                 
-                console.log('🔄 [handleSendMessage] Refreshing messages after successful send:', {
-                    conversationIdForRequest,
-                    isComment,
-                    isZalo
-                });
+                // console.log('🔄 [handleSendMessage] Refreshing messages after successful send:', {
+                //     conversationIdForRequest,
+                //     isComment,
+                //     isZalo
+                // });
                 
                 // Đợi một chút để server xử lý xong, rồi refresh
                 setTimeout(() => {
@@ -3157,10 +3157,10 @@ export default function ChatClient({
                         'msg:get',
                         { pageId: pageConfig.id, token, conversationId: conversationIdForRequest, customerId: customerId || null, count: 0 },
                         (res) => {
-                            console.log('📥 [handleSendMessage] Refresh response:', {
-                                ok: res?.ok,
-                                itemsCount: res?.items?.length || 0
-                            });
+                            // console.log('📥 [handleSendMessage] Refresh response:', {
+                            //     ok: res?.ok,
+                            //     itemsCount: res?.items?.length || 0
+                            // });
                             
                             if (res?.ok && Array.isArray(res.items)) {
                                 // Với COMMENT type, filter các comment đã bị remove
@@ -3201,11 +3201,11 @@ export default function ChatClient({
                                         }
                                     }
                                     
-                                    console.log('✅ [handleSendMessage] Updated messages:', {
-                                        before: prev.length,
-                                        after: uniqueMessages.length,
-                                        optimisticRemoved: optimisticIds.length
-                                    });
+                                    // console.log('✅ [handleSendMessage] Updated messages:', {
+                                    //     before: prev.length,
+                                    //     after: uniqueMessages.length,
+                                    //     optimisticRemoved: optimisticIds.length
+                                    // });
                                     
                                     return sortAscByTime(uniqueMessages);
                                 });

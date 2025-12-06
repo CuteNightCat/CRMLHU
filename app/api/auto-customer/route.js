@@ -152,7 +152,7 @@ export async function POST(req) {
 
         const newCustomer = new Customer(newCustomerData);
         await newCustomer.save();
-        console.log(`[pipelineStatus] Tạo customer mới ${newCustomer._id} với pipelineStatus: pipelineStatus[0]=new_unconfirmed_1 (auto-customer API)`);
+        // console.log(`[pipelineStatus] Tạo customer mới ${newCustomer._id} với pipelineStatus: pipelineStatus[0]=new_unconfirmed_1 (auto-customer API)`);
         
         // Gán tự động nhân sự phụ trách cho nhóm Telesale
         try {
@@ -165,7 +165,7 @@ export async function POST(req) {
         // Revalidate data để cập nhật UI
         revalidateData();
 
-        console.log(`[Auto Customer] Đã tạo khách hàng mới: ${newCustomer._id} với SĐT: ${phoneToRegister}`);
+        // console.log(`[Auto Customer] Đã tạo khách hàng mới: ${newCustomer._id} với SĐT: ${phoneToRegister}`);
 
         return NextResponse.json({
             success: true,

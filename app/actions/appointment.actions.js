@@ -84,7 +84,7 @@ export async function createAppointmentAction(prevState, formData) {
             appointmentId: newAppointment._id.toString(),
             customerId: customerId.toString(),
         });
-        console.log(`[Agenda] Đã lên lịch nhắc hẹn (1 ngày) cho Appointment: ${newAppointment._id} vào lúc: ${scheduledTime1Day}`);
+        // console.log(`[Agenda] Đã lên lịch nhắc hẹn (1 ngày) cho Appointment: ${newAppointment._id} vào lúc: ${scheduledTime1Day}`);
 
         // 2. Nếu là lịch hoàn tất nhập học, đặt thêm lịch gửi dặn dò (trước 3 ngày)
         if (appointmentType === 'surgery') {
@@ -98,7 +98,7 @@ export async function createAppointmentAction(prevState, formData) {
                 appointmentId: newAppointment._id.toString(),
                 customerId: customerId.toString(),
             });
-            console.log(`[Agenda] Đã lên lịch gửi dặn dò (3 ngày) cho Appointment: ${newAppointment._id} vào lúc: ${scheduledTime3Days}`);
+            // console.log(`[Agenda] Đã lên lịch gửi dặn dò (3 ngày) cho Appointment: ${newAppointment._id} vào lúc: ${scheduledTime3Days}`);
         }
 
         // Cập nhật Customer
@@ -117,7 +117,7 @@ export async function createAppointmentAction(prevState, formData) {
                 'pipelineStatus.5': newPipelineStatus,
             }
         });
-        console.log(`🐳[pipelineStatus] Đặt lịch hẹn Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus.0=${newPipelineStatus}, pipelineStatus.5=${newPipelineStatus}`);
+        // console.log(`🐳[pipelineStatus] Đặt lịch hẹn Cập nhật pipelineStatus cho customer ${customerId}: pipelineStatus.0=${newPipelineStatus}, pipelineStatus.5=${newPipelineStatus}`);
 
         // Kích hoạt workflow auto cho Step 5 ngay sau khi tạo appointment thành công
         // startDay = appointment.createdAt (thời gian tạo appointment)
@@ -209,7 +209,7 @@ export async function updateAppointmentStatusAction(prevState, formData) {
                         appointmentId: appointment._id.toString(),
                         messageContent: message.content,
                     });
-                    console.log(`[Agenda] Đã lên lịch gửi tin sau PT cho KH ${appointment.customer} vào lúc: ${sendAt}`);
+                    // console.log(`[Agenda] Đã lên lịch gửi tin sau PT cho KH ${appointment.customer} vào lúc: ${sendAt}`);
                 }
             }
         }
@@ -275,7 +275,7 @@ export async function updateAppointmentStatusAction(prevState, formData) {
         }
 
         await Customer.findByIdAndUpdate(appointment.customer, customerUpdate);
-        console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${appointment.customer}:`, JSON.stringify(pipelineUpdates));
+        // console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${appointment.customer}:`, JSON.stringify(pipelineUpdates));
 
         // Revalidate data
         await reloadAppointments();
@@ -337,7 +337,7 @@ export async function cancelAppointmentAction(prevState, formData) {
                 'pipelineStatus.5': newPipelineStatus,
             }
         });
-        console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${appointment.customer}: pipelineStatus.0=${newPipelineStatus}, pipelineStatus.5=${newPipelineStatus}`);
+        // console.log(`[pipelineStatus] Cập nhật pipelineStatus cho customer ${appointment.customer}: pipelineStatus.0=${newPipelineStatus}, pipelineStatus.5=${newPipelineStatus}`);
 
         await reloadAppointments();
         await revalidateData();

@@ -36,7 +36,7 @@ async function findNextAvailableZaloAccount() {
   const allAccounts = await ZaloAccount.find({}).sort({ _id: 1 }).lean();
 
   if (allAccounts.length === 0) {
-    console.warn("[Zalo Finder] Không có bất kỳ tài khoản Zalo nào trong hệ thống.");
+    // console.warn("[Zalo Finder] Không có bất kỳ tài khoản Zalo nào trong hệ thống.");
     return null;
   }
 
@@ -49,7 +49,7 @@ async function findNextAvailableZaloAccount() {
     const selectedAccount = allAccounts[currentIndex];
 
     if (selectedAccount.rateLimitPerHour > 0 && selectedAccount.rateLimitPerDay > 0) {
-      console.log(`[Zalo Finder] Đã tìm thấy tài khoản hợp lệ: ${selectedAccount.name} tại chỉ số ${currentIndex}`);
+      // console.log(`[Zalo Finder] Đã tìm thấy tài khoản hợp lệ: ${selectedAccount.name} tại chỉ số ${currentIndex}`);
       await Setting.updateOne(
         { key: ZALO_ROTATION_KEY },
         { $set: { value: currentIndex } },
@@ -95,7 +95,7 @@ export async function POST(req) {
     const doc = await Customer.create({
       name: data?.name, bd: data?.bd, email: data?.email, phone, nameparent: data?.nameparent, area: data?.area, source: data?.source, roles: selectedZalo.roles || [],
     });
-    console.log(`[Create Customer] Đã tạo khách hàng mới: ${String(doc._id)} với SĐT: ${phone}`);
+    // console.log(`[Create Customer] Đã tạo khách hàng mới: ${String(doc._id)} với SĐT: ${phone}`);
     // Gán tự động theo ngành học (nếu có)
     try {
       // console.log('🚩Gọi autoAssignForCustomer từ API client/create');
@@ -140,7 +140,7 @@ export async function POST(req) {
 
         // Nếu tài khoản Zalo ngừng hoạt động, thử với tài khoản khác
         if (!findUidResponse.status && findUidResponse.message?.includes('ngừng hoạt động')) {
-          console.log(`[BG] ⚠️ Tài khoản Zalo ${selectedZalo.name} (${selectedZalo.uid}) đã ngừng hoạt động. Đang thử với tài khoản khác...`);
+          // console.log(`[BG] ⚠️ Tài khoản Zalo ${selectedZalo.name} (${selectedZalo.uid}) đã ngừng hoạt động. Đang thử với tài khoản khác...`);
           
           // Tìm tài khoản Zalo khác (bỏ qua tài khoản hiện tại)
           const allAccounts = await ZaloAccount.find({ _id: { $ne: selectedZalo._id } }).sort({ _id: 1 }).lean();
@@ -148,7 +148,7 @@ export async function POST(req) {
           
           for (const retryZalo of allAccounts) {
             if (retryZalo.rateLimitPerHour > 0 && retryZalo.rateLimitPerDay > 0) {
-              console.log(`[BG] 🔄 Thử lại với tài khoản Zalo: ${retryZalo.name} (${retryZalo.uid})`);
+              // console.log(`[BG] 🔄 Thử lại với tài khoản Zalo: ${retryZalo.name} (${retryZalo.uid})`);
               
               findUidResponse = await actionZalo({
                 phone, uid: retryZalo.uid, actionType: "findUid",
@@ -158,7 +158,7 @@ export async function POST(req) {
                 // Retry thành công - XÓA LOG ĐẦU TIÊN (thất bại) và chỉ giữ log thành công
                 if (firstLogId) {
                   await Logs.deleteOne({ _id: firstLogId });
-                  console.log(`[BG] 🗑️ Đã xóa log thất bại đầu tiên (ID: ${firstLogId}) vì retry thành công`);
+                  // console.log(`[BG] 🗑️ Đã xóa log thất bại đầu tiên (ID: ${firstLogId}) vì retry thành công`);
                 }
                 
                 // Log retry thành công
@@ -181,7 +181,7 @@ export async function POST(req) {
                 selectedZalo = retryZalo;
                 findUidStatus = "thành công (retry)";
                 retrySuccess = true;
-                console.log(`[BG] ✅ Retry thành công với tài khoản: ${retryZalo.name}`);
+                // console.log(`[BG] ✅ Retry thành công với tài khoản: ${retryZalo.name}`);
                 break;
               } else {
                 // Retry thất bại - log lại nhưng không xóa log đầu tiên
@@ -204,7 +204,7 @@ export async function POST(req) {
           }
           
           if (!retrySuccess) {
-            console.error(`[BG] ❌ Tất cả tài khoản Zalo đều không hoạt động hoặc không tìm thấy UID`);
+            // console.error(`[BG] ❌ Tất cả tài khoản Zalo đều không hoạt động hoặc không tìm thấy UID`);
             findUidStatus = "thất bại (tất cả tài khoản đều không hoạt động)";
           }
         }
@@ -222,7 +222,7 @@ export async function POST(req) {
             { $set: { zaloavt: raw?.data?.avatar || null, zaloname: raw?.data?.zalo_name || null, }, $push: { uid: { zalo: selectedZalo._id, uid: normalizedUid } } }
           );
           doc.zaloname = raw?.data?.zalo_name || "";
-          console.log(`[BG] Đã cập nhật UID (${normalizedUid}) cho KH: ${String(customerId)}`);
+          // console.log(`[BG] Đã cập nhật UID (${normalizedUid}) cho KH: ${String(customerId)}`);
 
           renameStatus = "thất bại";
           try {
@@ -232,7 +232,7 @@ export async function POST(req) {
             const renameResponse = await actionZalo({
               uid: selectedZalo.uid, uidPerson: normalizedUid, actionType: 'tag', message: newZaloName, phone: phone
             });
-            console.log(renameResponse, 'Gợi nhớ ', newZaloName);
+            // console.log(renameResponse, 'Gợi nhớ ', newZaloName);
 
             // --- Log cho hành động tag --- (Lưu ý: type 'tag' không có trong enum, có thể cần cập nhật model)
             await Logs.create({

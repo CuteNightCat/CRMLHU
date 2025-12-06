@@ -43,7 +43,7 @@ export async function addZaloAccountAction(previousState, formData) {
             cache: 'no-store',
         })
         const accountData = await scriptResponse.json();
-        console.log('accountData', accountData);
+        // console.log('accountData', accountData);
         if (!scriptResponse.ok || accountData.error) {
             console.error('Google Apps Script Error:', accountData);
             return { status: false, message: 'Lỗi khi xác thực token với Google Apps Script ở zalo appscript.' };

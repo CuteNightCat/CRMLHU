@@ -18,7 +18,7 @@ export async function debugSpecificCall(callId) {
 
         // 1. Get call data
         const call = await Call.findById(callId).populate({ path: 'user', select: 'name role' }).lean();
-        console.log('🔍 [debugSpecificCall] Call data:', call);
+        // console.log('🔍 [debugSpecificCall] Call data:', call);
         
         if (!call) {
             return { success: false, error: 'Call not found' };
@@ -29,13 +29,13 @@ export async function debugSpecificCall(callId) {
         const isOwner = String(call.user?._id || call.user) === String(session.id);
         const hasPermission = isAdmin || isOwner;
         
-        console.log('🔍 [debugSpecificCall] Permission check:', {
-            sessionId: session.id,
-            callUserId: call.user?._id,
-            isAdmin,
-            isOwner,
-            hasPermission
-        });
+        // console.log('🔍 [debugSpecificCall] Permission check:', {
+        //     sessionId: session.id,
+        //     callUserId: call.user?._id,
+        //     isAdmin,
+        //     isOwner,
+        //     hasPermission
+        // });
 
         if (!hasPermission) {
             return { success: false, error: 'Access denied' };
@@ -45,7 +45,7 @@ export async function debugSpecificCall(callId) {
         const drive = await getDriveClient();
         const fileId = call.file;
         
-        console.log('🔍 [debugSpecificCall] Testing Drive access for fileId:', fileId);
+        // console.log('🔍 [debugSpecificCall] Testing Drive access for fileId:', fileId);
         
         // Test metadata access
         const metaRes = await drive.files.get({
@@ -54,7 +54,7 @@ export async function debugSpecificCall(callId) {
             supportsAllDrives: true 
         });
         
-        console.log('🔍 [debugSpecificCall] Drive metadata:', metaRes.data);
+        // console.log('🔍 [debugSpecificCall] Drive metadata:', metaRes.data);
         
         // Test file access (without downloading)
         const fileRes = await drive.files.get({
@@ -63,7 +63,7 @@ export async function debugSpecificCall(callId) {
             supportsAllDrives: true
         });
         
-        console.log('🔍 [debugSpecificCall] Drive file access:', fileRes.data);
+        // console.log('🔍 [debugSpecificCall] Drive file access:', fileRes.data);
 
         return {
             success: true,

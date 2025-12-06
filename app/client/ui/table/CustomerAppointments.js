@@ -203,7 +203,7 @@ export default function CustomerAppointments({ customer }) {
         setIsLoading(true);
         try {
             const result = await appointment_data({ customerId: customer._id });
-            console.log(result);
+            // console.log(result);
             
             setAppointments(result || []);
         } catch (error) {

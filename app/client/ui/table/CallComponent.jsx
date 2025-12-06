@@ -124,18 +124,18 @@ export default function CallComponent({ customer, user }) {
     
     const initializeSDK = async () => {
         try {
-            console.log('[CallComponent] Initializing SDK...');
+            // console.log('[CallComponent] Initializing SDK...');
             
             // Kiểm tra nếu SDK đã tồn tại
             if (window.OMICallSDK && sdkRef.current) {
-                console.log('[CallComponent] SDK already exists, reconnecting...');
+                // console.log('[CallComponent] SDK already exists, reconnecting...');
                 await handleSDKLoad();
                 return;
             }
             
             // Nếu SDK chưa tồn tại, load script (dùng cùng version với trang test: 3.0.33)
             if (!window.OMICallSDK) {
-                console.log('[CallComponent] Loading SDK script...');
+                // console.log('[CallComponent] Loading SDK script...');
                 const script = document.createElement('script');
                 script.src = 'https://cdn.omicrm.com/sdk/web/3.0.33/core.min.js';
                 script.onload = handleSDKLoad;
@@ -160,13 +160,13 @@ export default function CallComponent({ customer, user }) {
         try {
             // Nếu socket đã tồn tại và connected, không tạo mới
             if (socketRef.current && socketRef.current.connected) {
-                console.log('[CallComponent] Socket already connected');
+                // console.log('[CallComponent] Socket already connected');
                 return;
             }
             
             // Nếu socket tồn tại nhưng disconnected, disconnect trước
             if (socketRef.current) {
-                console.log('[CallComponent] Disconnecting existing socket...');
+                // console.log('[CallComponent] Disconnecting existing socket...');
                 socketRef.current.disconnect();
                 socketRef.current = null;
             }
@@ -184,12 +184,12 @@ export default function CallComponent({ customer, user }) {
                 });
                 
                 socket.on('connect', () => {
-                    console.log('[CallComponent] Socket connected:', socket.id);
+                    // console.log('[CallComponent] Socket connected:', socket.id);
                     socketRef.current = socket;
                 });
                 
                 socket.on('disconnect', (reason) => {
-                    console.log('[CallComponent] Socket disconnected:', reason);
+                    // console.log('[CallComponent] Socket disconnected:', reason);
                     socketRef.current = null;
                 });
                 
@@ -199,7 +199,7 @@ export default function CallComponent({ customer, user }) {
 
                 // Lắng nghe trạng thái cuộc gọi từ client khác (đồng bộ)
                 socket.on('call:status', (data) => {
-                    console.log('[CallComponent] Received call:status from other client:', data);
+                    // console.log('[CallComponent] Received call:status from other client:', data);
                     // Chỉ cập nhật UI nếu không phải cuộc gọi của mình
                     if (data.by !== socket.id) {
                         // Có thể hiển thị thông báo có client khác đang gọi
@@ -208,10 +208,10 @@ export default function CallComponent({ customer, user }) {
                 });
 
                 socket.on('call:ended', (data) => {
-                    console.log('[CallComponent] Received call:ended from server:', data);
+                    // console.log('[CallComponent] Received call:ended from server:', data);
                     // Xử lý cuộc gọi kết thúc từ server
                     if (data.callId === callIdRef.current) {
-                        console.log('[CallComponent] Our call ended by server');
+                        // console.log('[CallComponent] Our call ended by server');
                         // Force cleanup and reset UI
                         cleanupAudioResources();
                         resetUIToIdle();
@@ -221,7 +221,7 @@ export default function CallComponent({ customer, user }) {
                 });
 
                 socket.on('call:error', (data) => {
-                    console.log('[CallComponent] Received call:error from other client:', data);
+                    // console.log('[CallComponent] Received call:error from other client:', data);
                     // Có thể hiển thị thông báo lỗi từ client khác
                     if (data.by !== socket.id) {
                         console.log('Another client had a call error:', data);
@@ -230,7 +230,7 @@ export default function CallComponent({ customer, user }) {
                 
                 // Handle graceful cleanup on page unload
                 const handleBeforeUnload = () => {
-                    console.log('[CallComponent] Page unloading, ending call gracefully...');
+                    // console.log('[CallComponent] Page unloading, ending call gracefully...');
                     if (currentCallRef.current) {
                         // End current call if any
                         console.log('[CallComponent] Ending current call due to new call from other client');
@@ -260,7 +260,7 @@ export default function CallComponent({ customer, user }) {
             
             // Nếu đã connected, không cần reconnect
             if (connectionStatus.status === 'connected') {
-                console.log('[CallComponent] Already connected, skipping...');
+                // console.log('[CallComponent] Already connected, skipping...');
                 return;
             }
             
@@ -270,7 +270,7 @@ export default function CallComponent({ customer, user }) {
                 sipPassword: 'Ws9nsNEClG',
             });
             
-            console.log('[CallComponent] ✅ Connected to server:', registerStatus);
+            // console.log('[CallComponent] ✅ Connected to server:', registerStatus);
             setConnectionStatus({ status: 'connected', text: 'Đã kết nối' });
             
         } catch (err) {
@@ -283,7 +283,7 @@ export default function CallComponent({ customer, user }) {
     // ===== EVENT LISTENERS =====
     
     const setupEventListeners = useCallback(() => {
-        console.log('[CallComponent] Setting up event listeners...');
+        // console.log('[CallComponent] Setting up event listeners...');
         
         const sdk = sdkRef.current;
         if (!sdk) {
@@ -310,8 +310,8 @@ export default function CallComponent({ customer, user }) {
         
         // Chuỗi sự kiện cuộc gọi
         sdk.on('connecting', (callData) => {
-            console.log('[CallComponent] Connecting event:', callData);
-            console.log('[CallComponent] CallData methods:', Object.getOwnPropertyNames(callData));
+            // console.log('[CallComponent] Connecting event:', callData);
+            // console.log('[CallComponent] CallData methods:', Object.getOwnPropertyNames(callData));
             resetPerCallFlags();
             currentCallRef.current = callData;
             // Set callId for server communication
@@ -324,7 +324,7 @@ export default function CallComponent({ customer, user }) {
             
             // Notify server about call start
             if (socketRef.current && !socketRef.current.disconnected) {
-                console.log('[CallComponent] Notifying server about call start...');
+                // console.log('[CallComponent] Notifying server about call start...');
                 socketRef.current.emit('call:start', {
                     phoneNumber: customer?.phone,
                     customerId: customer?._id
@@ -333,15 +333,15 @@ export default function CallComponent({ customer, user }) {
         });
         
         sdk.on('ringing', (callData) => {
-            console.log('[CallComponent] Ringing event:', callData);
-            console.log('[CallComponent] Ringing CallData methods:', Object.getOwnPropertyNames(callData));
+            // console.log('[CallComponent] Ringing event:', callData);
+            // console.log('[CallComponent] Ringing CallData methods:', Object.getOwnPropertyNames(callData));
             currentCallRef.current = callData;
             setCallStage('ringing');
             setStatusText('Đang đổ chuông...');
         });
         
         sdk.on('accepted', (callData) => {
-            console.log('[CallComponent] Accepted event:', callData);
+            // console.log('[CallComponent] Accepted event:', callData);
             onAccepted(callData);
         });
         
@@ -352,7 +352,7 @@ export default function CallComponent({ customer, user }) {
         });
         
         sdk.on('ended', (info) => {
-            console.log('[CallComponent] Ended event:', info);
+            // console.log('[CallComponent] Ended event:', info);
             onEnded(info);
         });
         
@@ -365,11 +365,11 @@ export default function CallComponent({ customer, user }) {
     
     // Handle call events
     const handleCallEvent = useCallback((event, data) => {
-        console.log('[CallComponent] handleCallEvent:', event, data);
+        // console.log('[CallComponent] handleCallEvent:', event, data);
         
         switch (event) {
             case 'connecting':
-                console.log('[CallComponent] Connecting event:', data);
+                // console.log('[CallComponent] Connecting event:', data);
                 resetPerCallFlags();
                 currentCallRef.current = data;
                 setCallStage('connecting');
@@ -380,14 +380,14 @@ export default function CallComponent({ customer, user }) {
                 break;
                 
             case 'ringing':
-                console.log('[CallComponent] Ringing event:', data);
+                // console.log('[CallComponent] Ringing event:', data);
                 currentCallRef.current = data;
                 setCallStage('ringing');
                 setStatusText('Đang đổ chuông...');
                 break;
                 
             case 'accepted':
-                console.log('[CallComponent] Accepted event:', data);
+                // console.log('[CallComponent] Accepted event:', data);
                 clearCallTimers();
                 onAccepted(data);
                 break;
@@ -399,13 +399,13 @@ export default function CallComponent({ customer, user }) {
                 break;
                 
             case 'ended':
-                console.log('[CallComponent] Ended event:', data);
+                // console.log('[CallComponent] Ended event:', data);
                 clearCallTimers();
                 onEnded(data);
                 break;
                 
             case 'idle':
-                console.log('[CallComponent] Idle event:', data);
+                // console.log('[CallComponent] Idle event:', data);
                 setCallStage('idle');
                 setStatusText('Sẵn sàng để gọi');
                 setDurationText('00:00');
@@ -413,7 +413,7 @@ export default function CallComponent({ customer, user }) {
                 break;
                 
             default:
-                console.log('[CallComponent] Unknown event:', event);
+                // console.log('[CallComponent] Unknown event:', event);
                 break;
         }
     }, []);
@@ -421,8 +421,8 @@ export default function CallComponent({ customer, user }) {
     // ===== CALL FLOW HANDLERS =====
     
     const onAccepted = (callData) => {
-        console.log('Call accepted, setting up audio...');
-        console.log('[CallComponent] Accepted CallData methods:', Object.getOwnPropertyNames(callData));
+        // console.log('Call accepted, setting up audio...');
+        // console.log('[CallComponent] Accepted CallData methods:', Object.getOwnPropertyNames(callData));
         
         currentCallRef.current = callData;
         setCallStage('in_call');
@@ -507,7 +507,7 @@ export default function CallComponent({ customer, user }) {
     
     const startRecording = () => {
         try {
-            console.log('🎙️ Starting recording...');
+            // console.log('🎙️ Starting recording...');
             
             // ✅ TẠO AUDIO CONTEXT MỚI CHO MỖI CUỘC GỌI
             if (mixedCtxRef.current && mixedCtxRef.current.state !== 'closed') {
@@ -541,7 +541,7 @@ export default function CallComponent({ customer, user }) {
             mediaRecorderRef.current.start();
             setIsRecording(true);
             
-            console.log('✅ Recording started successfully');
+            // console.log('✅ Recording started successfully');
             
         } catch (err) {
             console.error('❌ Recording start ERROR:', err);
@@ -660,7 +660,7 @@ export default function CallComponent({ customer, user }) {
     };
     
     const endCall = async () => {
-        console.log('[CallComponent] Ending call...');
+        // console.log('[CallComponent] Ending call...');
         
         try {
             // 1. Clear timers trước
@@ -668,19 +668,19 @@ export default function CallComponent({ customer, user }) {
             
             // 2. End call through current call object
             if (currentCallRef.current) {
-                console.log('[CallComponent] Calling currentCallRef.current.end()...');
+                // console.log('[CallComponent] Calling currentCallRef.current.end()...');
                 
                 // Gọi method end() của call object hiện tại
                 if (typeof currentCallRef.current.end === 'function') {
-                    console.log('[CallComponent] Using currentCallRef.current.end()');
+                    // console.log('[CallComponent] Using currentCallRef.current.end()');
                     currentCallRef.current.end();
                 } else {
                     console.warn('[CallComponent] currentCallRef.current.end() not available');
-                    console.log('[CallComponent] currentCallRef.current:', currentCallRef.current);
-                    console.log('[CallComponent] Available methods:', Object.getOwnPropertyNames(currentCallRef.current));
+                    // console.log('[CallComponent] currentCallRef.current:', currentCallRef.current);
+                    // console.log('[CallComponent] Available methods:', Object.getOwnPropertyNames(currentCallRef.current));
                 }
                 
-                console.log('[CallComponent] Call end signal sent');
+                // console.log('[CallComponent] Call end signal sent');
             }
             
             // 3. Broadcast kết thúc cuộc gọi đến server
@@ -700,7 +700,7 @@ export default function CallComponent({ customer, user }) {
             // 5. Reset UI
             resetUIToIdle();
             
-            console.log('[CallComponent] Call ended successfully');
+            // console.log('[CallComponent] Call ended successfully');
             
         } catch (error) {
             console.error('[CallComponent] Error ending call:', error);
@@ -773,11 +773,11 @@ export default function CallComponent({ customer, user }) {
     // ===== SDK LOADING =====
     
     const handleSDKLoad = async () => {
-        console.log('[CallComponent] SDK loaded, initializing...');
+        // console.log('[CallComponent] SDK loaded, initializing...');
         try {
             // Nếu SDK đã được init, chỉ cần reconnect
             if (sdkRef.current) {
-                console.log('[CallComponent] SDK already initialized, reconnecting...');
+                // console.log('[CallComponent] SDK already initialized, reconnecting...');
                 await connectToServer();
                 return;
             }
@@ -790,7 +790,7 @@ export default function CallComponent({ customer, user }) {
             });
             
             sdkRef.current = window.OMICallSDK;
-            console.log('[CallComponent] ✅ SDK initialized');
+            // console.log('[CallComponent] ✅ SDK initialized');
             
             // Setup event listeners
             setupEventListeners();
@@ -807,7 +807,7 @@ export default function CallComponent({ customer, user }) {
     // ===== FORCE RE-INITIALIZATION =====
     
     const forceReinitialize = async () => {
-        console.log('[CallComponent] Force re-initializing...');
+        // console.log('[CallComponent] Force re-initializing...');
         
         // Cleanup existing connections
         if (socketRef.current) {
@@ -826,7 +826,7 @@ export default function CallComponent({ customer, user }) {
     // ===== INITIALIZATION & CLEANUP =====
     
     useEffect(() => {
-        console.log('[CallComponent] Component mounted, initializing...');
+        // console.log('[CallComponent] Component mounted, initializing...');
         
         // Initialize Socket.IO first
         initializeSocket();
@@ -835,7 +835,7 @@ export default function CallComponent({ customer, user }) {
         initializeSDK();
         
         return () => {
-            console.log('[CallComponent] Component unmounting, cleaning up...');
+            // console.log('[CallComponent] Component unmounting, cleaning up...');
             if (socketRef.current) {
                 socketRef.current.disconnect();
             }

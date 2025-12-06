@@ -3,7 +3,7 @@ import { revalidateData } from '@/app/actions/customer.actions';
 
 export async function POST(request) {
     const { secret, tag } = await request.json();
-    console.log(secret, tag);
+    // console.log(secret, tag);
 
     try {
 

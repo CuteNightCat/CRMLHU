@@ -185,7 +185,7 @@ export default function WorkflowForm({ workflow, forms, onSuccess, onCancel }) {
     const handleSubmit = async () => {
         // Tránh double submit
         if (isSubmitting) {
-            console.log('[WorkflowForm] Đang submit, bỏ qua...');
+            // console.log('[WorkflowForm] Đang submit, bỏ qua...');
             return;
         }
         
@@ -217,7 +217,7 @@ export default function WorkflowForm({ workflow, forms, onSuccess, onCancel }) {
                 autoWorkflow: autoWorkflow || false
             };
             
-            console.log('[WorkflowForm] Submitting formData:', formData);
+            // console.log('[WorkflowForm] Submitting formData:', formData);
             
             let result;
             if (workflow && workflow._id) {
@@ -227,7 +227,7 @@ export default function WorkflowForm({ workflow, forms, onSuccess, onCancel }) {
                 result = await createWorkflow(formData);
             }
             
-            console.log('[WorkflowForm] Submit result:', result);
+            // console.log('[WorkflowForm] Submit result:', result);
             
             if (result.success) {
                 onSuccess(formData);
